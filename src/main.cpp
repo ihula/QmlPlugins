@@ -1,0 +1,95 @@
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include <QQuickWindow>
+#include <QDebug>
+#include <QFont>
+#include <QProcess>
+#include "singleappwatcher.h"
+#include "translater.h"
+#include "configer.h"
+#include "dbmanager.h"
+#include "hulalogger.h"
+
+
+int main(int argc, char *argv[])
+{
+    // 强制 Qt 使用 XCB (X11) 协议，解决 Wayland 下窗口无法移动的问题
+    qputenv("QT_QPA_PLATFORM", "xcb");
+
+    QGuiApplication app(argc,argv);
+
+    const QString SERVER_NAME = "com.hula.QmlPlugins";
+    SingleAppWatcher appWatcher(SERVER_NAME);
+    // 检测单实例,已有实例，直接退出
+    if (appWatcher.checkInstance())
+    {
+        return 0;
+    }
+
+    logInit(Configer::instance()->logLevel());
+
+     app.setWindowIcon(QIcon("Images/icon.png"));
+
+    QFont font;
+    font.setFamily(Configer::instance()->fontName());
+    int fontSize = Configer::instance()->fontSize();
+    font.setPixelSize(fontSize > 0 ? fontSize : 18);
+    app.setFont(font);
+
+    QQmlApplicationEngine engine;
+    // 添加QML导入路径（Qt 6.7兼容性）
+    //engine.addImportPath("qrc:/qt/qml");
+    //engine.addImportPath(app.applicationDirPath() + "/qml");
+    int dbResult = DbManager::instance()->createConnection(DB_FILE);
+    if (dbResult != 0) {
+        qCritical() << "Failed to create database connection, error code:" << dbResult;
+        return -1;
+    }
+    engine.rootContext()->setContextProperty("APP_PATH",app.applicationDirPath());
+
+    QString currLang = Configer::instance()->currLanguage();
+    Translater *translater = new Translater(&app);
+    translater->init("Languages/", engine.rootContext());
+    translater->setCurrentLang(currLang);
+    app.setApplicationDisplayName(translater->trans("AppName"));
+
+    // 找到主窗口并在收到激活信号时唤起它
+    QObject::connect(&appWatcher, &SingleAppWatcher::activateRequested, [&engine]() {
+        qDebug() << "appwatcher";
+        auto rootObjects = engine.rootObjects();
+        if (rootObjects.isEmpty())
+            return;
+        QQuickWindow* window = qobject_cast<QQuickWindow*>(rootObjects.first());
+        if (window) {
+            window->show();
+            window->raise();
+            window->requestActivate();
+        }
+    });
+
+    // 响应QML中的关机命令
+    QObject::connect(&engine, &QQmlApplicationEngine::exit,[=](int retCode){
+        if (retCode == 100)
+        {
+            qApp->quit();
+#ifdef Q_OS_WIN
+            system("shutdown -s -t 0");
+#else
+            QProcess::startDetached("shutdown", QStringList() << "-h" << "now");
+#endif
+        }
+    });
+
+    QObject::connect(
+        &engine,
+        &QQmlApplicationEngine::objectCreationFailed,
+        &app,
+        []() { QCoreApplication::exit(-1); },
+        Qt::QueuedConnection);
+    engine.loadFromModule(APP_URI, "Main");
+
+    return app.exec();
+}
+
+

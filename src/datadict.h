@@ -1,0 +1,103 @@
+﻿/****************************************************************************
+** Qt for cross-platform series
+** Copyright (c) 2016 UP(United Prosperity Studio). All rights reserved.
+** This work is licensed under the Creative Commons
+** Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+** Author: Hula
+** Web: www.123hula.com
+** WeChat: ihula123
+** Contact: benny1225@hotmail.com
+** Date: 2025.7.12
+** Brief: 病人信息类
+** History:
+****************************************************************************/
+#ifndef DATADICT_H
+#define DATADICT_H
+
+#include <QObject>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QTimer>
+#include "baseinfosender.h"
+
+/* @brief 数据字典Json格式
+    "ID"-id qint64
+    "Key"-编号 string
+    "Value"-值 string
+    "Type"-值类型(DictType) int
+*/
+
+class DataDict : public QObject
+{
+    Q_OBJECT
+    QML_ELEMENT
+public:
+    DataDict(QObject *parent = nullptr);
+
+    /** @brief 数据字典的类型 */
+    enum DictType {
+        /** @brief 性别 */
+        Sex = 1,
+
+        /** @brief 送检科室 */
+        Dept = 4,
+
+        /** @brief 送检医生 */
+        Doctor = 5,
+
+        /** @brief 标本状态 */
+        SpecimenQuality = 6,
+
+        /** @brief 标本类型 */
+        SpecimenType = 7,
+
+        /** @brief 诊断 */
+        Diagnosis = 8
+    };
+    Q_ENUM(DictType)
+
+    /** @brief 取类型所有字典值，Json格式 */
+    Q_INVOKABLE QList<QJsonObject> getDatas(DictType type);
+
+    /** @brief 取类型所有字典值，字符列表格式,供Qml了Combobox用 */
+    Q_INVOKABLE QStringList getValues(DictType type);
+
+    /** @brief 新增字典值
+    *@param[in] data: json格式
+    *@return id
+    */
+    Q_INVOKABLE quint64 appendData(const QJsonObject &data);
+
+    /** @brief 根据Json中的Id更新字典值 */
+    Q_INVOKABLE int updateData(const QJsonObject &data);
+
+    /** @brief 删除字典值 */
+    Q_INVOKABLE int deleteData(quint64 id);
+
+    /** @brief 最后一次产生的错误信息 */
+    Q_INVOKABLE QString lastErrorInfo();
+
+    /** @brief 编号是否已存在 */
+    Q_INVOKABLE int codeExisted(quint64 id, const QString &code);
+
+signals:
+    /**
+    *@brief 发送错误信息/提示信息到信息中心
+    *@param[in] num:错误信息号,>0:保存并转发弹窗提示;
+                -1:表示非错误信息,仅用于转发弹窗提示;
+                0:仅用于转发浮窗提示
+    *@param[in] text:错误信息或提示信息
+    */
+    void sendInfo(int num, QString info);
+
+private:
+    /** @brief 不方便使用多重继承,定义类成员变量 */
+    BaseInfoSender m_sender;
+
+    /** @brief 最后一次错误信息 */
+    QString m_lastErrorInfo;
+};
+
+#endif // DATADICT_H
+
+

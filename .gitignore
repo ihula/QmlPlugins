@@ -1,0 +1,48 @@
+# macOS
+.DS_Store
+
+# Build directories
+/build*/
+build-*/
+out/
+cmake-build-*/
+
+# Qt Creator
+CMakeLists.txt.user*
+.qtcreator/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Compiled binaries
+bin/QmlPlugins
+bin/QmlPlugins.exe
+bin/*.ilk
+bin/*.pdb
+bin/*.exp
+
+# Runtime generated files
+bin/Log/
+bin/ErrorInfo/
+bin/Capture/
+bin/*.db
+bin/*.db-journal
+
+# CMake generated
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+compile_commands.json
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Backup files
+*.bak
+*.tmp
+*~
