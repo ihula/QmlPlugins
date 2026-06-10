@@ -91,13 +91,6 @@ qt_add_qml_module(${APP_NAME}
         src/utils.h src/utils.cpp
 )
 
-set_target_properties(${APP_NAME} PROPERTIES
-    MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
-    MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0"
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
-)
-
 # 链接 Qt 库
 target_link_libraries(${APP_NAME} PRIVATE
     Qt6::Quick
@@ -125,6 +118,8 @@ endif()
 if(APPLE)
     # macOS 平台：设置为 Bundle 应用程序
     set_target_properties(${APP_NAME} PROPERTIES
+        MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0"
         MACOSX_BUNDLE TRUE
     )
 endif()

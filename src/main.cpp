@@ -38,14 +38,12 @@ int main(int argc, char *argv[])
     app.setFont(font);
 
     QQmlApplicationEngine engine;
-    // 添加QML导入路径（Qt 6.7兼容性）
-    //engine.addImportPath("qrc:/qt/qml");
-    //engine.addImportPath(app.applicationDirPath() + "/qml");
     int dbResult = DbManager::instance()->createConnection(DB_FILE);
     if (dbResult != 0) {
         qCritical() << "Failed to create database connection, error code:" << dbResult;
         return -1;
     }
+
     engine.rootContext()->setContextProperty("APP_PATH",app.applicationDirPath());
 
     QString currLang = Configer::instance()->currLanguage();

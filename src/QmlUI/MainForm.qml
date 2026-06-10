@@ -153,9 +153,9 @@ Window {
 
                 Repeater {
                     id: leftRepeater
-                    property var iconList: ["Images/test.svg", "Images/search.svg", "Images/statistic.svg", "Images/setting.svg"]
-                    property var pages: [loader1, loader2, loader3, loader4]
-                    model: ["MainForm.Testing", "MainForm.Search", "MainForm.Statistics", "MainForm.Setting"]
+                    property var iconList: ["Images/test.svg", "Images/search.svg", "Images/statistic.svg", "Images/setting.svg", "Images/user.svg"]
+                    property var pages: [loader1, loader2, loader3, loader4, loader5]
+                    model: ["MainForm.Testing", "MainForm.Search", "MainForm.Statistics", "MainForm.Setting", "User"]
                     RoundButton {
                         id: btnTest
                         ButtonGroup.group: btnWorkGroups
@@ -260,7 +260,7 @@ Window {
     Loader {
         id: loader5
         active: false
-        source: "Setting.qml"
+        source: "UserManagerForm.qml"
     }
 
     Image {

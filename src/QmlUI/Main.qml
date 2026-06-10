@@ -10,11 +10,6 @@ QtObject {
     property bool mainFormLoaded: false
     property bool waitMainFormShow: false
 
-    Component.onCompleted: {
-        console.log(1, useSplash);
-        console.log(2, useLogin);
-    }
-
     // 加载界面文件
     property Loader loaderSplash: Loader {
         active: useSplash

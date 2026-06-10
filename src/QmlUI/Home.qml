@@ -414,6 +414,7 @@ Item {
                     text: ""
                     font.pixelSize: layBaseEditor.txtFontSize
                     Material.foreground: Themer.theme.editorFontColor
+                    placeholderText: "标本编号"
                 }
             }
 
@@ -849,6 +850,12 @@ Item {
                     Material.foreground: Themer.theme.editorFontColor
                     readOnly: true
                 }
+            }
+
+            HulaTextField {
+                width: layBaseEditor.txtWidth
+                height: layBaseEditor.ctrlHeight
+                font.pixelSize: layBaseEditor.txtFontSize
             }
         }
     }
