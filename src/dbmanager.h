@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
 ** Qt for cross-platform series
 ** Copyright (c) 2016 UP(United Prosperity Studio). All rights reserved.
 ** This work is licensed under the Creative Commons
@@ -28,6 +28,19 @@ class QSqlDatabase;
 #include <memory>
 
 /**
+ * @brief 数据库错误码枚举
+ */
+enum class DbErrorCode {
+    Success = 0,
+    OpenFailed = 1201,
+    BackupFailed = 1202,
+    RecoverFailed = 1203,
+    ExecuteFailed = 1204,
+    InvalidParameter = 1001,
+    FileOperationFailed = 2001
+};
+
+/**
  * @brief RAII 事务守卫类
  *
  * 构造时开启事务，析构时若未提交则自动回滚。
@@ -40,6 +53,7 @@ public:
     explicit TransactionGuard(QSqlDatabase* db);
     ~TransactionGuard();
     void commit();
+    bool isCommitted() const { return m_committed; }
 };
 
 class DbManager : public BaseInfoSender

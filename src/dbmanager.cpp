@@ -9,6 +9,16 @@
 #include <QSqlRecord>
 #include <QSqlField>
 #include <QFile>
+#include <QFileInfo>
+
+// 错误码定义
+constexpr int DB_ERROR_SUCCESS = 0;
+constexpr int DB_ERROR_OPEN_FAILED = 1201;
+constexpr int DB_ERROR_BACKUP_FAILED = 1202;
+constexpr int DB_ERROR_RECOVER_FAILED = 1203;
+constexpr int DB_ERROR_EXEC_FAILED = 1204;
+constexpr int DB_ERROR_INVALID_PARAM = 1001;
+constexpr int DB_ERROR_FILE_OPERATION = 2001;
 
 
 // ========== TransactionGuard 实现 ==========
@@ -57,81 +67,157 @@ DbManager::~DbManager()
 
 int DbManager::createConnection(const QString &dbname)
 {
+    if (dbname.isEmpty()) {
+        QString err = "Database name is empty";
+        qCritical() << err;
+        setLastErrorInfo(DB_ERROR_INVALID_PARAM, err);
+        return DB_ERROR_INVALID_PARAM;
+    }
+
     QMutexLocker locker(&m_dbMutex);
     m_dbName = dbname;
     QString threadId = QString("%1").arg(quintptr(QThread::currentThreadId()));
-    auto db = std::make_unique<QSqlDatabase>(QSqlDatabase::addDatabase("QSQLITE"));
+    
+    // 使用线程ID作为连接名称，避免冲突
+    auto db = std::make_unique<QSqlDatabase>(QSqlDatabase::addDatabase("QSQLITE", threadId));
     db->setDatabaseName(m_dbName);
-    if (!db->open())
-    {
-        qDebug().noquote() << "Open database error.";
-        return 1201;
+    
+    if (!db->open()) {
+        QString err = QString("Failed to open database: %1").arg(db->lastError().text());
+        qCritical().noquote() << err;
+        setLastErrorInfo(DB_ERROR_OPEN_FAILED, err);
+        return DB_ERROR_OPEN_FAILED;
     }
 
     m_dbList[threadId] = std::move(db);
     //readTablesInfo();
-    return 0;
+    return DB_ERROR_SUCCESS;
 }
 
 QSqlDatabase *DbManager::getDatabase()
 {
     QString threadId = QString("%1").arg(quintptr(QThread::currentThreadId()));
-    QSqlDatabase *db = nullptr;
+    
+    // 先检查是否已有连接（快速路径，不加锁）
     {
         QMutexLocker locker(&m_dbMutex);
         auto it = m_dbList.find(threadId);
-        if (it != m_dbList.end() && it->second) {
-            db = it->second.get();
-        }
-        if (db == nullptr)
-        {
-            auto newDb = std::make_unique<QSqlDatabase>(QSqlDatabase::addDatabase("QSQLITE", threadId));
-            newDb->setDatabaseName(m_dbName);
-            if (!newDb->open()) {
-                QString err = newDb->lastError().text();
-                qCritical() << "Failed to open database:" << err;
-                setLastErrorInfo(1201, err);
-                return nullptr;
-            }
-            db = newDb.get();
-            m_dbList[threadId] = std::move(newDb);
+        if (it != m_dbList.end() && it->second && it->second->isOpen()) {
+            return it->second.get();
         }
     }
-    return db;
+    
+    // 需要创建新连接
+    auto newDb = std::make_unique<QSqlDatabase>(QSqlDatabase::addDatabase("QSQLITE", threadId));
+    newDb->setDatabaseName(m_dbName);
+    if (!newDb->open()) {
+        QString err = newDb->lastError().text();
+        qCritical() << "Failed to open database:" << err;
+        setLastErrorInfo(DB_ERROR_OPEN_FAILED, err);
+        return nullptr;
+    }
+    
+    // 添加到连接列表
+    QMutexLocker locker(&m_dbMutex);
+    m_dbList[threadId] = std::move(newDb);
+    return m_dbList[threadId].get();
 }
 
 int DbManager::backupDb(const QString &fileName)
 {
-    QFile::remove(fileName);
-    if (QFile::copy(QString(DB_FILE), fileName))
-    {
-        //qDebug() << "File copied successfully";
-        return 0;
+    if (fileName.isEmpty()) {
+        QString err = "Backup file name is empty";
+        qCritical() << err;
+        setLastErrorInfo(DB_ERROR_INVALID_PARAM, err);
+        return DB_ERROR_INVALID_PARAM;
     }
-    else
-    {
-        //qDebug() << "Failed to copy file";
-        return 1;
+
+    // 确保数据库文件存在
+    QFileInfo dbFileInfo(m_dbName);
+    if (!dbFileInfo.exists()) {
+        QString err = QString("Database file not found: %1").arg(m_dbName);
+        qCritical() << err;
+        setLastErrorInfo(DB_ERROR_FILE_OPERATION, err);
+        return DB_ERROR_FILE_OPERATION;
+    }
+
+    // 先删除目标文件（如果存在）
+    QFile::remove(fileName);
+    
+    // 执行备份
+    QFile sourceFile(m_dbName);
+    if (sourceFile.copy(fileName)) {
+        qDebug() << "Database backup successful: " << fileName;
+        return DB_ERROR_SUCCESS;
+    } else {
+        QString err = QString("Failed to backup database: %1").arg(sourceFile.errorString());
+        qCritical() << err;
+        setLastErrorInfo(DB_ERROR_BACKUP_FAILED, err);
+        return DB_ERROR_BACKUP_FAILED;
     }
 }
 
 int DbManager::recoverDb(const QString &fileName)
 {
+    QFileInfo backupFileInfo(fileName);
+    if (!backupFileInfo.exists()) {
+        QString err = QString("Backup file not found: %1").arg(fileName);
+        qCritical() << err;
+        setLastErrorInfo(DB_ERROR_INVALID_PARAM, err);
+        return DB_ERROR_INVALID_PARAM;
+    }
+
     QSqlDatabase *db = getDatabase();
+    QString originalDbName = m_dbName;
+    
+    // 先关闭连接
     db->close();
-    bool ret = QFile::remove(QString(DB_FILE));
-    if (!ret)
-    {
-        //qDebug() << "Failed to deleted file";
-        return 1;
+    
+    // 备份当前数据库文件（用于回滚）
+    QString backupPath = originalDbName + ".bak";
+    QFile::remove(backupPath);
+    if (!QFile::copy(originalDbName, backupPath)) {
+        db->open(); // 恢复原连接
+        QString err = "Failed to backup current database";
+        qCritical() << err;
+        setLastErrorInfo(DB_ERROR_BACKUP_FAILED, err);
+        return DB_ERROR_BACKUP_FAILED;
     }
-    if (!QFile::copy(fileName, QString(DB_FILE)))
-    {
-        qDebug() << "Failed to copy file";
-        return 1;
+    
+    // 执行恢复
+    if (!QFile::remove(originalDbName)) {
+        db->open();
+        QString err = "Failed to remove original database file";
+        qCritical() << err;
+        setLastErrorInfo(DB_ERROR_FILE_OPERATION, err);
+        return DB_ERROR_FILE_OPERATION;
     }
-    db->open();
-    return 0;
+    
+    if (!QFile::copy(fileName, originalDbName)) {
+        // 回滚：恢复原文件
+        QFile::copy(backupPath, originalDbName);
+        db->open();
+        QString err = "Failed to copy backup file";
+        qCritical() << err;
+        setLastErrorInfo(DB_ERROR_RECOVER_FAILED, err);
+        return DB_ERROR_RECOVER_FAILED;
+    }
+    
+    // 重新打开连接
+    if (!db->open()) {
+        // 回滚
+        QFile::copy(backupPath, originalDbName);
+        db->open();
+        QString err = "Failed to reopen database after recovery";
+        qCritical() << err;
+        setLastErrorInfo(DB_ERROR_OPEN_FAILED, err);
+        return DB_ERROR_OPEN_FAILED;
+    }
+    
+    // 清理备份文件
+    QFile::remove(backupPath);
+    qDebug() << "Database recovery successful";
+    return DB_ERROR_SUCCESS;
 }
 
 void DbManager::readTableInfo()
