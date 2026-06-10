@@ -839,7 +839,8 @@ Rectangle {
             if (typeof child.fieldType !== 'undefined')
                 data[child.fieldName + "-Type"] = child.fieldType;
         }
-        var datas = patients.findPatients(data);
+        // var datas = patients.findPatients(data);
+        var datas = patients.search(data);
         viewDatas(datas);
         snackMessage("Search.SearchFinished");
     }
@@ -849,7 +850,6 @@ Rectangle {
         for (var i = 0; i < datas.length; ++i) {
             tableview.model.appendRow(datas[i]);
         }
-        //tableview.model = datas;
         lblRecordNum.text = lblRecordNum.info.replace("%1", 0).replace("%2", datas.length);
     }
 

@@ -51,8 +51,8 @@ Rectangle {
 
     Connections {
         target: InfoCenter
-        function onSendInfoUI(num, text) {
-            showInfo(num, text);
+        function onMessageEmitted(info, type, code) {
+            showInfo(info, type, code);
         }
     }
 
@@ -376,18 +376,18 @@ Rectangle {
         btnInfo.opacity = 1.0;
     }
 
-    function showInfo(num, text) {
-        if (num === 0) {
-            snackMessage(text);
-        }
-        if (num !== 0) {
-            if (num < 0) {
-                var msgBox = openDialogPrompt(text, null, "Information");
-            } else {
-                startBreath();
-                msgBox = openDialogPrompt(text, null, "Error");
-            }
+    function showInfo(info, type, code) {
+        if (type === Enums.InfoType.Toast) {
+            snackMessage(info);
+        } else if (type === Enums.InfoType.Dialog) {
+            startBreath();
+            var msgBox = openDialogPrompt(info, null, "Error");
             msgBox.autoClose = true;
+        } else if (type === Enums.InfoType.Confirmation) {
+            var confirmBox = openDialogPrompt(info, null, "Information");
+            confirmBox.autoClose = true;
+        } else if (type === Enums.InfoType.Log) {
+            startBreath();
         }
     }
 

@@ -1,4 +1,4 @@
-﻿ /****************************************************************************
+ /****************************************************************************
 ** Qt for cross-platform series
 ** Copyright (c) 2016 UP(United Prosperity Studio). All rights reserved.
 ** This work is licensed under the Creative Commons
@@ -36,7 +36,7 @@ public:
         : QAbstractTableModel(parent)
         , m_sender(this)
     {
-        connect(this, &UserInfo::sendInfo, &m_sender, &BaseInfoSender::sendInfo);
+        connect(this, &UserInfo::messageEmitted, &m_sender, &BaseInfoSender::messageEmitted);
     }
 
     // 必须重写的 3 个模型函数
@@ -125,13 +125,12 @@ public:
 
 signals:
     /**
-    *@brief 发送错误信息/提示信息到信息中心
-    *@param[in] num:错误信息号,>0:保存并转发弹窗提示;
-                -1:表示非错误信息,仅用于转发弹窗提示;
-                0:仅用于转发浮窗提示
-    *@param[in] text:错误信息或提示信息
+    * @brief 发送消息到信息中心
+    * @param info 错误信息或提示信息
+    * @param type 信息类型 (Toast/Confirmation)，默认为 Toast
+    * @param code 错误码，默认为 NoError
     */
-    void sendInfo(int num, QString info);
+    void messageEmitted(QString info, Enums::InfoType type = Enums::InfoType::Toast, Enums::ErrorCode code = Enums::ErrorCode::NoError);
 
     /**
     *@brief 发送已登录信息

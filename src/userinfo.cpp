@@ -78,7 +78,7 @@ void UserInfo::loadDatas()
     {
         QString error = query.lastError().text();
         qWarning() << "Query failed:" << error;
-        emit sendInfo(1, error);
+        emit messageEmitted(error, Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
         endResetModel();
         return;
     }
@@ -110,7 +110,7 @@ QJsonObject UserInfo::find(const QString& value, const QString& key)
     qry.prepare(QString("select * from UserInfo where %1 = :value").arg(key));
     qry.bindValue(":value", value);
     if (!qry.exec()) {
-        emit sendInfo(1, qry.lastError().text());
+        emit messageEmitted(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
         return data;
     }
     QList<QJsonObject> datas;
@@ -170,7 +170,7 @@ int UserInfo::deleteData(const QString& id)
     qry.prepare("DELETE FROM UserInfo WHERE Id = :id");
     qry.bindValue(":id", id);
     if (!qry.exec()) {
-        emit sendInfo(1, qry.lastError().text());
+        emit messageEmitted(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
         return 1;
     }
     return 0;
@@ -188,7 +188,7 @@ int UserInfo::accountExisted(const QString& account, const QString& id)
     }
     qry.bindValue(":account", account);
     if (!qry.exec()) {
-        emit sendInfo(1, qry.lastError().text());
+        emit messageEmitted(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
         return 0;
     }
     QList<QJsonObject> datas;
@@ -247,7 +247,7 @@ QJsonObject UserInfo::findUserByAccount(const QString &account)
     qry.prepare("select * from UserInfo where Account = :account");
     qry.bindValue(":account", account);
     if (!qry.exec()) {
-        emit sendInfo(1, qry.lastError().text());
+        emit messageEmitted(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
         return data;
     }
     QList<QJsonObject> datas;

@@ -11,15 +11,6 @@
 #include <QFile>
 #include <QFileInfo>
 
-// 错误码定义
-constexpr int DB_ERROR_SUCCESS = 0;
-constexpr int DB_ERROR_OPEN_FAILED = 1201;
-constexpr int DB_ERROR_BACKUP_FAILED = 1202;
-constexpr int DB_ERROR_RECOVER_FAILED = 1203;
-constexpr int DB_ERROR_EXEC_FAILED = 1204;
-constexpr int DB_ERROR_INVALID_PARAM = 1001;
-constexpr int DB_ERROR_FILE_OPERATION = 2001;
-
 
 // ========== TransactionGuard 实现 ==========
 
@@ -55,23 +46,15 @@ DbManager::DbManager(QObject *parent) : BaseInfoSender(parent)
 
 DbManager::~DbManager()
 {
-    QMutexLocker locker(&m_dbMutex);
-    for (auto& [key, db] : m_dbList)
-    {
-        if (db) {
-            db->close();
-        }
-    }
-    // std::unique_ptr 会在 std::map 销毁时自动释放内存
+
 }
 
-int DbManager::createConnection(const QString &dbname)
+int DbManager::connect(const QString &dbname)
 {
-    if (dbname.isEmpty()) {
-        QString err = "Database name is empty";
-        qCritical() << err;
-        setLastErrorInfo(DB_ERROR_INVALID_PARAM, err);
-        return DB_ERROR_INVALID_PARAM;
+    if (dbname.isEmpty())
+    {
+        setLastErrorInfo("Database name is empty", Enums::InfoType::Toast, Enums::ErrorCode::InvalidParameter);
+        return static_cast<int>(Enums::ErrorCode::InvalidParameter);
     }
 
     QMutexLocker locker(&m_dbMutex);
@@ -79,48 +62,57 @@ int DbManager::createConnection(const QString &dbname)
     QString threadId = QString("%1").arg(quintptr(QThread::currentThreadId()));
     
     // 使用线程ID作为连接名称，避免冲突
-    auto db = std::make_unique<QSqlDatabase>(QSqlDatabase::addDatabase("QSQLITE", threadId));
-    db->setDatabaseName(m_dbName);
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", threadId);
+    db.setDatabaseName(m_dbName);
     
-    if (!db->open()) {
-        QString err = QString("Failed to open database: %1").arg(db->lastError().text());
-        qCritical().noquote() << err;
-        setLastErrorInfo(DB_ERROR_OPEN_FAILED, err);
-        return DB_ERROR_OPEN_FAILED;
+    if (!db.open())
+    {
+        QString err = QString("Failed to open database: %1").arg(db.lastError().text());
+        setLastErrorInfo(err, Enums::InfoType::Toast, Enums::ErrorCode::DbOpenFailed);
+        return static_cast<int>(Enums::ErrorCode::DbOpenFailed);
+    }
+    QSqlQuery query(db);
+    // 开启 WAL 模式
+    if (!query.exec("PRAGMA journal_mode=WAL"))
+    {
+        QString err = QString("Failed to enable WAL mode: %1").arg(db.lastError().text());
+        setLastErrorInfo(err, Enums::InfoType::Toast, Enums::ErrorCode::DbOpenFailed);
+    }
+    else
+    {
+        // 设置繁忙等待超时（5000毫秒）
+        // 防止多线程并发写入时因锁冲突立即抛出 "database is locked" 错误
+        query.exec("PRAGMA busy_timeout=5000");
     }
 
-    m_dbList[threadId] = std::move(db);
-    //readTablesInfo();
-    return DB_ERROR_SUCCESS;
+    m_dbList.setLocalData(db);
+    return static_cast<int>(Enums::ErrorCode::Success);
 }
 
 QSqlDatabase *DbManager::getDatabase()
 {
-    QString threadId = QString("%1").arg(quintptr(QThread::currentThreadId()));
-    
-    // 先检查是否已有连接（快速路径，不加锁）
+    if (!m_dbList.hasLocalData())
     {
-        QMutexLocker locker(&m_dbMutex);
-        auto it = m_dbList.find(threadId);
-        if (it != m_dbList.end() && it->second && it->second->isOpen()) {
-            return it->second.get();
+        int result = connect(m_dbName);
+        if (result != static_cast<int>(Enums::ErrorCode::Success))
+        {
+            return nullptr;
         }
     }
-    
-    // 需要创建新连接
-    auto newDb = std::make_unique<QSqlDatabase>(QSqlDatabase::addDatabase("QSQLITE", threadId));
-    newDb->setDatabaseName(m_dbName);
-    if (!newDb->open()) {
-        QString err = newDb->lastError().text();
-        qCritical() << "Failed to open database:" << err;
-        setLastErrorInfo(DB_ERROR_OPEN_FAILED, err);
-        return nullptr;
+
+    QSqlDatabase& db = m_dbList.localData();
+    if (!db.isOpen())
+    {
+        // 连接已断开，尝试重新连接
+        int result = connect(m_dbName);
+        if (result != static_cast<int>(Enums::ErrorCode::Success))
+        {
+            return nullptr;
+        }
+        db = m_dbList.localData();
     }
-    
-    // 添加到连接列表
-    QMutexLocker locker(&m_dbMutex);
-    m_dbList[threadId] = std::move(newDb);
-    return m_dbList[threadId].get();
+
+    return &db;
 }
 
 int DbManager::backupDb(const QString &fileName)
@@ -128,8 +120,8 @@ int DbManager::backupDb(const QString &fileName)
     if (fileName.isEmpty()) {
         QString err = "Backup file name is empty";
         qCritical() << err;
-        setLastErrorInfo(DB_ERROR_INVALID_PARAM, err);
-        return DB_ERROR_INVALID_PARAM;
+        setLastErrorInfo(err, Enums::InfoType::Toast, Enums::ErrorCode::InvalidParameter);
+        return static_cast<int>(Enums::ErrorCode::InvalidParameter);
     }
 
     // 确保数据库文件存在
@@ -137,8 +129,8 @@ int DbManager::backupDb(const QString &fileName)
     if (!dbFileInfo.exists()) {
         QString err = QString("Database file not found: %1").arg(m_dbName);
         qCritical() << err;
-        setLastErrorInfo(DB_ERROR_FILE_OPERATION, err);
-        return DB_ERROR_FILE_OPERATION;
+        setLastErrorInfo(err, Enums::InfoType::Toast, Enums::ErrorCode::FileWriteFailed);
+        return static_cast<int>(Enums::ErrorCode::FileWriteFailed);
     }
 
     // 先删除目标文件（如果存在）
@@ -148,12 +140,12 @@ int DbManager::backupDb(const QString &fileName)
     QFile sourceFile(m_dbName);
     if (sourceFile.copy(fileName)) {
         qDebug() << "Database backup successful: " << fileName;
-        return DB_ERROR_SUCCESS;
+        return static_cast<int>(Enums::ErrorCode::Success);
     } else {
         QString err = QString("Failed to backup database: %1").arg(sourceFile.errorString());
         qCritical() << err;
-        setLastErrorInfo(DB_ERROR_BACKUP_FAILED, err);
-        return DB_ERROR_BACKUP_FAILED;
+        setLastErrorInfo(err, Enums::InfoType::Toast, Enums::ErrorCode::DbBackupFailed);
+        return static_cast<int>(Enums::ErrorCode::DbBackupFailed);
     }
 }
 
@@ -163,8 +155,8 @@ int DbManager::recoverDb(const QString &fileName)
     if (!backupFileInfo.exists()) {
         QString err = QString("Backup file not found: %1").arg(fileName);
         qCritical() << err;
-        setLastErrorInfo(DB_ERROR_INVALID_PARAM, err);
-        return DB_ERROR_INVALID_PARAM;
+        setLastErrorInfo(err, Enums::InfoType::Toast, Enums::ErrorCode::InvalidParameter);
+        return static_cast<int>(Enums::ErrorCode::InvalidParameter);
     }
 
     QSqlDatabase *db = getDatabase();
@@ -180,8 +172,8 @@ int DbManager::recoverDb(const QString &fileName)
         db->open(); // 恢复原连接
         QString err = "Failed to backup current database";
         qCritical() << err;
-        setLastErrorInfo(DB_ERROR_BACKUP_FAILED, err);
-        return DB_ERROR_BACKUP_FAILED;
+        setLastErrorInfo(err, Enums::InfoType::Toast, Enums::ErrorCode::DbBackupFailed);
+        return static_cast<int>(Enums::ErrorCode::DbBackupFailed);
     }
     
     // 执行恢复
@@ -189,8 +181,8 @@ int DbManager::recoverDb(const QString &fileName)
         db->open();
         QString err = "Failed to remove original database file";
         qCritical() << err;
-        setLastErrorInfo(DB_ERROR_FILE_OPERATION, err);
-        return DB_ERROR_FILE_OPERATION;
+        setLastErrorInfo(err, Enums::InfoType::Toast, Enums::ErrorCode::FileWriteFailed);
+        return static_cast<int>(Enums::ErrorCode::FileWriteFailed);
     }
     
     if (!QFile::copy(fileName, originalDbName)) {
@@ -199,8 +191,8 @@ int DbManager::recoverDb(const QString &fileName)
         db->open();
         QString err = "Failed to copy backup file";
         qCritical() << err;
-        setLastErrorInfo(DB_ERROR_RECOVER_FAILED, err);
-        return DB_ERROR_RECOVER_FAILED;
+        setLastErrorInfo(err, Enums::InfoType::Toast, Enums::ErrorCode::DbRecoverFailed);
+        return static_cast<int>(Enums::ErrorCode::DbRecoverFailed);
     }
     
     // 重新打开连接
@@ -210,14 +202,14 @@ int DbManager::recoverDb(const QString &fileName)
         db->open();
         QString err = "Failed to reopen database after recovery";
         qCritical() << err;
-        setLastErrorInfo(DB_ERROR_OPEN_FAILED, err);
-        return DB_ERROR_OPEN_FAILED;
+        setLastErrorInfo(err, Enums::InfoType::Toast, Enums::ErrorCode::DbOpenFailed);
+        return static_cast<int>(Enums::ErrorCode::DbOpenFailed);
     }
     
     // 清理备份文件
     QFile::remove(backupPath);
     qDebug() << "Database recovery successful";
-    return DB_ERROR_SUCCESS;
+    return static_cast<int>(Enums::ErrorCode::Success);
 }
 
 void DbManager::readTableInfo()
@@ -322,7 +314,7 @@ QJsonArray DbManager::getQueryResult(QSqlQuery &qry)
         if (!qry.exec())
         {
             QString errorInfo = "DbManager::getQueryResult call error:" + qry.lastError().text();
-            setLastErrorInfo(1, errorInfo);
+            setLastErrorInfo(errorInfo, Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
             return datas;
         }
     }
@@ -383,7 +375,7 @@ int DbManager::updateDatas(const QList<QJsonObject> &datas, const QStringList &w
     if (tableName == "")
     {
         QString errorInfo = "The table name is empty.";
-        setLastErrorInfo(1, errorInfo);
+        setLastErrorInfo(errorInfo, Enums::InfoType::Toast, Enums::ErrorCode::InvalidParameter);
         return 1;
     }
 
@@ -428,7 +420,7 @@ int DbManager::updateDatas(const QList<QJsonObject> &datas, const QStringList &w
 
         if ( !qry.exec() )
         {
-            setLastErrorInfo(12, qry.lastError().text());
+            setLastErrorInfo(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
             return 1;
         }
 
@@ -447,7 +439,7 @@ int DbManager::appendDatas(QList<QJsonObject> &datas, const QString &tableName, 
     if (tableName == "")
     {
         QString errorInfo = "The data table name is empty.";
-        setLastErrorInfo(1, errorInfo);
+        setLastErrorInfo(errorInfo, Enums::InfoType::Toast, Enums::ErrorCode::InvalidParameter);
         return 1;
     }
 
@@ -482,8 +474,8 @@ int DbManager::appendDatas(QList<QJsonObject> &datas, const QString &tableName, 
 
         if ( !qry.exec() )
         {
-            setLastErrorInfo(13, qry.lastError().text());
-            return 13;
+            setLastErrorInfo(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
+            return static_cast<int>(Enums::ErrorCode::DbExecuteFailed);
         }
         if (!trimmedAutoIncId.isEmpty())
             data[trimmedAutoIncId] = QString::number(qry.lastInsertId().toULongLong());
@@ -500,7 +492,7 @@ int DbManager::execSql(const QString &sql)
     if (sql == "")
     {
         QString errorInfo = "The sql string is empty.";
-        setLastErrorInfo(1, errorInfo);
+        setLastErrorInfo(errorInfo, Enums::InfoType::Toast, Enums::ErrorCode::InvalidParameter);
         return 1;
     }
 
@@ -510,7 +502,7 @@ int DbManager::execSql(const QString &sql)
     qry.prepare(sql);
     if ( !qry.exec() )
     {
-        setLastErrorInfo(1, qry.lastError().text());
+        setLastErrorInfo(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
         return 1;
     }
     qry.finish();
@@ -524,7 +516,7 @@ QList<QJsonObject> DbManager::getDatas(const QString &sql)
     if (sql == "")
     {
         QString errorInfo = "The sql string is empty.";
-        setLastErrorInfo(1, errorInfo);
+        setLastErrorInfo(errorInfo, Enums::InfoType::Toast, Enums::ErrorCode::InvalidParameter);
         return datas;
     }
 
@@ -533,7 +525,7 @@ QList<QJsonObject> DbManager::getDatas(const QString &sql)
     if ( !qry.exec() )
     {
         qry.finish();
-        setLastErrorInfo(1, qry.lastError().text());
+        setLastErrorInfo(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
         return datas;
     }
     getDbDatas(qry, datas);
@@ -549,7 +541,7 @@ QList<QJsonObject> DbManager::findDatas(const QJsonObject &data)
     QString tableName = data.value("TableName").toString();
     if (tableName.isEmpty())
     {
-        setLastErrorInfo(1, "The table name is empty.");
+        setLastErrorInfo("The table name is empty.", Enums::InfoType::Toast, Enums::ErrorCode::InvalidParameter);
         return datas;
     }
 
@@ -564,7 +556,7 @@ QList<QJsonObject> DbManager::findDatas(const QJsonObject &data)
         QSqlQuery qry = newQuery();
         if (!qry.exec(sql))
         {
-            setLastErrorInfo(1, qry.lastError().text());
+            setLastErrorInfo(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
             qry.finish();
             return datas;
         }
@@ -634,7 +626,7 @@ QList<QJsonObject> DbManager::findDatas(const QJsonObject &data)
 
     if (!qry.exec())
     {
-        setLastErrorInfo(1, qry.lastError().text());
+        setLastErrorInfo(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
         qry.finish();
         return datas;
     }
@@ -666,7 +658,7 @@ void DbManager::getDbDatas(QSqlQuery &qry, QList<QJsonObject> &datas)
         if (!qry.exec())
         {
             QString errorInfo = "DbManager::getQueryResult call error:" + qry.lastError().text();
-            setLastErrorInfo(1, errorInfo);
+            setLastErrorInfo(errorInfo, Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
             return;
         }
     }
@@ -729,14 +721,43 @@ bool DbManager::lastErrorInfo(int &errNum, QString &errInfo)
     }
 }
 
-void DbManager::setLastErrorInfo(int errNum, const QString &errInfo)
+void DbManager::setLastErrorInfo(const QString &errInfo, Enums::InfoType type, Enums::ErrorCode code)
 {
     quint64 id = quint64(QThread::currentThreadId());
     {
         QMutexLocker locker(&m_errorMutex);
-        m_lastError[id] = QPair<int, QString>(errNum, errInfo);
+        m_lastError[id] = QPair<int, QString>(static_cast<int>(code), errInfo);
     }
-    qDebug() << errInfo;
-    emit DbManager::instance()->sendInfo(errNum, errInfo);
+    qCritical() << errInfo;
+    emit messageEmitted(errInfo, type, code);
+}
+
+void DbManager::loadTableInfo(const QString &tableName)
+{
+    QSqlDatabase *db = getDatabase();
+    if (!db) {
+        qCritical() << "Failed to get database connection";
+        return;
+    }
+    QSqlQuery query(*db);
+    QString sql = QString("PRAGMA table_info(%1)").arg(tableName);
+
+    if (query.exec(sql))
+    {
+        while (query.next()) {
+            // query.value(0): 列ID (cid)
+            // query.value(1): 字段名 (name)
+            // query.value(2): 数据类型 (type)
+            // query.value(3): 是否非空 (notnull)
+            // query.value(4): 默认值 (dflt_value)
+            // query.value(5): 是否主键 (pk)
+            qDebug() << "字段名:" << query.value(1).toString()
+                     << "类型:" << query.value(2).toString();
+        }
+    }
+    else
+    {
+        qDebug() << "查询失败:" << query.lastError().text();
+    }
 }
 

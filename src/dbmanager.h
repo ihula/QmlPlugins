@@ -16,8 +16,6 @@
 
 class QSqlDatabase;
 
-#include "singleton.h"
-#include "baseinfosender.h"
 #include <QObject>
 #include <QMap>
 #include <QJsonObject>
@@ -26,19 +24,9 @@ class QSqlDatabase;
 #include <QMutexLocker>
 #include <map>
 #include <memory>
-
-/**
- * @brief 数据库错误码枚举
- */
-enum class DbErrorCode {
-    Success = 0,
-    OpenFailed = 1201,
-    BackupFailed = 1202,
-    RecoverFailed = 1203,
-    ExecuteFailed = 1204,
-    InvalidParameter = 1001,
-    FileOperationFailed = 2001
-};
+#include "singleton.h"
+#include "baseinfosender.h"
+#include "common.h"
 
 /**
  * @brief RAII 事务守卫类
@@ -56,6 +44,7 @@ public:
     bool isCommitted() const { return m_committed; }
 };
 
+
 class DbManager : public BaseInfoSender
 {
     Q_OBJECT
@@ -68,8 +57,8 @@ public:
 
     ~DbManager() override;
 
-    /** @brief 创建数据库连接 */
-    int createConnection(const QString &dbname);
+    /** @brief 连接数据库 */
+    int connect(const QString &dbname);
 
     /** @brief 获取所在线程的数据库连接 */
     QSqlDatabase *getDatabase();
@@ -158,14 +147,16 @@ public:
     bool lastErrorInfo(int &errNum, QString &errInfo);
 
     /** @brief 设置所在线程的最后错误信息 */
-    void setLastErrorInfo(int errNum, const QString &errInfo);
+    void setLastErrorInfo(const QString &errInfo, Enums::InfoType type = Enums::InfoType::Toast, Enums::ErrorCode code = Enums::ErrorCode::NoError);
 
 private:
+    void loadTableInfo(const QString &tableName);
+
     /** @brief 数据库名称 */
     QString m_dbName;
 
     /** @brief 保存所在线程的数据库连接 */
-    std::map<QString, std::unique_ptr<QSqlDatabase>> m_dbList;
+    QThreadStorage<QSqlDatabase> m_dbList;
     mutable QMutex m_dbMutex;
 
     /** @brief 保存数据表信息 */

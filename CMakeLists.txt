@@ -82,6 +82,7 @@ qt_add_qml_module(${APP_NAME}
     VERSION 1.0
     QML_FILES ${QML_SOURCES}
     SOURCES
+        src/common.h
         src/baseinfosender.h src/baseinfosender.cpp
         src/userinfo.h src/userinfo.cpp
         src/infocenter.h src/infocenter.cpp

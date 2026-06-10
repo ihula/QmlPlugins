@@ -17,6 +17,7 @@
 #include <QSqlError>
 #include <QDate>
 #include <QJsonDocument>
+#include <QJsonArray>
 #include <QFile>
 #include <QDir>
 #ifdef USE_QXLSX
@@ -28,7 +29,7 @@
 
 Patients::Patients(QObject *parent) : QObject(parent), m_sender(this)
 {
-    connect(this, &Patients::sendInfo, &m_sender, &BaseInfoSender::sendInfo);
+    connect(this, &Patients::messageEmitted, &m_sender, &BaseInfoSender::messageEmitted);
 }
 
 QJsonObject Patients::findPatient(const QString& value, const QString& key)
@@ -38,7 +39,7 @@ QJsonObject Patients::findPatient(const QString& value, const QString& key)
     qry.prepare(QString("select * from PatientInfo where %1 = :value").arg(key));
     qry.bindValue(":value", value);
     if (!qry.exec()) {
-        emit sendInfo(1, qry.lastError().text());
+        emit messageEmitted(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
         return data;
     }
     QList<QJsonObject> datas;
@@ -55,6 +56,15 @@ QList<QJsonObject> Patients::findPatients(const QJsonObject& data)
     QJsonObject queryData = data;
     queryData.insert("TableName", "PatientInfo");
     QList<QJsonObject> datas = DbManager::instance()->findDatas(queryData);
+    return datas;
+}
+
+QList<QJsonObject> Patients::search(const QJsonObject &data)
+{
+    QJsonObject cond = data;
+    cond.insert("TableName", "PatientInfo");
+    cond.insert("Table", "PatientInfo");
+    QList<QJsonObject> datas = DbManager::instance()->findDatas(cond);
     return datas;
 }
 
@@ -103,7 +113,7 @@ int Patients::deletePatients(const QString& pids)
     for (const QString &id : idListConst) {
         qry.bindValue(":id", id.trimmed());
         if (!qry.exec()) {
-            emit sendInfo(1, qry.lastError().text());
+            emit messageEmitted(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
             return 1;
         }
     }
@@ -152,7 +162,7 @@ QJsonObject Patients::findReport(const QString& value, const QString& key)
     qry.prepare(QString("select * from Report where %1 = :value").arg(key));
     qry.bindValue(":value", value);
     if (!qry.exec()) {
-        emit sendInfo(1, qry.lastError().text());
+        emit messageEmitted(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
         return data;
     }
     QList<QJsonObject> datas;
@@ -194,7 +204,7 @@ int Patients::deleteReport(const QString& rid)
     qry.prepare("DELETE FROM Report WHERE Id = :id");
     qry.bindValue(":id", rid);
     if (!qry.exec()) {
-        emit sendInfo(1, qry.lastError().text());
+        emit messageEmitted(qry.lastError().text());
         return 1;
     }
     return 0;
@@ -241,13 +251,13 @@ int Patients::recoverRecords(const QString& fileName)
     if (!loadFile.exists())
     {
         qDebug() << "recoverDb: " + fileName + " file dont exist.";
-        emit sendInfo(1, tr("Search.FileDontExist") + ":" + fileName);
+        emit messageEmitted(tr("Search.FileDontExist") + ":" + fileName, Enums::InfoType::Toast, Enums::ErrorCode::FileNotFound);
         return 1;
     }
     if (!loadFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qDebug() << "recoverDb: " + tr("Search.LoadFileInvalid") + ": "+ fileName;
-        emit sendInfo(1, tr("Search.LoadFileInvalid") + ":" + fileName);
+        emit messageEmitted(tr("Search.LoadFileInvalid") + ":" + fileName, Enums::InfoType::Toast, Enums::ErrorCode::FileReadFailed);
         return 1;
     }
     QByteArray array = loadFile.readAll();
@@ -258,7 +268,7 @@ int Patients::recoverRecords(const QString& fileName)
     {
         QString str = tr("Search.JsonParseError") + jsonParseError.errorString();
         qDebug() << str;
-        emit sendInfo(1, str);
+        emit messageEmitted(str, Enums::InfoType::Toast, Enums::ErrorCode::InvalidFormat);
         return 1;
     }
     QJsonArray dbs = jsonDoc.array();
@@ -285,7 +295,7 @@ int Patients::recoverRecords(const QString& fileName)
             if (rid == 0)
             {
                 qDebug() << "recoverDb: " + tr("Search.RecoverDbInvalid");
-                emit sendInfo(1, tr("Search.RecoverDbInvalid"));
+                emit messageEmitted(tr("Search.RecoverDbInvalid"), Enums::InfoType::Toast, Enums::ErrorCode::DbRecoverFailed);
                 return 1;
             }
         }
@@ -296,7 +306,7 @@ int Patients::recoverRecords(const QString& fileName)
         if (id == 0)
         {
             qDebug() << "recoverDb: " + tr("Search.RecoverDbInvalid");
-            emit sendInfo(1, tr("Search.RecoverDbInvalid"));
+            emit messageEmitted(tr("Search.RecoverDbInvalid"), Enums::InfoType::Toast, Enums::ErrorCode::DbRecoverFailed);
             return 1;
         }
     }

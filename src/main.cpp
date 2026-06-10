@@ -5,11 +5,13 @@
 #include <QDebug>
 #include <QFont>
 #include <QProcess>
+#include <QQmlEngine>
 #include "singleappwatcher.h"
 #include "translater.h"
 #include "configer.h"
 #include "dbmanager.h"
 #include "hulalogger.h"
+#include "common.h"
 
 
 int main(int argc, char *argv[])
@@ -38,8 +40,9 @@ int main(int argc, char *argv[])
     app.setFont(font);
 
     QQmlApplicationEngine engine;
-    int dbResult = DbManager::instance()->createConnection(DB_FILE);
-    if (dbResult != 0) {
+
+    int dbResult = DbManager::instance()->connect(DB_FILE);
+    if (dbResult != static_cast<int>(Enums::ErrorCode::Success)) {
         qCritical() << "Failed to create database connection, error code:" << dbResult;
         return -1;
     }

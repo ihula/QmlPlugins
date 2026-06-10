@@ -22,7 +22,7 @@
 DataDict::DataDict(QObject *parent) : QObject(parent)
     ,m_sender(this)
 {
-    connect(this, &DataDict::sendInfo, &m_sender, &BaseInfoSender::sendInfo);
+    connect(this, &DataDict::messageEmitted, &m_sender, &BaseInfoSender::messageEmitted);
 }
 
 QList<QJsonObject> DataDict::getDatas(DictType type)
@@ -33,7 +33,7 @@ QList<QJsonObject> DataDict::getDatas(DictType type)
     qry.bindValue(":type", static_cast<int>(type));
     if (!qry.exec()) {
         m_lastErrorInfo = qry.lastError().text();
-        emit sendInfo(1, m_lastErrorInfo);
+        emit messageEmitted(m_lastErrorInfo, Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
         return datas;
     }
     DbManager::instance()->getDbDatas(qry, datas);
@@ -78,7 +78,7 @@ int DataDict::deleteData(quint64 id)
     qry.bindValue(":id", id);
     if (!qry.exec()) {
         m_lastErrorInfo = qry.lastError().text();
-        emit sendInfo(1, m_lastErrorInfo);
+        emit messageEmitted(m_lastErrorInfo, Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
         return 1;
     }
     return 0;
@@ -101,7 +101,7 @@ int DataDict::codeExisted(quint64 id, const QString& code)
     qry.bindValue(":code", code);
     if (!qry.exec()) {
         m_lastErrorInfo = qry.lastError().text();
-        emit sendInfo(1, m_lastErrorInfo);
+        emit messageEmitted(m_lastErrorInfo, Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
         return 1;
     }
     QList<QJsonObject> datas;

@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
 ** Qt for cross-platform series
 ** Copyright (c) 2016 UP(United Prosperity Studio). All rights reserved.
 ** This work is licensed under the Creative Commons
@@ -16,6 +16,7 @@
 
 #include "singleton.h"
 #include "configer.h"
+#include "common.h"
 #include <QObject>
 #include <QSettings>
 #include <QJsonObject>
@@ -80,8 +81,8 @@ public:
     Q_INVOKABLE void appendData(QJsonObject data);
 
     /**
-    * @brief 连接具有send信号的发送者到InfoCenter的receiveInfo槽 (函数指针语法)
-    * @tparam SenderType 发送者类型，必须有sendInfo(int, QString)信号
+    * @brief 连接具有messageEmitted信号的发送者到InfoCenter的receiveMessage槽 (函数指针语法)
+    * @tparam SenderType 发送者类型，必须有messageEmitted(InfoType, QString, ErrorCode)信号
     * @param sender 发送者对象指针
     * @param connectionType 连接类型，默认为Qt::AutoConnection
     */
@@ -92,7 +93,7 @@ public:
             return;
 
         // 使用函数指针语法连接信号和槽，提供编译时类型检查
-        connect(sender, &SenderType::sendInfo, InfoCenter::instance(), &InfoCenter::receiveInfo, type);
+        connect(sender, &SenderType::messageEmitted, InfoCenter::instance(), &InfoCenter::receiveMessage, type);
     }
 
     template<typename SenderType>
@@ -101,20 +102,21 @@ public:
         if (!sender)
             return;
 
-        disconnect(sender, &SenderType::sendInfo, InfoCenter::instance(), &InfoCenter::receiveInfo);
+        disconnect(sender, &SenderType::messageEmitted, InfoCenter::instance(), &InfoCenter::receiveMessage);
     }
 
 public slots:
     /**
-    *@brief 保存错误信息/提示信息
-    *@param[in] num:错误信息号,-1表示非错误信息，仅用于弹窗提示;0表示浮动提示;>0表示错误信息,保存到文件
-    *@param[in] text:错误信息或提示信息
+    * @brief 保存错误信息/提示信息
+    * @param info 错误信息或提示信息
+    * @param type 信息类型 (Toast/Confirmation)，默认为 Toast
+    * @param code 错误码，默认为 NoError
     */
-    Q_INVOKABLE void receiveInfo(int num, QString text);
+    Q_INVOKABLE void receiveMessage(QString info, Enums::InfoType type = Enums::InfoType::Toast, Enums::ErrorCode code = Enums::ErrorCode::NoError);
 
 signals:
     /** @brief 发送提示/错误信息到界面 */
-    void sendInfoUI(int num, QString text);
+    void messageEmitted(QString info, Enums::InfoType type = Enums::InfoType::Toast, Enums::ErrorCode code = Enums::ErrorCode::NoError);
 
 private:
     bool m_hasNewInfo;

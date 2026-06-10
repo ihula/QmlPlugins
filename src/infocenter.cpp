@@ -1,4 +1,4 @@
-﻿#include "configer.h"
+#include "configer.h"
 #include "infocenter.h"
 #include "dbmanager.h"
 #include <QSqlQuery>
@@ -98,20 +98,22 @@ void InfoCenter::appendData(QJsonObject data)
     m_hasNewInfo = true;
 }
 
-void InfoCenter::receiveInfo(int num, QString text)
+void InfoCenter::receiveMessage(QString info, Enums::InfoType type, Enums::ErrorCode code)
 {
-    if (num > 0)
+    // 错误码非成功时保存到文件
+    if (code != Enums::ErrorCode::Success)
     {
         QJsonObject data;
-        data["ErrorInfo"] = text;
-        data["ErrorNum"] = QString::number(num);
+        data["ErrorInfo"] = info;
+        data["ErrorCode"] = static_cast<int>(code);
+        data["InfoType"] = static_cast<int>(type);
         data["UserCode"] = Configer::instance()->userAccount();
         data["UserName"] = Configer::instance()->userName();
         data["LogTime"] = QDateTime::currentDateTime().toString(TIME_MSEC_FMT);
         appendData(data);
     }
 
-    emit sendInfoUI(num, text);
+    emit messageEmitted(info, type, code);
 }
 
 // template<typename SenderType>
