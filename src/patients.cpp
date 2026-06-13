@@ -63,6 +63,11 @@ QList<QJsonObject> Patients::findPatients(const QJsonObject &data)
 
 QList<QVariantMap> Patients::searchDatas(const QVariantMap &data)
 {
+    MessageInfo msg;
+    msg.promptType = PromptType::Error;
+    msg.statusCode = StatusCode::BusinessError;
+    msg.text = "Tet";
+    messageEmitted(msg);
     QVariantMap cond = data;
     cond.insert("TableName", "PatientInfo");
     QList<QVariantMap> datas;
