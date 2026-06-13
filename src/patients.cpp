@@ -12,34 +12,36 @@
 ** History:
 ****************************************************************************/
 #include "patients.h"
-#include <QSqlQuery>
-#include <QDebug>
-#include <QSqlError>
 #include <QDate>
-#include <QJsonDocument>
-#include <QJsonArray>
-#include <QFile>
+#include <QDebug>
 #include <QDir>
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QSqlError>
+#include <QSqlQuery>
 #ifdef USE_QXLSX
 #include "hulaxlsx.h"
 #endif
 #include "dbmanager.h"
 #include "translater.h"
 
-
 Patients::Patients(QObject *parent) : QObject(parent), m_sender(this)
 {
-    connect(this, &Patients::messageEmitted, &m_sender, &BaseInfoSender::messageEmitted);
+    connect(this, &Patients::messageEmitted, &m_sender, &BaseMsgSender::messageEmitted);
 }
 
-QJsonObject Patients::findPatient(const QString& value, const QString& key)
+QJsonObject Patients::findPatient(const QString &value, const QString &key)
 {
     QJsonObject data = {};
     QSqlQuery qry = DbManager::instance()->newQuery();
     qry.prepare(QString("select * from PatientInfo where %1 = :value").arg(key));
     qry.bindValue(":value", value);
-    if (!qry.exec()) {
-        emit messageEmitted(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
+    if (!qry.exec())
+    {
+        MessageInfo msg = MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed);
+        qDebug() << msg.text;
+        emit messageEmitted(msg);
         return data;
     }
     QList<QJsonObject> datas;
@@ -51,7 +53,7 @@ QJsonObject Patients::findPatient(const QString& value, const QString& key)
     return data;
 }
 
-QList<QJsonObject> Patients::findPatients(const QJsonObject& data)
+QList<QJsonObject> Patients::findPatients(const QJsonObject &data)
 {
     QJsonObject queryData = data;
     queryData.insert("TableName", "PatientInfo");
@@ -59,23 +61,29 @@ QList<QJsonObject> Patients::findPatients(const QJsonObject& data)
     return datas;
 }
 
-QList<QJsonObject> Patients::search(const QJsonObject &data)
+QList<QVariantMap> Patients::searchDatas(const QVariantMap &data)
 {
-    QJsonObject cond = data;
+    QVariantMap cond = data;
     cond.insert("TableName", "PatientInfo");
-    cond.insert("Table", "PatientInfo");
-    QList<QJsonObject> datas = DbManager::instance()->findDatas(cond);
+    QList<QVariantMap> datas;
+    StatusCode status = DbManager::instance()->searchDatas(cond, datas);
+    if (status != StatusCode::Success)
+        sendDbMessage();
+
     return datas;
 }
 
-QList<QJsonObject> Patients::getAllPatients()
+QList<QVariantMap> Patients::getAllPatients()
 {
     QString sql = "select * from PatientInfo";
-    QList<QJsonObject> datas = DbManager::instance()->getDatas(sql);
+    QList<QVariantMap> datas;
+    StatusCode status = DbManager::instance()->getDatas(sql, datas);
+    if (status != StatusCode::Success)
+        sendDbMessage();
     return datas;
 }
 
-quint64 Patients::appendPatient(const QJsonObject& data)
+quint64 Patients::appendPatient(const QJsonObject &data)
 {
     QList<QJsonObject> datas;
     datas.append(data);
@@ -86,7 +94,7 @@ quint64 Patients::appendPatient(const QJsonObject& data)
     return datas[0].value("Id").toString().toULongLong();
 }
 
-int Patients::updatePatient(const QJsonObject& data)
+int Patients::updatePatient(const QJsonObject &data)
 {
     QStringList whereFileds = {};
     whereFileds.append("Id");
@@ -96,8 +104,7 @@ int Patients::updatePatient(const QJsonObject& data)
     return ret;
 }
 
-
-int Patients::deletePatients(const QString& pids)
+int Patients::deletePatients(const QString &pids)
 {
     if (pids.size() == 0)
         return 0;
@@ -110,17 +117,21 @@ int Patients::deletePatients(const QString& pids)
     QSqlQuery qry = DbManager::instance()->newQuery();
     qry.prepare("DELETE FROM PatientInfo WHERE Id = :id");
     const auto idListConst = idList;
-    for (const QString &id : idListConst) {
+    for (const QString &id : idListConst)
+    {
         qry.bindValue(":id", id.trimmed());
-        if (!qry.exec()) {
-            emit messageEmitted(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
+        if (!qry.exec())
+        {
+            MessageInfo msg = MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed);
+            qDebug() << msg.text;
+            emit messageEmitted(msg);
             return 1;
         }
     }
     return 0;
 }
 
-int Patients::deleteDir(const QString& path)
+int Patients::deleteDir(const QString &path)
 {
     QDir dir(path);
 
@@ -143,10 +154,11 @@ int Patients::deleteDir(const QString& path)
 
 QString Patients::getNextTestId()
 {
-    //QString receiptDate = QDate::currentDate().toString("yyyy-MM-dd");
+    // QString receiptDate = QDate::currentDate().toString("yyyy-MM-dd");
     QString sql = "SELECT MAX(CAST(TestId AS INTEGER)) AS MaxTestId FROM PatientInfo";
     // Where ReceiptDate='" + receiptDate + "'";
-    QList<QJsonObject> datas = DbManager::instance()->getDatas(sql);
+    QList<QVariantMap> datas;
+    DbManager::instance()->getDatas(sql, datas);
     if (datas.length() == 0)
         return 0;
 
@@ -155,14 +167,17 @@ QString Patients::getNextTestId()
     return ret;
 }
 
-QJsonObject Patients::findReport(const QString& value, const QString& key)
+QJsonObject Patients::findReport(const QString &value, const QString &key)
 {
     QJsonObject data = {};
     QSqlQuery qry = DbManager::instance()->newQuery();
     qry.prepare(QString("select * from Report where %1 = :value").arg(key));
     qry.bindValue(":value", value);
-    if (!qry.exec()) {
-        emit messageEmitted(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
+    if (!qry.exec())
+    {
+        MessageInfo msg = MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed);
+        qDebug() << msg.text;
+        emit messageEmitted(msg);
         return data;
     }
     QList<QJsonObject> datas;
@@ -174,7 +189,7 @@ QJsonObject Patients::findReport(const QString& value, const QString& key)
     return data;
 }
 
-quint64 Patients::appendReport(const QJsonObject& data)
+quint64 Patients::appendReport(const QJsonObject &data)
 {
     QList<QJsonObject> datas;
     datas.append(data);
@@ -185,7 +200,7 @@ quint64 Patients::appendReport(const QJsonObject& data)
     return datas[0].value("Id").toString().toULongLong();
 }
 
-int Patients::updateReport(const QJsonObject& data)
+int Patients::updateReport(const QJsonObject &data)
 {
     QStringList whereFileds = {};
     whereFileds.append("Id");
@@ -195,7 +210,7 @@ int Patients::updateReport(const QJsonObject& data)
     return ret;
 }
 
-int Patients::deleteReport(const QString& rid)
+int Patients::deleteReport(const QString &rid)
 {
     if (rid == "")
         return 0;
@@ -203,14 +218,17 @@ int Patients::deleteReport(const QString& rid)
     QSqlQuery qry = DbManager::instance()->newQuery();
     qry.prepare("DELETE FROM Report WHERE Id = :id");
     qry.bindValue(":id", rid);
-    if (!qry.exec()) {
-        emit messageEmitted(qry.lastError().text());
+    if (!qry.exec())
+    {
+        MessageInfo msg = MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed);
+        qDebug() << msg.text;
+        emit messageEmitted(msg);
         return 1;
     }
     return 0;
 }
 
-int Patients::backupRecords(const QString& fileName, const QList<QJsonObject>& datas)
+int Patients::backupRecords(const QString &fileName, const QList<QJsonObject> &datas)
 {
     QJsonArray dbs;
     for (int i = 0; i < datas.size(); i++)
@@ -236,7 +254,7 @@ int Patients::backupRecords(const QString& fileName, const QList<QJsonObject>& d
     }
     else
     {
-        //qDebug() << "File open!";
+        // qDebug() << "File open!";
     }
     QJsonDocument jsonDoc;
     jsonDoc.setArray(dbs);
@@ -245,19 +263,21 @@ int Patients::backupRecords(const QString& fileName, const QList<QJsonObject>& d
     return 0;
 }
 
-int Patients::recoverRecords(const QString& fileName)
+int Patients::recoverRecords(const QString &fileName)
 {
-    QFile  loadFile(fileName);
+    QFile loadFile(fileName);
     if (!loadFile.exists())
     {
-        qDebug() << "recoverDb: " + fileName + " file dont exist.";
-        emit messageEmitted(tr("Search.FileDontExist") + ":" + fileName, Enums::InfoType::Toast, Enums::ErrorCode::FileNotFound);
+        MessageInfo msg = MessageInfo("recoverDb: " + fileName + " file dont exist.", StatusCode::FileNotFound);
+        qDebug() << msg.text;
+        emit messageEmitted(msg);
         return 1;
     }
     if (!loadFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        qDebug() << "recoverDb: " + tr("Search.LoadFileInvalid") + ": "+ fileName;
-        emit messageEmitted(tr("Search.LoadFileInvalid") + ":" + fileName, Enums::InfoType::Toast, Enums::ErrorCode::FileReadFailed);
+        MessageInfo msg = MessageInfo("recoverDb: " + tr("Search.LoadFileInvalid") + ": " + fileName, StatusCode::FileReadFailed);
+        qDebug() << msg.text;
+        emit messageEmitted(msg);
         return 1;
     }
     QByteArray array = loadFile.readAll();
@@ -268,7 +288,7 @@ int Patients::recoverRecords(const QString& fileName)
     {
         QString str = tr("Search.JsonParseError") + jsonParseError.errorString();
         qDebug() << str;
-        emit messageEmitted(str, Enums::InfoType::Toast, Enums::ErrorCode::InvalidFormat);
+        emit messageEmitted(MessageInfo(str, StatusCode::InvalidFormat));
         return 1;
     }
     QJsonArray dbs = jsonDoc.array();
@@ -294,8 +314,9 @@ int Patients::recoverRecords(const QString& fileName)
             rid = appendReport(repData);
             if (rid == 0)
             {
-                qDebug() << "recoverDb: " + tr("Search.RecoverDbInvalid");
-                emit messageEmitted(tr("Search.RecoverDbInvalid"), Enums::InfoType::Toast, Enums::ErrorCode::DbRecoverFailed);
+                MessageInfo msg = MessageInfo(tr("Search.RecoverDbInvalid"), StatusCode::DbRecoverFailed);
+                qDebug() << msg.text;
+                emit messageEmitted(msg);
                 return 1;
             }
         }
@@ -305,15 +326,16 @@ int Patients::recoverRecords(const QString& fileName)
         id = appendPatient(patData);
         if (id == 0)
         {
-            qDebug() << "recoverDb: " + tr("Search.RecoverDbInvalid");
-            emit messageEmitted(tr("Search.RecoverDbInvalid"), Enums::InfoType::Toast, Enums::ErrorCode::DbRecoverFailed);
+            MessageInfo msg = MessageInfo(tr("Search.RecoverDbInvalid"), StatusCode::DbRecoverFailed);
+            qDebug() << msg.text;
+            emit messageEmitted(msg);
             return 1;
         }
     }
     return 0;
 }
 
-int Patients::exportXlsx(const QString& fileName, const QList<QJsonObject>& datas, const QList<QString>& fields)
+int Patients::exportXlsx(const QString &fileName, const QList<QJsonObject> &datas, const QList<QString> &fields)
 {
 #ifndef USE_QXLSX
     Q_UNUSED(fileName)
@@ -339,14 +361,14 @@ int Patients::exportXlsx(const QString& fileName, const QList<QJsonObject>& data
             upper = 'A' + i - 26;
             col = "A" + QString(upper);
         }
-        hulaXlsx.write(col + "1" , label);
+        hulaXlsx.write(col + "1", label);
     }
 
     for (int i = 0; i < datas.size(); i++)
     {
-        QString strRow = QString::number(i+2);
+        QString strRow = QString::number(i + 2);
         QList<QString> keys = fields;
-        //hulaXlsx.addSheet(QString::number(datas[i]["Id"].toInt()));
+        // hulaXlsx.addSheet(QString::number(datas[i]["Id"].toInt()));
         for (int j = 0; j < keys.size(); j++)
         {
             if (j < 26)
@@ -380,4 +402,14 @@ int Patients::exportXlsx(const QString& fileName, const QList<QJsonObject>& data
     hulaXlsx.save();
 #endif
     return 0;
+}
+
+void Patients::sendDbMessage()
+{
+    MessageInfo msg;
+    if (DbManager::instance()->takeLastError(msg))
+    {
+        qCritical() << QString("Error code: %1, error information:%2").arg(static_cast<int>(msg.statusCode)).arg(msg.text);
+        emit messageEmitted(msg);
+    }
 }

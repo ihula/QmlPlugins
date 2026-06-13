@@ -22,7 +22,7 @@
 DataDict::DataDict(QObject *parent) : QObject(parent)
     ,m_sender(this)
 {
-    connect(this, &DataDict::messageEmitted, &m_sender, &BaseInfoSender::messageEmitted);
+    connect(this, &DataDict::messageEmitted, &m_sender, &BaseMsgSender::messageEmitted);
 }
 
 QList<QJsonObject> DataDict::getDatas(DictType type)
@@ -32,8 +32,8 @@ QList<QJsonObject> DataDict::getDatas(DictType type)
     qry.prepare("select * from DataDict where Type = :type");
     qry.bindValue(":type", static_cast<int>(type));
     if (!qry.exec()) {
-        m_lastErrorInfo = qry.lastError().text();
-        emit messageEmitted(m_lastErrorInfo, Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
+        m_lastError = MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed);
+        emit messageEmitted(m_lastError);
         return datas;
     }
     DbManager::instance()->getDbDatas(qry, datas);
@@ -77,16 +77,16 @@ int DataDict::deleteData(quint64 id)
     qry.prepare("DELETE from DataDict where Id = :id");
     qry.bindValue(":id", id);
     if (!qry.exec()) {
-        m_lastErrorInfo = qry.lastError().text();
-        emit messageEmitted(m_lastErrorInfo, Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
+        m_lastError = MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed);
+        emit messageEmitted(m_lastError);
         return 1;
     }
     return 0;
 }
 
-QString DataDict::lastErrorInfo()
+MessageInfo DataDict::lastError()
 {
-    return m_lastErrorInfo;
+    return m_lastError;
 }
 
 int DataDict::codeExisted(quint64 id, const QString& code)
@@ -100,8 +100,8 @@ int DataDict::codeExisted(quint64 id, const QString& code)
     }
     qry.bindValue(":code", code);
     if (!qry.exec()) {
-        m_lastErrorInfo = qry.lastError().text();
-        emit messageEmitted(m_lastErrorInfo, Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
+        m_lastError = MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed);
+        emit messageEmitted(m_lastError);
         return 1;
     }
     QList<QJsonObject> datas;

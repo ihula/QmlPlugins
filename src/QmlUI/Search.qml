@@ -840,7 +840,7 @@ Rectangle {
                 data[child.fieldName + "-Type"] = child.fieldType;
         }
         // var datas = patients.findPatients(data);
-        var datas = patients.search(data);
+        var datas = patients.searchDatas(data);
         viewDatas(datas);
         snackMessage("Search.SearchFinished");
     }

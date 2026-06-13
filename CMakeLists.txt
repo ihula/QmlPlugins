@@ -38,10 +38,10 @@ qt_add_executable(${APP_NAME}
     src/hulalogger.cpp
     src/translater.h
     src/translater.cpp
-    src/infocenter.h
-    src/infocenter.cpp
-    src/baseinfosender.h
-    src/baseinfosender.cpp
+    src/messagecenter.h
+    src/messagecenter.cpp
+    src/basemsgsender.h
+    src/basemsgsender.cpp
     src/userinfo.h
     src/userinfo.cpp
     src/datadict.h
@@ -83,9 +83,9 @@ qt_add_qml_module(${APP_NAME}
     QML_FILES ${QML_SOURCES}
     SOURCES
         src/common.h
-        src/baseinfosender.h src/baseinfosender.cpp
+        src/basemsgsender.h src/basemsgsender.cpp
         src/userinfo.h src/userinfo.cpp
-        src/infocenter.h src/infocenter.cpp
+        src/messagecenter.h src/messagecenter.cpp
         src/configer.h src/configer.cpp
         src/datadict.h src/datadict.cpp
         src/patients.h src/patients.cpp
@@ -125,10 +125,15 @@ if(APPLE)
     )
 endif()
 
-target_compile_definitions(${APP_NAME} PRIVATE APP_URI="${APP_NAME}" )
+target_compile_definitions(${APP_NAME} PRIVATE
+    APP_URI="${APP_NAME}"
+    DEPLOY_MODE=0
+)
 
 # 安装目标
 install(TARGETS ${APP_NAME}
     BUNDLE DESTINATION .
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+

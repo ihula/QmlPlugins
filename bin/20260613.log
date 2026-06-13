@@ -1,0 +1,45 @@
+[Info] [2026-06-13 01:31:17.783] [:0] [] Syncing from newer directory: ../resources/Images -> Images
+[Info] [2026-06-13 01:31:17.793] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 35
+[Info] [2026-06-13 01:31:17.799] [:0] [] Syncing from newer directory: ../resources/Languages -> Languages
+[Info] [2026-06-13 01:31:17.807] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 2
+[Info] [2026-06-13 01:31:17.819] [:0] [] Syncing from newer directory: ../resources/Splash -> Splash
+[Info] [2026-06-13 01:31:17.824] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 8
+[Info] [2026-06-13 01:31:17.848] [:0] [] Syncing from newer directory: ../resources/wallpaper -> wallpaper
+[Info] [2026-06-13 01:31:17.853] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 23
+[Info] [2026-06-13 01:31:17.882] [:0] [] Synced file: ../resources/anydata.db -> anydata.db
+[Info] [2026-06-13 01:35:04.091] [:0] [] Syncing from newer directory: ../resources/Images -> Images
+[Info] [2026-06-13 01:35:04.099] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 35
+[Info] [2026-06-13 01:35:04.105] [:0] [] Syncing from newer directory: ../resources/Languages -> Languages
+[Info] [2026-06-13 01:35:04.109] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 2
+[Info] [2026-06-13 01:35:04.120] [:0] [] Syncing from newer directory: ../resources/Splash -> Splash
+[Info] [2026-06-13 01:35:04.124] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 8
+[Info] [2026-06-13 01:35:04.157] [:0] [] Syncing from newer directory: ../resources/wallpaper -> wallpaper
+[Info] [2026-06-13 01:35:04.165] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 23
+[Info] [2026-06-13 01:35:04.203] [:0] [] Synced file: anydata.db -> ../resources/anydata.db
+[Info] [2026-06-13 23:43:53.515] [:0] [] Syncing from newer directory: ../resources/Images -> Images
+[Info] [2026-06-13 23:43:53.520] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 35
+[Info] [2026-06-13 23:43:53.525] [:0] [] Syncing from newer directory: ../resources/Languages -> Languages
+[Info] [2026-06-13 23:43:53.528] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 2
+[Info] [2026-06-13 23:43:53.534] [:0] [] Syncing from newer directory: ../resources/Splash -> Splash
+[Info] [2026-06-13 23:43:53.537] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 8
+[Info] [2026-06-13 23:43:53.553] [:0] [] Syncing from newer directory: ../resources/wallpaper -> wallpaper
+[Info] [2026-06-13 23:43:53.557] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 23
+[Info] [2026-06-13 23:43:53.573] [:0] [] Synced file: ../resources/anydata.db -> anydata.db
+[Info] [2026-06-13 23:45:29.176] [:0] [] Syncing from newer directory: ../resources/Images -> Images
+[Info] [2026-06-13 23:45:29.180] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 35
+[Info] [2026-06-13 23:45:29.184] [:0] [] Syncing from newer directory: ../resources/Languages -> Languages
+[Info] [2026-06-13 23:45:29.187] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 2
+[Info] [2026-06-13 23:45:29.196] [:0] [] Syncing from newer directory: ../resources/Splash -> Splash
+[Info] [2026-06-13 23:45:29.202] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 8
+[Info] [2026-06-13 23:45:29.220] [:0] [] Syncing from newer directory: ../resources/wallpaper -> wallpaper
+[Info] [2026-06-13 23:45:29.224] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 23
+[Info] [2026-06-13 23:45:29.242] [:0] [] Synced file: anydata.db -> ../resources/anydata.db
+[Info] [2026-06-13 23:52:09.112] [:0] [] Syncing from newer directory: ../resources/Images -> Images
+[Info] [2026-06-13 23:52:09.118] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 35
+[Info] [2026-06-13 23:52:09.122] [:0] [] Syncing from newer directory: ../resources/Languages -> Languages
+[Info] [2026-06-13 23:52:09.125] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 2
+[Info] [2026-06-13 23:52:09.134] [:0] [] Syncing from newer directory: ../resources/Splash -> Splash
+[Info] [2026-06-13 23:52:09.137] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 8
+[Info] [2026-06-13 23:52:09.156] [:0] [] Syncing from newer directory: ../resources/wallpaper -> wallpaper
+[Info] [2026-06-13 23:52:09.159] [:0] [] Sync completed - Copied: 0, Deleted: 0, Skipped: 23
+[Info] [2026-06-13 23:52:09.178] [:0] [] Synced file: ../resources/anydata.db -> anydata.db

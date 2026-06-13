@@ -18,7 +18,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QTimer>
-#include "baseinfosender.h"
+#include "basemsgsender.h"
 
 /* @brief 数据字典Json格式
     "ID"-id qint64
@@ -75,7 +75,7 @@ public:
     Q_INVOKABLE int deleteData(quint64 id);
 
     /** @brief 最后一次产生的错误信息 */
-    Q_INVOKABLE QString lastErrorInfo();
+    Q_INVOKABLE MessageInfo lastError();
 
     /** @brief 编号是否已存在 */
     Q_INVOKABLE int codeExisted(quint64 id, const QString &code);
@@ -87,14 +87,14 @@ signals:
     * @param type 信息类型 (Toast/Confirmation)，默认为 Toast
     * @param code 错误码，默认为 NoError
     */
-    void messageEmitted(QString info, Enums::InfoType type = Enums::InfoType::Toast, Enums::ErrorCode code = Enums::ErrorCode::NoError);
+    void messageEmitted(MessageInfo msg);
 
 private:
     /** @brief 不方便使用多重继承,定义类成员变量 */
-    BaseInfoSender m_sender;
+    BaseMsgSender m_sender;
 
     /** @brief 最后一次错误信息 */
-    QString m_lastErrorInfo;
+    MessageInfo m_lastError;
 };
 
 #endif // DATADICT_H

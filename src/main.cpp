@@ -1,26 +1,33 @@
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
-#include <QQmlContext>
-#include <QQuickWindow>
-#include <QDebug>
-#include <QFont>
-#include <QProcess>
-#include <QQmlEngine>
-#include "singleappwatcher.h"
-#include "translater.h"
+#include "common.h"
 #include "configer.h"
 #include "dbmanager.h"
 #include "hulalogger.h"
-#include "common.h"
-
+#include "singleappwatcher.h"
+#include "translater.h"
+#include "utils.h"
+#include <QDebug>
+#include <QFont>
+#include <QGuiApplication>
+#include <QProcess>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include <QQmlEngine>
+#include <QQuickWindow>
 
 int main(int argc, char *argv[])
 {
     // 强制 Qt 使用 XCB (X11) 协议，解决 Wayland 下窗口无法移动的问题
     qputenv("QT_QPA_PLATFORM", "xcb");
 
-    QGuiApplication app(argc,argv);
-
+    QGuiApplication app(argc, argv);
+#if (!DEPLOY_MODE)
+    Utils::syncDir("../resources/Images", "./Images");
+    Utils::syncDir("../resources/Languages", "./Languages");
+    Utils::syncDir("../resources/Splash", "./Splash");
+    Utils::syncDir("../resources/wallpaper", "./wallpaper");
+    Utils::syncFile("../resources/anydata.db", "./anydata.db");
+    Utils::syncFile("../resources/Config.ini", "./Config.ini");
+#endif
     const QString SERVER_NAME = "com.hula.QmlPlugins";
     SingleAppWatcher appWatcher(SERVER_NAME);
     // 检测单实例,已有实例，直接退出
@@ -31,7 +38,7 @@ int main(int argc, char *argv[])
 
     logInit(Configer::instance()->logLevel());
 
-     app.setWindowIcon(QIcon("Images/icon.png"));
+    app.setWindowIcon(QIcon("Images/icon.png"));
 
     QFont font;
     font.setFamily(Configer::instance()->fontName());
@@ -41,13 +48,16 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    int dbResult = DbManager::instance()->connect(DB_FILE);
-    if (dbResult != static_cast<int>(Enums::ErrorCode::Success)) {
-        qCritical() << "Failed to create database connection, error code:" << dbResult;
+    qRegisterMetaType<MessageInfo>("MessageInfo");
+
+    StatusCode dbResult = DbManager::instance()->connect(DB_FILE);
+    if (dbResult != StatusCode::Success)
+    {
+        qCritical() << "Failed to create database connection, error code:" << static_cast<int>(dbResult);
         return -1;
     }
 
-    engine.rootContext()->setContextProperty("APP_PATH",app.applicationDirPath());
+    engine.rootContext()->setContextProperty("APP_PATH", app.applicationDirPath());
 
     QString currLang = Configer::instance()->currLanguage();
     Translater *translater = new Translater(&app);
@@ -61,8 +71,9 @@ int main(int argc, char *argv[])
         auto rootObjects = engine.rootObjects();
         if (rootObjects.isEmpty())
             return;
-        QQuickWindow* window = qobject_cast<QQuickWindow*>(rootObjects.first());
-        if (window) {
+        QQuickWindow *window = qobject_cast<QQuickWindow *>(rootObjects.first());
+        if (window)
+        {
             window->show();
             window->raise();
             window->requestActivate();
@@ -70,7 +81,7 @@ int main(int argc, char *argv[])
     });
 
     // 响应QML中的关机命令
-    QObject::connect(&engine, &QQmlApplicationEngine::exit,[=](int retCode){
+    QObject::connect(&engine, &QQmlApplicationEngine::exit, [=](int retCode) {
         if (retCode == 100)
         {
             qApp->quit();
@@ -82,15 +93,8 @@ int main(int argc, char *argv[])
         }
     });
 
-    QObject::connect(
-        &engine,
-        &QQmlApplicationEngine::objectCreationFailed,
-        &app,
-        []() { QCoreApplication::exit(-1); },
-        Qt::QueuedConnection);
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, &app, []() { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
     engine.loadFromModule(APP_URI, "Main");
 
     return app.exec();
 }
-
-

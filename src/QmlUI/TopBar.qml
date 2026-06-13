@@ -50,9 +50,9 @@ Rectangle {
     }
 
     Connections {
-        target: InfoCenter
-        function onMessageEmitted(info, type, code) {
-            showInfo(info, type, code);
+        target: MessageCenter
+        function onMessageEmitted(msg) {
+            showInfo(msg);
         }
     }
 
@@ -209,18 +209,18 @@ Rectangle {
         icon.color: breathed ? "#E31C75" : (hovered ? (Themer.theme.iconHoveredColor) : "transparent")
 
         HulaToolTip {
-            text: qsTr("InfoCenter.Title") + translater.change
+            text: qsTr("MessageCenter.Title") + translater.change
         }
 
         Component.onCompleted: {
-            if (InfoCenter.hasNewInfo()) {
+            if (MessageCenter.hasNewInfo()) {
                 startBreath();
             }
         }
 
         onClicked: {
             stopBreath();
-            mainForm.openDialog("InfoCenterForm.qml");
+            mainForm.openDialog("MessageCenterForm.qml");
         }
     }
 
@@ -376,17 +376,17 @@ Rectangle {
         btnInfo.opacity = 1.0;
     }
 
-    function showInfo(info, type, code) {
-        if (type === Enums.InfoType.Toast) {
+    function showInfo(msg, type) {
+        if (type === Enums.PromptType.Toast) {
             snackMessage(info);
-        } else if (type === Enums.InfoType.Dialog) {
+        } else if (type === Enums.PromptType.Error) {
             startBreath();
             var msgBox = openDialogPrompt(info, null, "Error");
             msgBox.autoClose = true;
-        } else if (type === Enums.InfoType.Confirmation) {
+        } else if (type === Enums.PromptType.Confirmation) {
             var confirmBox = openDialogPrompt(info, null, "Information");
             confirmBox.autoClose = true;
-        } else if (type === Enums.InfoType.Log) {
+        } else if (type === Enums.PromptType.Log) {
             startBreath();
         }
     }

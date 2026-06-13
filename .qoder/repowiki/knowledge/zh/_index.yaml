@@ -1,0 +1,38 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: zh-CN
+branch: main
+exported_at: "2026-06-12T15:51:11Z"
+modules:
+    "":
+        dir_name: Hula QML 桌面应用工程
+        title: Hula QML 桌面应用工程
+        scope:
+            - CMakeLists.txt
+            - README.md
+            - .gitignore
+            - LICENSE
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    app_source:
+        dir_name: Hula QML 桌面应用核心模块
+        title: Hula QML 桌面应用核心模块
+        scope:
+            - src/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: resources
+    resources:
+        dir_name: 应用资源与本地化管理
+        title: 应用资源与本地化管理
+        scope:
+            - resources/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: app_source

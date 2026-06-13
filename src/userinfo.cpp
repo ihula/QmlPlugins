@@ -12,14 +12,13 @@
 ** History:
 ****************************************************************************/
 #include "userinfo.h"
-#include <QVariant>
-#include <QDebug>
-#include <QDate>
-#include "dbmanager.h"
 #include "configer.h"
+#include "dbmanager.h"
 #include <QCryptographicHash>
+#include <QDate>
+#include <QDebug>
 #include <QUuid>
-
+#include <QVariant>
 
 int UserInfo::rowCount(const QModelIndex &parent) const
 {
@@ -35,11 +34,13 @@ QVariant UserInfo::data(const QModelIndex &index, int role) const
 {
     QMutexLocker locker(&m_dataMutex);
 
-    if (!index.isValid() || index.row() >= m_data.size() || index.column() >= m_headers.size()) {
+    if (!index.isValid() || index.row() >= m_data.size() || index.column() >= m_headers.size())
+    {
         return QVariant();
     }
 
-    if (role == Qt::DisplayRole) {
+    if (role == Qt::DisplayRole)
+    {
         return m_data[index.row()][index.column()];
     }
 
@@ -50,15 +51,20 @@ QVariant UserInfo::headerData(int section, Qt::Orientation orientation, int role
 {
     QMutexLocker locker(&m_dataMutex);
 
-    if (role != Qt::DisplayRole) {
+    if (role != Qt::DisplayRole)
+    {
         return QVariant();
     }
 
-    if (orientation == Qt::Horizontal) {
-        if (section >= 0 && section < m_headers.size()) {
+    if (orientation == Qt::Horizontal)
+    {
+        if (section >= 0 && section < m_headers.size())
+        {
             return m_headers[section];
         }
-    } else {
+    }
+    else
+    {
         return QString("Row %1").arg(section);
     }
 
@@ -78,7 +84,7 @@ void UserInfo::loadDatas()
     {
         QString error = query.lastError().text();
         qWarning() << "Query failed:" << error;
-        emit messageEmitted(error, Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
+        emit messageEmitted(MessageInfo(error, StatusCode::DbExecuteFailed));
         endResetModel();
         return;
     }
@@ -103,14 +109,16 @@ void UserInfo::loadDatas()
     endResetModel();
 }
 
-QJsonObject UserInfo::find(const QString& value, const QString& key)
+QJsonObject UserInfo::find(const QString &value, const QString &key)
 {
     QJsonObject data = {};
     QSqlQuery qry = DbManager::instance()->newQuery();
     qry.prepare(QString("select * from UserInfo where %1 = :value").arg(key));
     qry.bindValue(":value", value);
-    if (!qry.exec()) {
-        emit messageEmitted(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
+    if (!qry.exec())
+    {
+        qDebug() << qry.lastError().text();
+        emit messageEmitted(MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed));
         return data;
     }
     QList<QJsonObject> datas;
@@ -122,22 +130,26 @@ QJsonObject UserInfo::find(const QString& value, const QString& key)
     return data;
 }
 
-QList<QJsonObject> UserInfo::getDatas()
+QList<QVariantMap> UserInfo::getDatas()
 {
     QString sql = "select * from UserInfo";
-    QList<QJsonObject> datas = DbManager::instance()->getDatas(sql);
+    QList<QVariantMap> datas;
+    if (DbManager::instance()->getDatas(sql, datas) != StatusCode::Success)
+        sendDbMessage();
     return datas;
 }
 
 quint64 UserInfo::appendData(QJsonObject data)
 {
-    // 如果传入明文密码，自动哈希
-    if (data.contains("Password") && !data["Password"].toString().isEmpty()) {
-        data["Password"] = hashPassword(data["Password"].toString());
-    }
-    // 生成盐值
-    if (!data.contains("Salt") || data["Salt"].toString().isEmpty()) {
+    // 确保盐值存在
+    if (!data.contains("Salt") || data["Salt"].toString().isEmpty())
+    {
         data["Salt"] = generateSalt();
+    }
+    // 如果传入明文密码，使用数据库中的盐值进行哈希
+    if (data.contains("Password") && !data["Password"].toString().isEmpty())
+    {
+        data["Password"] = hashPassword(data["Password"].toString(), data["Salt"].toString());
     }
 
     QList<QJsonObject> datas;
@@ -151,9 +163,15 @@ quint64 UserInfo::appendData(QJsonObject data)
 
 int UserInfo::updateData(QJsonObject data)
 {
-    // 如果传入明文密码，自动哈希
-    if (data.contains("Password") && !data["Password"].toString().isEmpty()) {
-        data["Password"] = hashPassword(data["Password"].toString());
+    // 如果传入明文密码，使用数据库中的盐值进行哈希
+    if (data.contains("Password") && !data["Password"].toString().isEmpty())
+    {
+        // 确保盐值存在
+        if (!data.contains("Salt") || data["Salt"].toString().isEmpty())
+        {
+            data["Salt"] = generateSalt();
+        }
+        data["Password"] = hashPassword(data["Password"].toString(), data["Salt"].toString());
     }
 
     QStringList whereFileds = {};
@@ -164,31 +182,38 @@ int UserInfo::updateData(QJsonObject data)
     return ret;
 }
 
-int UserInfo::deleteData(const QString& id)
+int UserInfo::deleteData(const QString &id)
 {
     QSqlQuery qry = DbManager::instance()->newQuery();
     qry.prepare("DELETE FROM UserInfo WHERE Id = :id");
     qry.bindValue(":id", id);
-    if (!qry.exec()) {
-        emit messageEmitted(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
+    if (!qry.exec())
+    {
+        qDebug() << qry.lastError().text();
+        emit messageEmitted(MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed));
         return 1;
     }
     return 0;
 }
 
-int UserInfo::accountExisted(const QString& account, const QString& id)
+int UserInfo::accountExisted(const QString &account, const QString &id)
 {
     QSqlQuery qry = DbManager::instance()->newQuery();
     QString sql;
-    if (id == "") {
+    if (id == "")
+    {
         qry.prepare("select Name from UserInfo where Account = :account");
-    } else {
+    }
+    else
+    {
         qry.prepare("select Name from UserInfo where Account = :account and Id <> :id");
         qry.bindValue(":id", id);
     }
     qry.bindValue(":account", account);
-    if (!qry.exec()) {
-        emit messageEmitted(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
+    if (!qry.exec())
+    {
+        qDebug() << qry.lastError().text();
+        emit messageEmitted(MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed));
         return 0;
     }
     QList<QJsonObject> datas;
@@ -199,26 +224,32 @@ int UserInfo::accountExisted(const QString& account, const QString& id)
         return 0;
 }
 
-int UserInfo::checkPassword(const QString& account, const QString& pwd)
+int UserInfo::checkPassword(const QString &account, const QString &pwd)
 {
     QJsonObject user = findUserByAccount(account);
-    if (user.isEmpty()) {
-        return 1;  // 用户不存在
+    if (user.isEmpty())
+    {
+        return 1; // 用户不存在
     }
     QString storedHash = user["Password"].toString();
-    if (verifyPassword(pwd, storedHash)) {
-        return 0;  // 密码正确
+    QString salt = user["Salt"].toString();
+    if (verifyPassword(pwd, storedHash, salt))
+    {
+        return 0; // 密码正确
     }
-    return 1;  // 密码错误
+    return 1; // 密码错误
 }
 
-int UserInfo::login(const QString& account, const QString& pwd)
+int UserInfo::login(const QString &account, const QString &pwd)
 {
     bool isLogined = false;
     QJsonObject user = findUserByAccount(account);
-    if (!user.isEmpty()) {
+    if (!user.isEmpty())
+    {
         QString storedHash = user["Password"].toString();
-        if (verifyPassword(pwd, storedHash)) {
+        QString salt = user["Salt"].toString();
+        if (verifyPassword(pwd, storedHash, salt))
+        {
             isLogined = true;
             QString userName = user["Name"].toString();
             Configer::instance()->setUserAccount(account);
@@ -229,10 +260,11 @@ int UserInfo::login(const QString& account, const QString& pwd)
     return isLogined;
 }
 
-QString UserInfo::getUserName(const QString& account)
+QString UserInfo::getUserName(const QString &account)
 {
     QJsonObject user = findUserByAccount(account);
-    if (!user.isEmpty()) {
+    if (!user.isEmpty())
+    {
         return user["Name"].toString();
     }
     return "";
@@ -246,45 +278,48 @@ QJsonObject UserInfo::findUserByAccount(const QString &account)
     QSqlQuery qry = DbManager::instance()->newQuery();
     qry.prepare("select * from UserInfo where Account = :account");
     qry.bindValue(":account", account);
-    if (!qry.exec()) {
-        emit messageEmitted(qry.lastError().text(), Enums::InfoType::Toast, Enums::ErrorCode::DbExecuteFailed);
+    if (!qry.exec())
+    {
+        qDebug() << qry.lastError().text();
+        emit messageEmitted(MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed));
         return data;
     }
     QList<QJsonObject> datas;
     DbManager::instance()->getDbDatas(qry, datas);
-    if (datas.size() > 0) {
+    if (datas.size() > 0)
+    {
         data = datas[0];
     }
     return data;
 }
 
-QString UserInfo::hashPassword(const QString &password)
+QString UserInfo::hashPassword(const QString &password, const QString &salt)
 {
-    // 使用 PBKDF2 风格的迭代哈希（Qt 内置支持）
-    QByteArray salt = generateSalt().toUtf8();
-    QByteArray hash = QCryptographicHash::hash(salt + password.toUtf8(), QCryptographicHash::Sha256);
+    // 使用数据库中的盐值进行哈希
+    QByteArray saltBytes = salt.toUtf8();
+    QByteArray hash = QCryptographicHash::hash(saltBytes + password.toUtf8(), QCryptographicHash::Sha256);
     // 迭代 10000 次增强安全性
-    for (int i = 0; i < 10000; ++i) {
+    for (int i = 0; i < 10000; ++i)
+    {
         hash = QCryptographicHash::hash(hash + password.toUtf8(), QCryptographicHash::Sha256);
     }
-    // 格式: "salt$hash"
-    return QString::fromUtf8(salt.toBase64()) + "$" + QString::fromUtf8(hash.toBase64());
+    return QString::fromUtf8(hash.toBase64());
 }
 
-bool UserInfo::verifyPassword(const QString &password, const QString &storedHash)
+void UserInfo::sendDbMessage()
 {
-    QStringList parts = storedHash.split("$");
-    if (parts.size() != 2) {
-        // 兼容旧版明文密码（应逐步迁移）
-        return password == storedHash;
+    MessageInfo msg;
+    if (DbManager::instance()->takeLastError(msg))
+    {
+        qCritical() << QString("Error code: %1, error information:%2").arg(static_cast<int>(msg.statusCode)).arg(msg.text);
+        emit messageEmitted(msg);
     }
-    QByteArray salt = QByteArray::fromBase64(parts[0].toUtf8());
-    QByteArray hash = QCryptographicHash::hash(salt + password.toUtf8(), QCryptographicHash::Sha256);
-    for (int i = 0; i < 10000; ++i) {
-        hash = QCryptographicHash::hash(hash + password.toUtf8(), QCryptographicHash::Sha256);
-    }
-    QString computedHash = QString::fromUtf8(hash.toBase64());
-    return computedHash == parts[1];
+}
+
+bool UserInfo::verifyPassword(const QString &password, const QString &storedHash, const QString &salt)
+{
+    QString computedHash = hashPassword(password, salt);
+    return computedHash == storedHash;
 }
 
 QString UserInfo::generateSalt()

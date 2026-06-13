@@ -8,7 +8,7 @@
 ** @WeChat: ihula123
 ** @Contact: benny1225@hotmail.com
 ** @Date: 2022.10.20
-** @Brief: 更新文件类
+** @Brief: 工具类
 ** @History:
 ****************************************************************************/
 #ifndef UTILS_H
@@ -39,25 +39,43 @@ public:
     *@brief 复制目录
     *@param[in] sourceDir:源目录
     *@param[in] toDir:目标目录
-    *@param[in] cover:是覆盖目标目录中存在的同名文件
+    *@param[in] overwrite 是否覆盖目标目录中已存在的同名文件
     */
-    static bool copyDir(const QString &sourceDir, const QString &toDir, bool cover);
+    static bool copyDir(const QString &sourceDir, const QString &toDir, bool overwrite = true);
 
     /**
-    *@brief 将源目录中新修改或新创建的文件更新到目标目录
-    *@param[in] fromDir:源目录
-    *@param[in] toDir:目标目录
-    *@param[in] cover:是覆盖目标目录中存在的同名文件
+    *@brief 条件复制文件（仅当源文件更新时）
+    *@param[in] src 源文件
+    *@param[in] dst 目标文件
+    *@param[in] overwrite 是否强制覆盖（若为 true，则忽略时间戳直接覆盖）
+    *@return bool 复制是否成功（源文件不存在时返回true）
     */
-    static bool updateDirFiles(const QString &fromDir, const QString &toDir, bool cover);
+    static bool updateFile(const QString &src, const QString &dst, bool overwrite = true);
 
     /**
-    *@brief 将新修改的源文件更新到目标位置
+    * @brief 获取目录的最新修改时间
+    *@param[in] dirPath 目标目录
+    *@return QDateTime 最新修改时间
+    */
+    static QDateTime getDirLatestTime(const QString &dirPath);
+
+    /**
+    *@brief 同步两个目录（将最新目录同步到另一个目录）
+    *@param[in] dir1 目录1
+    *@param[in] dir2 目录2
+    *@param[in] deleteOrphaned 是否删除目标目录中在源目录不存在的孤立文件
+    *@return bool 同步是否成功
+    */
+    static bool syncDir(const QString &dir1, const QString &dir2, bool deleteOrphaned = true);
+
+    /**
+    *@brief 同步单个文件
     *@param[in] src:源文件
     *@param[in] dst:目标文件
-    *@param[in] cover:是覆盖已存在的同名文件
+    *@param[in] deleteOrphaned 是否删除目标目录中在源目录不存在的孤立文件
+    *@return bool:同步是否成功
     */
-    static bool updateFile(const QString &src, const QString &dst, bool cover);
+    static bool syncFile(const QString &src, const QString &dst);
 };
 
-#endif // PUBLICFUNC_H
+#endif // UTILS_H

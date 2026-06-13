@@ -1,0 +1,11 @@
+schema_version: 1
+module_path: ""
+title: Hula QML 桌面应用工程
+scope:
+    - CMakeLists.txt
+    - README.md
+    - .gitignore
+    - LICENSE
+source_files: []
+depends_on: []
+related_to: []

@@ -11,7 +11,7 @@ HulaDialog {
     anchors.centerIn: parent
     width: 520
     height: 430
-    formTitle: qsTr("InfoCenter.Title") + translater.change
+    formTitle: qsTr("MessageCenter.Title") + translater.change
     property font selectedFont: null
     signal selected(font font)
 
