@@ -20,6 +20,10 @@
 #include <QString>
 #include <QtQml/qqmlregistration.h>
 
+namespace Enums
+{
+Q_NAMESPACE
+
 /**
  * @brief 提示类型枚举
  */
@@ -30,7 +34,6 @@ enum class PromptType
     Confirmation, ///< 确认并记录（弹窗）：模态对话框，提示用户
     Error         ///< 错误并记录（弹窗）：模态对话框，警告用户
 };
-Q_DECLARE_METATYPE(PromptType)
 
 /**
  * @brief 设备状态枚举
@@ -121,31 +124,41 @@ enum class StatusCode
     AuthorizationFailed = 2003,  ///< 授权失败
     RateLimitExceeded = 2004,    ///< 请求频率超限
 };
-Q_DECLARE_METATYPE(StatusCode)
 
-// 为命名空间添加 Qt 元对象支持
-namespace Enums
-{
-Q_NAMESPACE
-QML_ELEMENT
 Q_ENUM_NS(PromptType)
 Q_ENUM_NS(DeviceStatus)
 Q_ENUM_NS(StatusCode)
 } // namespace Enums
+
+using Enums::StatusCode;
+using Enums::PromptType;
+using Enums::DeviceStatus;
+
+Q_DECLARE_METATYPE(Enums::PromptType)
+Q_DECLARE_METATYPE(Enums::DeviceStatus)
+Q_DECLARE_METATYPE(Enums::StatusCode)
 
 /**
  * @brief 消息信息结构体
  */
 struct MessageInfo
 {
-    QString text;          ///< 信息
-    StatusCode statusCode; ///< 状态码
-    PromptType promptType; ///< 提示类型
+    Q_GADGET
+    Q_PROPERTY(QString text     MEMBER text)
+    Q_PROPERTY(int statusCode   READ getStatusCode)
+    Q_PROPERTY(int promptType   READ getPromptType)
+public:
+    QString text;                      ///< 信息
+    Enums::StatusCode statusCode;      ///< 状态码
+    Enums::PromptType promptType;      ///< 提示类型
+
+    int getStatusCode() const { return static_cast<int>(statusCode); }
+    int getPromptType() const { return static_cast<int>(promptType); }
 
     /**
      * @brief 构造函数
      */
-    MessageInfo() : text(""), statusCode(StatusCode::UnknownError), promptType(PromptType::Error)
+    MessageInfo() : text(""), statusCode(Enums::StatusCode::UnknownError), promptType(Enums::PromptType::Error)
     {
     }
 
@@ -155,7 +168,7 @@ struct MessageInfo
      * @param s 状态码
      * @param msg 信息
      */
-    MessageInfo(const QString &msg, StatusCode s, PromptType t = PromptType::Error) : text(msg), statusCode(s), promptType(t)
+    MessageInfo(const QString &msg, Enums::StatusCode s, Enums::PromptType t = Enums::PromptType::Error) : text(msg), statusCode(s), promptType(t)
     {
     }
 

@@ -2,7 +2,7 @@
 schema_version: 1
 locale: zh-CN
 branch: main
-exported_at: "2026-06-12T15:51:11Z"
+exported_at: "2026-06-14T09:18:22Z"
 modules:
     "":
         dir_name: Hula QML 桌面应用工程
@@ -22,17 +22,70 @@ modules:
         scope:
             - src/
         source_files: []
-        children: []
+        children:
+            - app_source/core_backend
+            - app_source/qml_views_and_themes
+            - app_source/hula_ui_components
         depends_on: []
         related_to:
             - path: resources
+    app_source/core_backend:
+        dir_name: 核心后端业务逻辑与基础设施
+        title: 核心后端业务逻辑与基础设施
+        scope:
+            - src/basemsgsender.cpp
+            - src/basemsgsender.h
+            - src/common.h
+            - src/configer.cpp
+            - src/configer.h
+            - src/databasemodel.cpp
+            - src/databasemodel.h
+            - src/datadict.cpp
+            - src/datadict.h
+            - src/dbmanager.cpp
+            - src/dbmanager.h
+            - src/hulalogger.cpp
+            - src/hulalogger.h
+            - src/main.cpp
+            - src/messagecenter.cpp
+            - src/messagecenter.h
+            - src/patients.cpp
+            - src/patients.h
+            - src/singleappwatcher.h
+            - src/translater.cpp
+            - src/translater.h
+            - src/userinfo.cpp
+            - src/userinfo.h
+            - src/utils.cpp
+            - src/utils.h
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    app_source/hula_ui_components:
+        dir_name: Hula UI 组件库
+        title: Hula UI 组件库
+        scope:
+            - src/HulaUI/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    app_source/qml_views_and_themes:
+        dir_name: QML 视图与主题管理模块
+        title: QML 视图与主题管理模块
+        scope:
+            - src/QmlUI/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
     resources:
-        dir_name: 应用资源与本地化管理
-        title: 应用资源与本地化管理
+        dir_name: 应用资源与国际化配置中心
+        title: 应用资源与国际化配置中心
         scope:
             - resources/
         source_files: []
         children: []
         depends_on: []
-        related_to:
-            - path: app_source
+        related_to: []

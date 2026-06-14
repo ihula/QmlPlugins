@@ -377,18 +377,18 @@ Rectangle {
     }
 
     function showInfo(msg) {
-        console.log(1, PromptType.Toast);
+        console.log(1, Enums.Toast);
         console.log(msg.text);
-        if (msg.promptType === PromptType.Toast) {
+        if (msg.promptType === Enums.Toast) {
             snackMessage(msg.text);
-        } else if (msg.promptType === PromptType.Error) {
+        } else if (msg.promptType === Enums.Error) {
             startBreath();
             var msgBox = openDialogPrompt(msg.text, null, "Error");
             msgBox.autoClose = true;
-        } else if (msg.promptType === PromptType.Confirmation) {
+        } else if (msg.promptType === Enums.Confirmation) {
             var confirmBox = openDialogPrompt(msg.text, null, "Information");
             confirmBox.autoClose = true;
-        } else if (msg.promptType === PromptType.Log) {
+        } else if (msg.promptType === Enums.Log) {
             startBreath();
         }
     }
