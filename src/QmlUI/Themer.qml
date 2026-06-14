@@ -1,7 +1,7 @@
 pragma Singleton
 
 import QtQuick
-import QmlPlugins 1.0
+import QmlPlugins
 
 QtObject {
     id: themer

@@ -23,6 +23,7 @@
 namespace Enums
 {
 Q_NAMESPACE
+QML_ELEMENT
 
 /**
  * @brief 提示类型枚举

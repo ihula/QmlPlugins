@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import Qt.labs.qmlmodels
-import QmlPlugins 1.0
+import QmlPlugins
 import "../HulaUI"
 
 Rectangle {

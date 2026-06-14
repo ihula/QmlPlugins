@@ -15,11 +15,10 @@
 #define CONFIGER_H
 
 #include "singleton.h"
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QObject>
 #include <QVector>
-#include <QJsonObject>
-#include <QJsonArray>
-
 
 #define APP_NAME "HulaQml"
 #define APP_DOMAIN "hula.com"
@@ -33,49 +32,46 @@
 #define DEPLOY_WIN 1
 
 #ifdef Q_OS_MACOS // macOS下开发目录
-    #define PATH_PRE QString("../../../src/")
+#define PATH_PRE QString("../../../src/")
 #elif DEPLOY_WIN // 源码时将每三方库放到目录下
-        #define PATH_PRE /*QCoreApplication::applicationFilePath()*/
-#elif WIN_OS // windows下开发目录
-        #define PATH_PRE QString("../src/")
+#define PATH_PRE /*QCoreApplication::applicationFilePath()*/
+#elif WIN_OS     // windows下开发目录
+#define PATH_PRE QString("../src/")
 #endif
 
 // Qml使用的图片目录
-#define QML_RES_PATH        "../Images/"
+#define QML_RES_PATH "../Images/"
 
 // Qml使用的保存拍摄图片目录
-#define QML_CAP_PATH        "Capture/"
+#define QML_CAP_PATH "Capture/"
 
 // Qml使用的Splash界面图片目录
-#define QML_SPLASH_PATH     "../Splash/"
+#define QML_SPLASH_PATH "../Splash/"
 
 // 多语言文件目录
-#define LANG_PATH       PATH_PRE+"Languages/"
+#define LANG_PATH PATH_PRE + "Languages/"
 
 // 配置文件
-#define CFG_FILE        PATH_PRE+"Config.ini"
+#define CFG_FILE PATH_PRE + "Config.ini"
 
 // 个性化配置文件
-#define CFG_CUSTOM_FILE        PATH_PRE+"Custom.ini"
-
-// 日志文件保存目录
-#define LOG_PATH        PATH_PRE+"Log/"
+#define CFG_CUSTOM_FILE PATH_PRE + "Custom.ini"
 
 // Qt使用的Splash界面图片目录
-#define SPLASH_PATH     PATH_PRE+"Splash/"
+#define SPLASH_PATH PATH_PRE + "Splash/"
 
 // Qt使用的图片目录
-#define RES_PATH        PATH_PRE+"Images/"
+#define RES_PATH PATH_PRE + "Images/"
 
 // 数据库文件
-#define DB_FILE         PATH_PRE+"anydata.db"
+#define DB_FILE PATH_PRE + "anydata.db"
 
 // Qt使用的保存拍摄图片目录
-#define CAP_PATH        PATH_PRE+"Capture/"
+#define CAP_PATH PATH_PRE + "Capture/"
 
 // 默认的报表文件
 #ifdef USE_LIMER_RPT // 工程文件中定义
-#define REPORT_FILE     QString(PATH_PRE) +"Report.lrxml"
+#define REPORT_FILE QString(PATH_PRE) + "Report.lrxml"
 #endif
 
 // 配置文件默认组名
@@ -94,23 +90,23 @@
 #include <QQmlEngine>
 #include <QtQml>
 
-
 class Configer : public QObject
 {
     Q_OBJECT
-    QML_ELEMENT // 注册到QML
-    QML_SINGLETON // QML单例
+    QML_ELEMENT
+    QML_SINGLETON
 
-private:
+  private:
     explicit Configer(QObject *parent = nullptr);
 
-public:
+  public:
     /** @brief 类单一实例 */
     SINGLETON(Configer)
 
     // 提供一个特定签名的静态 create 方法，QML单例用
     // 参数必须是 QQmlEngine*, QJSEngine*，返回值是 Configer*
-    static Configer *create(QQmlEngine *qmlEngine, QJSEngine *jsEngine) {
+    static Configer *create(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
+    {
         Q_UNUSED(qmlEngine)
         Q_UNUSED(jsEngine)
 
@@ -256,21 +252,20 @@ public:
     Q_INVOKABLE QList<int> cameraRoi();
     Q_INVOKABLE void setCameraRoi(int x, int y, int w, int h);
 
-signals:
+  signals:
     /** @brief 配置更新时通过此方法的信号通知 */
     void changedBool();
 
-private:
+  private:
     /** @brief 读取key的值到配置文件 */
     QVariant readValue(const QString &key, const QString &group = CFG_ROOT, const QString &file = CFG_FILE);
 
     /** @brief 保存key的值到配置文件 */
     void writeValue(const QString &key, const QVariant &value, const QString &group = CFG_ROOT, const QString &file = CFG_FILE);
 
-private:
+  private:
     QString m_userName = "";
     QString m_userAccount = "";
-
 };
 
 #endif // CONFIGER_H

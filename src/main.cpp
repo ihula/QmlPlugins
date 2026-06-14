@@ -48,9 +48,6 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    // 注册 Enums 命名空间到 QML，QML 中可直接使用 Enums.Toast / Enums.Error 等
-    qmlRegisterUncreatableMetaObject(Enums::staticMetaObject, "QmlPlugin", 1, 0, "Enums", "Enums is not creatable");
-
     StatusCode dbResult = DbManager::instance()->connect(DB_FILE);
     if (dbResult != StatusCode::Success)
     {

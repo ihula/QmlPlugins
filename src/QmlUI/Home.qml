@@ -4,7 +4,7 @@ import QtQuick.Controls.Material
 import QtQuick.Controls.Fusion as Fusion
 import QtQuick.Layouts
 import "../HulaUI"
-import QmlPlugins 1.0
+import QmlPlugins
 import "."
 
 Item {

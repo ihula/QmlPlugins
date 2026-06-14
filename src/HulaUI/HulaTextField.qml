@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
-import QmlPlugins 1.0
+import QmlPlugins
 
 TextField {
     id: textField

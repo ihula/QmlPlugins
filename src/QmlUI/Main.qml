@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
-import QmlPlugins 1.0
+import QmlPlugins
 
 QtObject {
     id: main

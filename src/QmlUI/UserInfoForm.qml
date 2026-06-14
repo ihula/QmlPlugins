@@ -4,7 +4,7 @@ import QtQuick.Controls.Material
 import Qt.labs.qmlmodels
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
-import QmlPlugins 1.0
+import QmlPlugins
 
 HulaDialog {
     id: root

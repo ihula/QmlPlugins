@@ -5,7 +5,7 @@ import QtQuick.Layouts
 import Qt.labs.qmlmodels
 import QtQuick.Dialogs
 import "../HulaUI"
-import QmlPlugins 1.0
+import QmlPlugins
 
 Rectangle {
     id: root

@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Layouts
 import Qt.labs.qmlmodels
-import QmlPlugins 1.0
+import QmlPlugins
 import "../HulaUI"
 
 Window {

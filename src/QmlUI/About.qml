@@ -1,7 +1,7 @@
 ﻿import QtQuick
 import QtQuick.Controls.Fusion
 import QtQuick.Layouts
-import QmlPlugins 1.0
+import QmlPlugins
 
 HulaDialog {
     id: root

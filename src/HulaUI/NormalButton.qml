@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Fusion
-import QmlPlugins 1.0
+import QmlPlugins
 
 Button {
     id: root

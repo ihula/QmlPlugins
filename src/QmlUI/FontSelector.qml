@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Controls.Fusion as Fusion
 import QtQuick.Layouts
-import QmlPlugins 1.0
+import QmlPlugins
 
 // 自定义字体选择弹窗
 HulaDialog {

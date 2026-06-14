@@ -4,9 +4,8 @@ import QtQuick.Controls.Material
 import QtQuick.Layouts
 import QtQuick.Shapes
 import Qt5Compat.GraphicalEffects
-import QmlPlugins 1.0
+import QmlPlugins
 import "../HulaUI"
-import QmlPlugin 1.0
 
 Rectangle {
     id: titleBar
@@ -377,18 +376,16 @@ Rectangle {
     }
 
     function showInfo(msg) {
-        console.log(1, Enums.Toast);
-        console.log(msg.text);
-        if (msg.promptType === Enums.Toast) {
+        if (msg.promptType === Enums.PromptType.Toast) {
             snackMessage(msg.text);
-        } else if (msg.promptType === Enums.Error) {
+        } else if (msg.promptType === Enums.PromptType.Error) {
             startBreath();
             var msgBox = openDialogPrompt(msg.text, null, "Error");
             msgBox.autoClose = true;
-        } else if (msg.promptType === Enums.Confirmation) {
+        } else if (msg.promptType === Enums.PromptType.Confirmation) {
             var confirmBox = openDialogPrompt(msg.text, null, "Information");
             confirmBox.autoClose = true;
-        } else if (msg.promptType === Enums.Log) {
+        } else if (msg.promptType === Enums.PromptType.Log) {
             startBreath();
         }
     }
