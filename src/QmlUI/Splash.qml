@@ -82,7 +82,7 @@ Window {
             anchors.verticalCenter: parent.verticalCenter
             font.pixelSize: 28
             font.bold: false
-            text: qsTr("CompanyName") + translater.change
+            text: qsTr("CompanyName") + Translater.change
         }
     }
     Text {
@@ -91,7 +91,7 @@ Window {
         anchors.horizontalCenter: parent.horizontalCenter
         font.bold: false
         font.pixelSize: 18
-        text: qsTr("Splash.Slogan") + translater.change
+        text: qsTr("Splash.Slogan") + Translater.change
     }
 
     ProgressBar {

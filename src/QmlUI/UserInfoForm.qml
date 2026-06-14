@@ -13,7 +13,7 @@ HulaDialog {
     height: isAdmin ? 480 : 360
     x: (mainForm.width - width) / 2
     y: (mainForm.height - height) / 2
-    formTitle: qsTr("User.Title") + translater.change
+    formTitle: qsTr("User.Title") + Translater.change
     property int dictType: 0
 
     onShowForm: {
@@ -39,7 +39,7 @@ HulaDialog {
             Layout.preferredHeight: 32
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
-            text: qsTr("User.Type") + translater.change
+            text: qsTr("User.Type") + Translater.change
             font.pixelSize: parent.lblFontSize
         }
         ComboBox {
@@ -53,8 +53,8 @@ HulaDialog {
             selectTextByMouse: true
             editable: false
             enabled: isAdmin
-            property string admin: qsTr("User.Admin") + translater.change
-            property string normal: qsTr("User.Normal") + translater.change
+            property string admin: qsTr("User.Admin") + Translater.change
+            property string normal: qsTr("User.Normal") + Translater.change
             model: [normal, admin]
         }
 
@@ -62,7 +62,7 @@ HulaDialog {
             Layout.preferredHeight: 32
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
-            text: qsTr("User.Name") + translater.change
+            text: qsTr("User.Name") + Translater.change
             font.pixelSize: parent.lblFontSize
         }
         TextField {
@@ -81,7 +81,7 @@ HulaDialog {
             Layout.preferredHeight: 32
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
-            text: qsTr("User.Account") + translater.change
+            text: qsTr("User.Account") + Translater.change
             font.pixelSize: parent.lblFontSize
         }
         TextField {
@@ -100,7 +100,7 @@ HulaDialog {
             Layout.preferredHeight: 32
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
-            text: qsTr("User.NewPassword") + translater.change
+            text: qsTr("User.NewPassword") + Translater.change
             font.pixelSize: parent.lblFontSize
         }
         TextField {
@@ -120,7 +120,7 @@ HulaDialog {
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
             property string title: (!isAdmin) ? "User.OldPassword" : (btnAdd.enabled ? "User.OldPassword" : "User.RepeatPassword")
-            text: qsTr(title) + translater.change
+            text: qsTr(title) + Translater.change
             font.pixelSize: parent.lblFontSize
         }
         TextField {
@@ -182,7 +182,7 @@ HulaDialog {
             id: btnAdd
             radius: 4
             font.pixelSize: editBar.lblFontSize
-            text: qsTr("User.Add") + translater.change
+            text: qsTr("User.Add") + Translater.change
             Material.background: "white"
             Material.foreground: "#535353"
             width: parent.width / 4 - 8
@@ -199,7 +199,7 @@ HulaDialog {
             id: btnSave
             radius: 4
             font.pixelSize: editBar.lblFontSize
-            text: qsTr("User.Save") + translater.change
+            text: qsTr("User.Save") + Translater.change
             Material.background: "white"
             Material.foreground: "#535353"
             width: parent.width / 4 - 8
@@ -212,7 +212,7 @@ HulaDialog {
         RoundButton {
             radius: 4
             font.pixelSize: editBar.lblFontSize
-            text: qsTr("User.Delete") + translater.change
+            text: qsTr("User.Delete") + Translater.change
             Material.background: "white"
             Material.foreground: "#535353"
             width: parent.width / 4 - 8
@@ -226,7 +226,7 @@ HulaDialog {
         RoundButton {
             radius: 4
             font.pixelSize: editBar.lblFontSize
-            text: qsTr("User.Back") + translater.change
+            text: qsTr("User.Back") + Translater.change
             Material.background: "white"
             Material.foreground: "#535353"
             width: parent.width / 4 - 8

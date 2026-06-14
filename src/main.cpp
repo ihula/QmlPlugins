@@ -20,6 +20,13 @@ int main(int argc, char *argv[])
     qputenv("QT_QPA_PLATFORM", "xcb");
 
     QGuiApplication app(argc, argv);
+
+    // 先初始化日志系统
+    HulaLogger::instance()->initialize(LogLevel::Debug); // 使用默认级别
+    // 然后再初始化其他模块
+    LogLevel level = static_cast<LogLevel>(Configer::instance()->logLevel());
+    HulaLogger::instance()->initialize(level);
+
 #if (!DEPLOY_MODE)
     Utils::syncDir("../resources/Images", "./Images");
     Utils::syncDir("../resources/Languages", "./Languages");
@@ -35,8 +42,6 @@ int main(int argc, char *argv[])
     {
         return 0;
     }
-
-    logInit(Configer::instance()->logLevel());
 
     app.setWindowIcon(QIcon("Images/icon.png"));
 
@@ -58,10 +63,9 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("APP_PATH", app.applicationDirPath());
 
     QString currLang = Configer::instance()->currLanguage();
-    Translater *translater = new Translater(&app);
-    translater->init("Languages/", engine.rootContext());
-    translater->setCurrentLang(currLang);
-    app.setApplicationDisplayName(translater->trans("AppName"));
+    Translater::instance()->initialize("Languages/");
+    Translater::instance()->setLanguage(currLang);
+    app.setApplicationDisplayName(Translater::instance()->trans("AppName"));
 
     // 找到主窗口并在收到激活信号时唤起它
     QObject::connect(&appWatcher, &SingleAppWatcher::activateRequested, [&engine]() {

@@ -1,5 +1,6 @@
 ﻿import QtQuick
 import QtQuick.Controls
+import QmlPlugins
 
 Popup {
     id: snackbar
@@ -10,10 +11,10 @@ Popup {
     closePolicy: Popup.NoAutoClose
 
     function openText(text) {
-        snackbar.text = text
-        open()
-        numAnim.start()
-        timer.start()
+        snackbar.text = text;
+        open();
+        numAnim.start();
+        timer.start();
     }
 
     x: 10
@@ -40,38 +41,38 @@ Popup {
         anchors.fill: parent
         hoverEnabled: true
         onPressed: mouse => {
-                       clickPos = Qt.point(mouse.x, mouse.y)
-                   }
+            clickPos = Qt.point(mouse.x, mouse.y);
+        }
 
         onEntered: {
             if (numAnim.running)
-                numAnim.pause()
-            timer.stop()
+                numAnim.pause();
+            timer.stop();
         }
 
         onExited: {
-            numAnim.resume()
-            timer.restart()
+            numAnim.resume();
+            timer.restart();
         }
 
         onPositionChanged: mouse => {
-                               if (mouse.buttons === Qt.LeftButton) {
-                                   //鼠标偏移量delta
-                                   var deltax = mouse.x - clickPos.x
-                                   var deltay = mouse.y - clickPos.y
-                                   snackbar.x = snackbar.x + deltax
-                                   snackbar.y = snackbar.y + deltay
-                               }
-                           }
+            if (mouse.buttons === Qt.LeftButton) {
+                //鼠标偏移量delta
+                var deltax = mouse.x - clickPos.x;
+                var deltay = mouse.y - clickPos.y;
+                snackbar.x = snackbar.x + deltax;
+                snackbar.y = snackbar.y + deltay;
+            }
+        }
     }
 
     Timer {
         id: timer
         interval: snackbar.duration
         onTriggered: {
-            close()
+            close();
             if (autoDestroy)
-                snackbar.destroy(2000)
+                snackbar.destroy(2000);
         }
     }
 
@@ -79,7 +80,7 @@ Popup {
         id: snackText
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: (lineCount > 1) ? Text.AlignLeft : Text.AlignHCenter
-        text: qsTr(snackbar.text) + translater.change
+        text: qsTr(snackbar.text) + Translater.change
         wrapMode: Text.Wrap
         color: "white"
         anchors.fill: parent

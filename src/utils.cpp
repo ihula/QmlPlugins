@@ -63,7 +63,7 @@ bool Utils::copyDir(const QString &sourceDir, const QString &toDir, bool overwri
             QFile srcFile(fileInfo.filePath());
             if (!srcFile.copy(dstPath))
             {
-                HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Failed to copy file: %1 -> %2: %3").arg(fileInfo.filePath(), dstPath, srcFile.errorString()), QMessageLogContext());
+                qDebug() << QString("Failed to copy file: %1 -> %2: %3").arg(fileInfo.filePath(), dstPath, srcFile.errorString());
                 return false;
             }
         }
@@ -80,7 +80,7 @@ bool Utils::updateFile(const QString &src, const QString &dst, bool overwrite)
     QFileInfo srcInfo(cleanSrc);
     if (!srcInfo.exists())
     {
-        HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Source file does not exist: %1").arg(cleanSrc), QMessageLogContext());
+        qDebug() << QString("Source file does not exist: %1").arg(cleanSrc);
         return false;
     }
 
@@ -95,7 +95,7 @@ bool Utils::updateFile(const QString &src, const QString &dst, bool overwrite)
         QFile dstFile(cleanDst);
         if (!dstFile.remove())
         {
-            HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Failed to remove target file: %1: %2").arg(cleanDst, dstFile.errorString()), QMessageLogContext());
+            qDebug() << QString("Failed to remove target file: %1: %2").arg(cleanDst, dstFile.errorString());
             return false;
         }
     }
@@ -105,7 +105,7 @@ bool Utils::updateFile(const QString &src, const QString &dst, bool overwrite)
     {
         if (!dstDir.mkpath(dstDir.absolutePath()))
         {
-            HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Failed to create target directory: %1").arg(dstDir.absolutePath()), QMessageLogContext());
+            qDebug() << QString("Failed to create target directory: %1").arg(dstDir.absolutePath());
             return false;
         }
     }
@@ -113,11 +113,11 @@ bool Utils::updateFile(const QString &src, const QString &dst, bool overwrite)
     QFile srcFile(cleanSrc);
     if (!srcFile.copy(cleanDst))
     {
-        HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Failed to copy file: %1 -> %2: %3").arg(cleanSrc, cleanDst, srcFile.errorString()), QMessageLogContext());
+        qDebug() << QString("Failed to copy file: %1 -> %2: %3").arg(cleanSrc, cleanDst, srcFile.errorString());
         return false;
     }
 
-    HulaLogger::instance()->log(QtMsgType::QtInfoMsg, QString("Copied file: %1 -> %2").arg(cleanSrc, cleanDst), QMessageLogContext());
+    qDebug() << QString("Copied file: %1 -> %2").arg(cleanSrc, cleanDst);
     return true;
 }
 
@@ -157,7 +157,7 @@ bool Utils::syncDir(const QString &dir1, const QString &dir2, bool deleteOrphane
     // 两个文件夹都不存在 → 返回失败
     if (!dir1Exists && !dir2Exists)
     {
-        HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Both directories do not exist: %1, %2").arg(cleanDir1, cleanDir2), QMessageLogContext());
+        qDebug() << QString("Both directories do not exist: %1, %2").arg(cleanDir1, cleanDir2);
         return false;
     }
 
@@ -166,10 +166,10 @@ bool Utils::syncDir(const QString &dir1, const QString &dir2, bool deleteOrphane
     {
         if (!dir1Obj.mkpath(cleanDir1))
         {
-            HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Failed to create directory: %1").arg(cleanDir1), QMessageLogContext());
+            qDebug() << QString("Failed to create directory: %1").arg(cleanDir1);
             return false;
         }
-        HulaLogger::instance()->log(QtMsgType::QtInfoMsg, QString("Created directory: %1").arg(cleanDir1), QMessageLogContext());
+        qDebug() << QString("Created directory: %1").arg(cleanDir1);
     }
 
     // 目标文件夹不存在，源文件夹存在 → 创建目标文件夹
@@ -177,10 +177,10 @@ bool Utils::syncDir(const QString &dir1, const QString &dir2, bool deleteOrphane
     {
         if (!dir2Obj.mkpath(cleanDir2))
         {
-            HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Failed to create directory: %1").arg(cleanDir2), QMessageLogContext());
+            qDebug() << QString("Failed to create directory: %1").arg(cleanDir2);
             return false;
         }
-        HulaLogger::instance()->log(QtMsgType::QtInfoMsg, QString("Created directory: %1").arg(cleanDir2), QMessageLogContext());
+        qDebug() << QString("Created directory: %1").arg(cleanDir2);
     }
 
     QDateTime time1 = Utils::getDirLatestTime(cleanDir1);
@@ -199,7 +199,7 @@ bool Utils::syncDir(const QString &dir1, const QString &dir2, bool deleteOrphane
         target = cleanDir1;
     }
 
-    HulaLogger::instance()->log(QtMsgType::QtInfoMsg, QString("Syncing from newer directory: %1 -> %2").arg(source, target), QMessageLogContext());
+    qDebug() << QString("Syncing from newer directory: %1 -> %2").arg(source, target);
 
     int copiedCount = 0;
     int deletedCount = 0;
@@ -225,11 +225,11 @@ bool Utils::syncDir(const QString &dir1, const QString &dir2, bool deleteOrphane
                     if (dirToRemove.removeRecursively())
                     {
                         deletedCount++;
-                        HulaLogger::instance()->log(QtMsgType::QtInfoMsg, QString("Deleted directory: %1").arg(fileInfo.fileName()), QMessageLogContext());
+                        qDebug() << QString("Deleted directory: %1").arg(fileInfo.fileName());
                     }
                     else
                     {
-                        HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Failed to delete directory: %1").arg(fileInfo.fileName()), QMessageLogContext());
+                        qDebug() << QString("Failed to delete directory: %1").arg(fileInfo.fileName());
                     }
                 }
                 else
@@ -238,11 +238,11 @@ bool Utils::syncDir(const QString &dir1, const QString &dir2, bool deleteOrphane
                     if (fileToRemove.remove())
                     {
                         deletedCount++;
-                        HulaLogger::instance()->log(QtMsgType::QtInfoMsg, QString("Deleted file: %1").arg(fileInfo.fileName()), QMessageLogContext());
+                        qDebug() << QString("Deleted file: %1").arg(fileInfo.fileName());
                     }
                     else
                     {
-                        HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Failed to delete file: %1: %2").arg(fileInfo.fileName(), fileToRemove.errorString()), QMessageLogContext());
+                        qDebug() << QString("Failed to delete file: %1: %2").arg(fileInfo.fileName(), fileToRemove.errorString());
                     }
                 }
             }
@@ -281,7 +281,7 @@ bool Utils::syncDir(const QString &dir1, const QString &dir2, bool deleteOrphane
                     QFile fileToRemove(targetPath);
                     if (!fileToRemove.remove())
                     {
-                        HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Failed to remove file: %1: %2").arg(fileInfo.fileName(), fileToRemove.errorString()), QMessageLogContext());
+                        qDebug() << QString("Failed to remove file: %1: %2").arg(fileInfo.fileName(), fileToRemove.errorString());
                         return false;
                     }
                 }
@@ -289,7 +289,7 @@ bool Utils::syncDir(const QString &dir1, const QString &dir2, bool deleteOrphane
                 QFile srcFile(fileInfo.filePath());
                 if (!srcFile.copy(targetPath))
                 {
-                    HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Failed to copy file: %1 -> %2: %3").arg(fileInfo.filePath(), targetPath, srcFile.errorString()), QMessageLogContext());
+                    qDebug() << QString("Failed to copy file: %1 -> %2: %3").arg(fileInfo.filePath(), targetPath, srcFile.errorString());
                     return false;
                 }
                 else
@@ -297,9 +297,9 @@ bool Utils::syncDir(const QString &dir1, const QString &dir2, bool deleteOrphane
                     copiedCount++;
                     if (copiedCount == 1)
                     {
-                        HulaLogger::instance()->log(QtMsgType::QtInfoMsg, info, QMessageLogContext());
+                        qDebug() << info;
                     }
-                    HulaLogger::instance()->log(QtMsgType::QtInfoMsg, QString("Copied: %1").arg(fileInfo.fileName()), QMessageLogContext());
+                    qDebug() << QString("Copied: %1").arg(fileInfo.fileName());
                 }
             }
         }
@@ -307,7 +307,7 @@ bool Utils::syncDir(const QString &dir1, const QString &dir2, bool deleteOrphane
 
     if (copiedCount > 0 || deletedCount > 0 || skippedCount > 0)
     {
-        HulaLogger::instance()->log(QtMsgType::QtInfoMsg, QString("Sync completed - Copied: %1, Deleted: %2, Skipped: %3").arg(copiedCount).arg(deletedCount).arg(skippedCount), QMessageLogContext());
+        qDebug() << QString("Sync completed - Copied: %1, Deleted: %2, Skipped: %3").arg(copiedCount).arg(deletedCount).arg(skippedCount);
     }
 
     return true;
@@ -324,7 +324,7 @@ bool Utils::syncFile(const QString &src, const QString &dst)
     // 1：两个文件都不存在
     if (!srcInfo.exists() && !dstInfo.exists())
     {
-        HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Both file do not exist: %1, %2").arg(cleanSrc, cleanDst), QMessageLogContext());
+        qDebug() << QString("Both file do not exist: %1, %2").arg(cleanSrc, cleanDst);
         return false;
     }
 
@@ -333,10 +333,10 @@ bool Utils::syncFile(const QString &src, const QString &dst)
     {
         if (!QFile::copy(cleanSrc, cleanDst))
         {
-            HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Failed to copy file: %1 -> %2").arg(cleanSrc, cleanDst), QMessageLogContext());
+            qDebug() << QString("Failed to copy file: %1 -> %2").arg(cleanSrc, cleanDst);
             return false;
         }
-        HulaLogger::instance()->log(QtMsgType::QtInfoMsg, QString("Synced file: %1 -> %2").arg(cleanSrc, cleanDst), QMessageLogContext());
+        qDebug() << QString("Synced file: %1 -> %2").arg(cleanSrc, cleanDst);
         return true;
     }
 
@@ -345,10 +345,10 @@ bool Utils::syncFile(const QString &src, const QString &dst)
     {
         if (!QFile::copy(cleanDst, cleanSrc))
         {
-            HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Failed to copy file: %1 -> %2").arg(cleanDst, cleanSrc), QMessageLogContext());
+            qDebug() << QString("Failed to copy file: %1 -> %2").arg(cleanDst, cleanSrc);
             return false;
         }
-        HulaLogger::instance()->log(QtMsgType::QtInfoMsg, QString("Synced file: %1 -> %2").arg(cleanDst, cleanSrc), QMessageLogContext());
+        qDebug() << QString("Synced file: %1 -> %2").arg(cleanDst, cleanSrc);
         return true;
     }
 
@@ -358,10 +358,10 @@ bool Utils::syncFile(const QString &src, const QString &dst)
     {
         if (!QFile::remove(cleanDst) || !QFile::copy(cleanSrc, cleanDst))
         {
-            HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Failed to sync file: %1 -> %2").arg(cleanSrc, cleanDst), QMessageLogContext());
+            qDebug() << QString("Failed to sync file: %1 -> %2").arg(cleanSrc, cleanDst);
             return false;
         }
-        HulaLogger::instance()->log(QtMsgType::QtInfoMsg, QString("Synced file: %1 -> %2").arg(cleanSrc, cleanDst), QMessageLogContext());
+        qDebug() << QString("Synced file: %1 -> %2").arg(cleanSrc, cleanDst);
         return true;
     }
 
@@ -370,10 +370,10 @@ bool Utils::syncFile(const QString &src, const QString &dst)
     {
         if (!QFile::remove(cleanSrc) || !QFile::copy(cleanDst, cleanSrc))
         {
-            HulaLogger::instance()->log(QtMsgType::QtWarningMsg, QString("Failed to sync file: %1 -> %2").arg(cleanDst, cleanSrc), QMessageLogContext());
+            qDebug() << QString("Failed to sync file: %1 -> %2").arg(cleanDst, cleanSrc);
             return false;
         }
-        HulaLogger::instance()->log(QtMsgType::QtInfoMsg, QString("Synced file: %1 -> %2").arg(cleanDst, cleanSrc), QMessageLogContext());
+        qDebug() << QString("Synced file: %1 -> %2").arg(cleanDst, cleanSrc);
         return true;
     }
 

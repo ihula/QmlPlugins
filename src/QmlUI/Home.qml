@@ -85,7 +85,7 @@ Item {
             height: layBaseEditor.ctrlHeight
             anchors.margins: 8
             anchors.leftMargin: 18
-            text: qsTr("Home.SpecimenList") + translater.change
+            text: qsTr("Home.SpecimenList") + Translater.change
             font.pixelSize: layBaseEditor.lblFontSize
             font.bold: false
             Material.foreground: Themer.theme.editorFontColor
@@ -112,7 +112,7 @@ Item {
             CheckBox {
                 id: chkAll
                 font.pixelSize: 16
-                text: qsTr("Home.SelectAll") + translater.change
+                text: qsTr("Home.SelectAll") + Translater.change
                 Material.background: "white"
                 Material.foreground: "#535353"
                 height: 46
@@ -125,7 +125,7 @@ Item {
             CheckBox {
                 id: chkMulti
                 font.pixelSize: 16
-                text: qsTr("Home.MultiSelect") + translater.change
+                text: qsTr("Home.MultiSelect") + Translater.change
                 Material.background: "white"
                 Material.foreground: "#535353"
                 height: 46
@@ -304,7 +304,7 @@ Item {
             height: layBaseEditor.ctrlHeight
             anchors.margins: 8
             anchors.leftMargin: 18
-            text: qsTr("Home.SpecimenInfo") + translater.change
+            text: qsTr("Home.SpecimenInfo") + Translater.change
             font.pixelSize: layBaseEditor.lblFontSize
             font.bold: false
             Material.foreground: Themer.theme.editorFontColor
@@ -319,7 +319,7 @@ Item {
             RoundButton {
                 radius: 4
                 font.pixelSize: layBaseEditor.txtFontSize
-                text: qsTr("Home.Add") + translater.change
+                text: qsTr("Home.Add") + Translater.change
                 Material.background: "white"
                 Material.foreground: "#535353"
                 width: 106
@@ -339,7 +339,7 @@ Item {
             RoundButton {
                 radius: 4
                 font.pixelSize: layBaseEditor.txtFontSize
-                text: qsTr("Home.Save") + translater.change
+                text: qsTr("Home.Save") + Translater.change
                 Material.background: "white"
                 Material.foreground: "#535353"
                 width: 106
@@ -354,7 +354,7 @@ Item {
             RoundButton {
                 radius: 4
                 font.pixelSize: layBaseEditor.txtFontSize
-                text: qsTr("Home.Delete") + translater.change
+                text: qsTr("Home.Delete") + Translater.change
                 Material.background: "white"
                 Material.foreground: "#535353"
                 width: 106
@@ -401,7 +401,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.SpecimenId") + translater.change
+                    text: qsTr("Home.SpecimenId") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -424,7 +424,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.Name") + translater.change
+                    text: qsTr("Home.Name") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -447,7 +447,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.Age") + translater.change
+                    text: qsTr("Home.Age") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -455,9 +455,9 @@ Item {
                 TextField {
                     id: edtAgeY
                     property string fieldName: "AgeY"
-                    property string txtY: qsTr("Home.AgeY") + translater.change
-                    property string txtM: qsTr("Home.AgeM") + translater.change
-                    property string txtD: qsTr("Home.AgeD") + translater.change
+                    property string txtY: qsTr("Home.AgeY") + Translater.change
+                    property string txtM: qsTr("Home.AgeM") + Translater.change
+                    property string txtD: qsTr("Home.AgeD") + Translater.change
                     property string ageD: (txtD.toUpperCase() === "D") ? ("\\" + txtD) : txtD
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
@@ -475,7 +475,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.Sex") + translater.change
+                    text: qsTr("Home.Sex") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                     background: createMouse(this, cmbSex)
@@ -505,7 +505,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.OutpatientNo") + translater.change
+                    text: qsTr("Home.OutpatientNo") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -525,7 +525,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.MRN") + translater.change
+                    text: qsTr("Home.MRN") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -546,7 +546,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.Dept") + translater.change
+                    text: qsTr("Home.Dept") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                     background: createMouse(this, cmbFromDept)
@@ -576,7 +576,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.Doctor") + translater.change
+                    text: qsTr("Home.Doctor") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                     background: createMouse(this, cmbDoctor)
@@ -606,7 +606,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.InpatientNo") + translater.change
+                    text: qsTr("Home.InpatientNo") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -626,7 +626,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.Tester") + translater.change
+                    text: qsTr("Home.Tester") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -654,7 +654,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.Reviewer") + translater.change
+                    text: qsTr("Home.Reviewer") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -682,7 +682,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.Bed") + translater.change
+                    text: qsTr("Home.Bed") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -702,7 +702,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.SpecimenType") + translater.change
+                    text: qsTr("Home.SpecimenType") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                     background: createMouse(this, cmbSpecimenType)
@@ -732,7 +732,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.SpecimenQuality") + translater.change
+                    text: qsTr("Home.SpecimenQuality") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                     background: createMouse(this, cmbSpecimenQuality)
@@ -763,7 +763,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.CollectionTime") + translater.change
+                    text: qsTr("Home.CollectionTime") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -787,7 +787,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.ReportDate") + translater.change
+                    text: qsTr("Home.ReportDate") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -810,7 +810,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.Diagnosis") + translater.change
+                    text: qsTr("Home.Diagnosis") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                     background: createMouse(this, cmbDiagnosis)
@@ -837,7 +837,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignRight
-                    text: qsTr("Home.TestId") + translater.change
+                    text: qsTr("Home.TestId") + Translater.change
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }

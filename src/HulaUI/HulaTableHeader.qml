@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls.Fusion
 import Qt.labs.qmlmodels
+import QmlPlugins
 
 Rectangle {
     id: control
@@ -78,7 +79,7 @@ Rectangle {
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr(index < view.headerTitles.length ? view.headerTitles[index] : "") + translater.change
+                        text: qsTr(index < view.headerTitles.length ? view.headerTitles[index] : "") + Translater.change
                         //text: tablemodel.headerData(index, Qt.Horizontal)
                     }
 

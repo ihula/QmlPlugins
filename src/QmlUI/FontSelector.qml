@@ -11,7 +11,7 @@ HulaDialog {
     anchors.centerIn: parent
     width: 520
     height: 430
-    formTitle: qsTr("MessageCenter.Title") + translater.change
+    formTitle: qsTr("MessageCenter.Title") + Translater.change
     property font selectedFont: null
     signal selected(font font)
 
@@ -170,7 +170,7 @@ HulaDialog {
                 Material.foreground: "#535353"
                 implicitWidth: 84
                 font.pixelSize: Themer.theme.buttonFontSize
-                text: qsTr("Preferences.Ok") + translater.change
+                text: qsTr("Preferences.Ok") + Translater.change
                 onClicked: {
                     // 把选中的字体参数抛出去给外部使用
                     selectedFont.family = currentSafeFont();
@@ -190,7 +190,7 @@ HulaDialog {
                 Material.foreground: "#535353"
                 implicitWidth: 84
                 font.pixelSize: Themer.theme.buttonFontSize
-                text: qsTr("Preferences.Cancel") + translater.change
+                text: qsTr("Preferences.Cancel") + Translater.change
                 onClicked: {
                     fontDialogPopup.hide();
                 }

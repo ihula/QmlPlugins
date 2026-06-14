@@ -12,7 +12,7 @@ Window {
     property double alpha: Configer.useWallPaper() ? (0xb0 / 255) : 1
     width: 1568
     height: 864
-    title: qsTr("AppName") + translater.change
+    title: qsTr("AppName") + Translater.change
     flags: Qt.Window | Qt.FramelessWindowHint
     color: Themer.theme.backColor
     property string userName: ""
@@ -141,7 +141,7 @@ Window {
                         id: txtAppName
                         font.pixelSize: 20
                         color: Themer.theme.buttonBackground
-                        text: qsTr("CompanyAbbrName") + translater.change
+                        text: qsTr("CompanyAbbrName") + Translater.change
                         anchors.verticalCenter: parent.verticalCenter
                     }
                 }
@@ -162,7 +162,7 @@ Window {
                         anchors.left: parent.left
                         anchors.right: parent.right
                         display: AbstractButton.TextBesideIcon
-                        text: qsTr(modelData) + translater.change
+                        text: qsTr(modelData) + Translater.change
                         font.pixelSize: 18
                         icon.source: "file:" + leftRepeater.iconList[index]
                         icon.height: 36
@@ -192,7 +192,7 @@ Window {
                     anchors.right: parent.right
                     display: AbstractButton.TextBesideIcon
                     font.pixelSize: 18
-                    text: qsTr("MainForm.About") + translater.change
+                    text: qsTr("MainForm.About") + Translater.change
                     icon.source: "file:" + "Images/about.svg"
                     radius: 8
                     Material.foreground: "white"

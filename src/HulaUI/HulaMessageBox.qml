@@ -2,12 +2,13 @@
 import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Layouts
+import QmlPlugins
 
 HulaDialog {
     id: root
     width: 336
     height: 90 + lblText.contentHeight + buttonBar.height
-    formTitle: qsTr("MessageBox.Confirm") + translater.change
+    formTitle: qsTr("MessageBox.Confirm") + Translater.change
     property alias textPixelSize: lblText.font.pixelSize
     property string messageText: ""
     property string buttonOkText: "MessageBox.Ok"
@@ -28,7 +29,7 @@ HulaDialog {
         anchors.topMargin: 0
         anchors.bottomMargin: 10
         font.pixelSize: 18
-        text: qsTr(messageText) + translater.change
+        text: qsTr(messageText) + Translater.change
         wrapMode: TextEdit.WordWrap
         horizontalAlignment: (lineCount > 1) ? Text.AlignLeft : Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
@@ -54,7 +55,7 @@ HulaDialog {
             flat: true
             font.pixelSize: 18
             Material.foreground: "#535353"
-            text: qsTr(buttonCancelText) + translater.change
+            text: qsTr(buttonCancelText) + Translater.change
             height: parent.height
             width: 84
             visible: (text !== "")
@@ -72,7 +73,7 @@ HulaDialog {
             font.pixelSize: 18
             Material.foreground: "#535353"
             Material.background: "#cfcfcf"
-            property string title: qsTr(buttonOkText) + translater.change
+            property string title: qsTr(buttonOkText) + Translater.change
             text: autoClose ? title + "(" + String(timer.sum) + ")" : title
             height: parent.height
             width: 84

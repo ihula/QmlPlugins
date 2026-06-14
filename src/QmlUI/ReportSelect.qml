@@ -3,6 +3,7 @@ import QtQuick.Controls.Material
 import Qt.labs.qmlmodels
 import QtQuick.Layouts
 import "../HulaUI"
+import QmlPlugins
 
 HulaDialog {
     id: root
@@ -12,7 +13,7 @@ HulaDialog {
     property var callbackOk: function () {}
     x: (mainForm.width - width) / 2
     y: (mainForm.height - height) / 2
-    formTitle: qsTr("ReportSelect.Title") + translater.change
+    formTitle: qsTr("ReportSelect.Title") + Translater.change
 
     Label {
         id: lblReportName
@@ -23,7 +24,7 @@ HulaDialog {
         width: 80
         height: 40
         verticalAlignment: Text.AlignVCenter
-        text: qsTr("ReportSelect.SelectReportTemplate") + translater.change
+        text: qsTr("ReportSelect.SelectReportTemplate") + Translater.change
     }
 
     ComboBox {
@@ -34,7 +35,7 @@ HulaDialog {
         implicitHeight: 32
         onDownChanged: {
             if (popup.visible)
-                model = mainForm.getReportNames()
+                model = mainForm.getReportNames();
         }
     }
 
@@ -49,12 +50,12 @@ HulaDialog {
         radius: 4
         Material.background: "white"
         Material.foreground: "#535353"
-        text: qsTr("Ok") + translater.change
+        text: qsTr("Ok") + Translater.change
         onClicked: {
-            root.reportNo = String(cmbReportName.currentIndex + 1)
+            root.reportNo = String(cmbReportName.currentIndex + 1);
             if (callbackOk)
-                callbackOk()
-            root.close()
+                callbackOk();
+            root.close();
         }
     }
 }

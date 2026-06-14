@@ -18,7 +18,9 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QObject>
+#include <QQmlEngine>
 #include <QVector>
+#include <QtQml>
 
 #define APP_NAME "HulaQml"
 #define APP_DOMAIN "hula.com"
@@ -86,10 +88,6 @@
 // 时间毫秒格式
 #define TIME_MSEC_FMT "yyyy-MM-dd hh:mm:ss.zzz"
 
-#include <QObject>
-#include <QQmlEngine>
-#include <QtQml>
-
 class Configer : public QObject
 {
     Q_OBJECT
@@ -109,9 +107,8 @@ class Configer : public QObject
     {
         Q_UNUSED(qmlEngine)
         Q_UNUSED(jsEngine)
-
-        // 在这里返回你的单例实例
-        // 比如使用静态局部变量实现经典的单例模式
+        //  在这里返回你的单例实例
+        //  比如使用静态局;部变量实现经典的单例模式
         return instance();
     }
 

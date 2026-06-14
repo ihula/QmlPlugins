@@ -1,327 +1,291 @@
 #include "hulalogger.h"
 #include <QDateTime>
-#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QIODevice>
-#include <QLoggingCategory>
 #include <QMutex>
 #include <QMutexLocker>
 #include <QString>
-#ifdef QT_DEBUG
 #include <iostream>
-#endif
 
-// 静态成员初始化
-HulaLogger *HulaLogger::s_instance = nullptr;
-QMutex HulaLogger::s_instanceMutex;
-
-// ========== HulaLogger 实现 ==========
-
-HulaLogger::HulaLogger(QObject *parent) : QObject(parent), m_logLevel(LogLevel::Debug), m_maxFileSizeMB(10), m_maxDaysToKeep(30)
+HulaLogger::HulaLogger(QObject *parent) : QObject(parent), m_isInitialized(false)
 {
+    QString defaultDir = QGuiApplication::applicationDirPath() + QString(DEFAULT_LOG_SUBDIR);
+    m_config.directory = defaultDir;
+
+    QDir dir(defaultDir);
+    if (!dir.exists())
+    {
+        dir.mkpath(defaultDir);
+    }
 }
 
 HulaLogger::~HulaLogger()
 {
-    if (m_file.isOpen())
+    QMutexLocker locker(&m_fileMutex);
+    if (m_logFile.isOpen())
     {
-        m_file.close();
+        m_logFile.close();
     }
 }
 
-HulaLogger *HulaLogger::instance()
+void HulaLogger::initialize(const LoggerConfig &config)
 {
-    QMutexLocker locker(&s_instanceMutex);
-    if (!s_instance)
-    {
-        s_instance = new HulaLogger();
-    }
-    return s_instance;
-}
+    QMutexLocker locker(&m_fileMutex);
 
-void HulaLogger::init(LogLevel level, const QString &logDir, int maxFileSizeMB, int maxDaysToKeep)
-{
-    m_logLevel = level;
-    m_maxFileSizeMB = maxFileSizeMB;
-    m_maxDaysToKeep = maxDaysToKeep;
+    m_config = config;
 
-    // 设置日志目录
-    if (logDir.isEmpty())
+    if (m_config.directory.isEmpty())
     {
-        m_logDir = QGuiApplication::applicationDirPath() + "/Log/";
-    }
-    else
-    {
-        m_logDir = logDir;
+        m_config.directory = QGuiApplication::applicationDirPath() + QString(DEFAULT_LOG_SUBDIR);
     }
 
-    // 确保日志目录存在
-    QDir dir(m_logDir);
+    QDir dir(m_config.directory);
     if (!dir.exists())
     {
-        dir.mkpath(m_logDir);
+        dir.mkpath(m_config.directory);
     }
 
-    // 清理过期日志
-    cleanupOldLogs();
+    m_isInitialized = true;
+    locker.unlock();
 
-    // 先记录初始化信息到控制台（在安装消息处理器之前）
-    QString initMsg = QString("Logger initialized with level: %1, dir: %2").arg(static_cast<int>(level)).arg(m_logDir);
+    cleanExpiredLogs();
 
-    // 使用 std::cout 避免触发 Qt 消息系统
-#ifdef QT_DEBUG
-    std::cout << "[Logger] " << initMsg.toStdString() << std::endl;
-#endif
+    QString initMsg = QString("Logger initialized with level: %1, dir: %2").arg(static_cast<int>(m_config.level)).arg(m_config.directory);
 
-    // 安装消息处理器
-    qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &context, const QString &msg) { HulaLogger::instance()->log(type, msg, context); });
+    if (m_config.enableConsoleOutput)
+    {
+        std::cout << "[Logger] " << initMsg.toStdString() << std::endl;
+    }
+
+    qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &context, const QString &msg) { HulaLogger::instance()->writeLog(type, msg, context); });
+}
+
+void HulaLogger::initialize(LogLevel level, const QString &directory, int maxFileSizeMB, int maxDaysToKeep)
+{
+    LoggerConfig config;
+    config.level = level;
+    config.directory = directory;
+    config.maxFileSizeKB = maxFileSizeMB * 1024;
+    config.maxRetentionDays = maxDaysToKeep;
+
+    initialize(config);
 }
 
 LogLevel HulaLogger::logLevel() const
 {
-    return m_logLevel;
+    return m_config.level;
 }
 
 void HulaLogger::setLogLevel(LogLevel level)
 {
-    if (m_logLevel != level)
+    QMutexLocker locker(&m_fileMutex);
+    if (m_config.level != level)
     {
-        m_logLevel = level;
-        emit logLevelChanged(level);
-        // 注意：不要使用 qDebug()，会导致递归调用
+        m_config.level = level;
     }
 }
 
-QString HulaLogger::logDir() const
+QString HulaLogger::logDirectory() const
 {
-    return m_logDir;
+    return m_config.directory;
 }
 
-void HulaLogger::setLogDir(const QString &dir)
+void HulaLogger::setLogDirectory(const QString &directory)
 {
-    if (m_logDir != dir)
+    QMutexLocker locker(&m_fileMutex);
+
+    if (m_config.directory != directory)
     {
-        m_logDir = dir;
+        m_config.directory = directory;
 
-        // 确保新目录存在
-        QDir d(m_logDir);
-        if (!d.exists())
+        QDir dir(m_config.directory);
+        if (!dir.exists())
         {
-            d.mkpath(m_logDir);
+            dir.mkpath(m_config.directory);
         }
 
-        // 关闭当前文件，下次写入时会使用新目录
-        if (m_file.isOpen())
+        if (m_logFile.isOpen())
         {
-            m_file.close();
+            m_logFile.close();
         }
-        m_currentFileName.clear();
-
-        emit logDirChanged(dir);
-        // 注意：不要使用 qDebug()，会导致递归调用
+        m_currentFilePath.clear();
     }
 }
 
-void HulaLogger::log(QtMsgType type, const QString &msg, const QMessageLogContext &context)
+QString HulaLogger::buildMessageHeader(LogLevel level, const QMessageLogContext &context) const
 {
-    // 检查空消息
-    if (msg.isEmpty())
+    QString levelStr = levelToString(level);
+    QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
+
+#ifdef QT_DEBUG
+    return QString(LOG_MESSAGE_FORMAT_DEBUG).arg(levelStr, timestamp, QString(context.file).split("/").last(), QString::number(context.line), QString(context.function));
+#else
+    return QString(LOG_MESSAGE_FORMAT_RELEASE).arg(levelStr, timestamp);
+#endif
+}
+
+void HulaLogger::writeLog(QtMsgType type, const QString &message, const QMessageLogContext &context)
+{
+    if (message.isEmpty())
     {
         return;
     }
 
-    // 检查日志级别
-    LogLevel msgLevel = qtMsgTypeToLevel(type);
-    if (msgLevel > m_logLevel)
+    LogLevel msgLevel = qtMsgTypeToLogLevel(type);
+    if (msgLevel > m_config.level)
     {
-        return; // 低于当前级别，不记录
+        return;
     }
 
-    // 构建日志消息
-    QString text;
-    QString levelStr = levelToString(msgLevel);
+    QString header = buildMessageHeader(msgLevel, context);
 
-    QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
+    QMutexLocker locker(&m_fileMutex);
 
-#ifdef QT_DEBUG
-    // 调试模式：包含详细信息
-    text = QString("[%1] [%2] [%3:%4] [%5]").arg(levelStr, timestamp, QString(context.file).split("/").last(), QString::number(context.line), QString(context.function));
-#else
-    // 发布模式：简化格式
-    text = QString("[%1] [%2]").arg(levelStr, timestamp);
-#endif
+    checkRotationInternal();
 
-    // 检查日志轮转（内部已处理线程安全）
-    checkAndRotateLog();
-
-    // 确保文件已打开（内部已处理线程安全）
+    if (!m_logFile.isOpen())
     {
-        QMutexLocker locker(&m_fileMutex);
-        if (!m_file.isOpen())
+        openFileInternal();
+        if (!m_logFile.isOpen())
         {
-            // 不要在此调用 openLogFile()，避免死锁
             return;
         }
-
-        // 写入日志
-        m_textStream << text << " " << msg << Qt::endl;
-        m_textStream.flush();
     }
 
-#ifdef QT_DEBUG
-    // 同时输出到控制台
-    std::cout << text.toStdString() << " " << msg.toStdString() << std::endl;
-#endif
+    QString fullMessage = header + " " + message;
+    m_textStream << fullMessage << Qt::endl;
+    m_textStream.flush();
 
-    emit logWritten(text + " " + msg);
-}
+    locker.unlock();
 
-void HulaLogger::rotateLog()
-{
-    // 检查是否已经持有锁（递归调用时）
-    if (m_fileMutex.tryLock())
+    if (m_config.enableConsoleOutput)
     {
-        if (m_file.isOpen())
-        {
-            m_file.close();
-        }
-
-        // 生成基础文件名
-        QString baseName = generateLogFileName();
-        QString baseFileName = QFileInfo(baseName).fileName();  // 只取文件名部分
-
-        // 优化：使用目录扫描查找最大序号，避免多次文件系统访问
-        QDir logDir(m_logDir);
-        QStringList filters;
-        filters << baseFileName + ".*";
-        logDir.setNameFilters(filters);
-        QStringList existingBackups = logDir.entryList();
-
-        int maxCounter = 0;
-        for (const QString &backup : existingBackups)
-        {
-            // 提取序号部分（文件名.序号）
-            QString suffix = backup.mid(baseFileName.length() + 1);
-            bool ok;
-            int counter = suffix.toInt(&ok);
-            if (ok && counter > maxCounter)
-            {
-                maxCounter = counter;
-            }
-        }
-
-        // 生成新的备份文件名
-        QString backupName = baseName + "." + QString::number(maxCounter + 1);
-
-        // 如果当前文件存在，重命名为备份文件
-        if (!m_currentFileName.isEmpty() && QFile::exists(m_currentFileName))
-        {
-            QFile::rename(m_currentFileName, backupName);
-        }
-
-        m_currentFileName.clear();
-        // 重新打开日志文件
-        openLogFileInternal();
-
-        m_fileMutex.unlock();
+        std::cout << fullMessage.toStdString() << std::endl;
     }
-    // 注意：不要使用 qDebug()，会导致递归调用
 }
 
-void HulaLogger::cleanupOldLogs()
+void HulaLogger::rotateInternal()
 {
-    QDir dir(m_logDir);
+    if (m_logFile.isOpen())
+    {
+        m_logFile.close();
+    }
+
+    QString basePath = generateFilePath();
+    QString baseFileName = QFileInfo(basePath).fileName();
+
+    QDir logDir(m_config.directory);
+    QStringList filters;
+    filters << baseFileName + ".*";
+    logDir.setNameFilters(filters);
+    QStringList existingBackups = logDir.entryList();
+
+    int maxCounter = 0;
+    const QStringList &backupsRef = existingBackups;
+    for (int i = 0; i < backupsRef.size(); ++i)
+    {
+        const QString &backup = backupsRef.at(i);
+        QString suffix = backup.mid(baseFileName.length() + 1);
+        bool ok;
+        int counter = suffix.toInt(&ok);
+        if (ok && counter > maxCounter)
+        {
+            maxCounter = counter;
+        }
+    }
+
+    QString backupPath = basePath + "." + QString::number(maxCounter + 1);
+
+    if (!m_currentFilePath.isEmpty() && QFile::exists(m_currentFilePath))
+    {
+        QFile::rename(m_currentFilePath, backupPath);
+    }
+
+    m_currentFilePath.clear();
+    openFileInternal();
+}
+
+void HulaLogger::triggerRotation()
+{
+    QMutexLocker locker(&m_fileMutex);
+    rotateInternal();
+}
+
+void HulaLogger::checkRotationInternal()
+{
+    if (m_logFile.isOpen())
+    {
+        qint64 currentSize = m_logFile.size();
+        qint64 maxSize = m_config.maxFileSizeKB * 1024;
+
+        if (currentSize >= maxSize)
+        {
+            rotateInternal();
+            return;
+        }
+    }
+
+    QString expectedFilePath = generateFilePath();
+    if (m_currentFilePath != expectedFilePath)
+    {
+        rotateInternal();
+    }
+}
+
+void HulaLogger::cleanExpiredLogs()
+{
+    QMutexLocker locker(&m_fileMutex);
+
+    QDir dir(m_config.directory);
     if (!dir.exists())
     {
         return;
     }
 
-    QDateTime expireTime = QDateTime::currentDateTime().addDays(-m_maxDaysToKeep);
+    QDateTime expireTime = QDateTime::currentDateTime().addDays(-m_config.maxRetentionDays);
 
     QStringList filters;
-    filters << "*.log" << "*.log.*";
+    filters << "*" << QString(LOG_FILE_SUFFIX) << "*" << QString(LOG_FILE_SUFFIX) << ".*";
     dir.setNameFilters(filters);
 
     QFileInfoList files = dir.entryInfoList(QDir::Files);
 
-    for (const QFileInfo &fileInfo : files)
+    const QFileInfoList &filesRef = files;
+    for (int i = 0; i < filesRef.size(); ++i)
     {
-        if (fileInfo.lastModified() < expireTime)
+        const QFileInfo &fileInfo = filesRef.at(i);
+        if (fileInfo.lastModified() < expireTime && fileInfo.filePath() != m_currentFilePath)
         {
             dir.remove(fileInfo.fileName());
-            // 注意：不要使用 qDebug()，会导致递归调用
         }
     }
 }
 
-QString HulaLogger::generateLogFileName() const
+QString HulaLogger::generateFilePath() const
 {
-    return m_logDir + QDate::currentDate().toString("yyyyMMdd") + ".log";
+    return m_config.directory + QDate::currentDate().toString(QString(LOG_DATE_FORMAT)) + QString(LOG_FILE_SUFFIX);
 }
 
-void HulaLogger::checkAndRotateLog()
+bool HulaLogger::openFileInternal()
 {
-    // 获取锁保护
-    QMutexLocker locker(&m_fileMutex);
+    m_currentFilePath = generateFilePath();
 
-    // 检查文件大小是否超过限制
-    if (m_file.isOpen())
-    {
-        qint64 currentSize = m_file.size();
-        qint64 maxSize = m_maxFileSizeMB * 1024 * 1024;
-
-        if (currentSize >= maxSize)
-        {
-            // 释放锁后再调用 rotateLog()，避免死锁
-            locker.unlock();
-            rotateLog();
-            return;
-        }
-    }
-
-    // 检查日期是否变化
-    QString expectedFileName = generateLogFileName();
-    if (m_currentFileName != expectedFileName)
-    {
-        locker.unlock();
-        rotateLog();
-    }
-}
-
-/**
- * @brief 内部版本：打开日志文件（假设已持有锁）
- */
-bool HulaLogger::openLogFileInternal()
-{
-    m_currentFileName = generateLogFileName();
-
-    m_file.setFileName(m_currentFileName);
-    bool opened = m_file.open(QIODevice::Text | QIODevice::WriteOnly | QIODevice::Append);
+    m_logFile.setFileName(m_currentFilePath);
+    bool opened = m_logFile.open(QIODevice::Text | QIODevice::WriteOnly | QIODevice::Append);
 
     if (opened)
     {
-        m_textStream.setDevice(&m_file);
-        // Qt 6 中默认使用 UTF-8 编码，无需显式设置
+        m_textStream.setDevice(&m_logFile);
     }
     else
     {
-        // 使用 std::cerr 输出错误，避免递归
-        std::cerr << "[Logger] Failed to open log file: " << m_currentFileName.toStdString() << ", error: " << m_file.errorString().toStdString() << std::endl;
+        std::cerr << "[Logger] Failed to open log file: " << m_currentFilePath.toStdString() << ", error: " << m_logFile.errorString().toStdString() << std::endl;
     }
 
     return opened;
-}
-
-/**
- * @brief 外部版本：打开日志文件（带锁保护）
- */
-bool HulaLogger::openLogFile()
-{
-    QMutexLocker locker(&m_fileMutex);
-    return openLogFileInternal();
 }
 
 QString HulaLogger::levelToString(LogLevel level) const
@@ -343,7 +307,7 @@ QString HulaLogger::levelToString(LogLevel level) const
     }
 }
 
-LogLevel HulaLogger::qtMsgTypeToLevel(QtMsgType type) const
+LogLevel HulaLogger::qtMsgTypeToLogLevel(QtMsgType type) const
 {
     switch (type)
     {
@@ -360,12 +324,4 @@ LogLevel HulaLogger::qtMsgTypeToLevel(QtMsgType type) const
     default:
         return LogLevel::Debug;
     }
-}
-
-// ========== 全局兼容函数 ==========
-
-void logInit(int type)
-{
-    LogLevel level = static_cast<LogLevel>(type);
-    HulaLogger::instance()->init(level);
 }

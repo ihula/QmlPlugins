@@ -9,7 +9,7 @@ import QmlPlugins
 Window {
     id: root
     property int formShowMode: Configer.loginFormShowMode()
-    title: qsTr("Login.Title") + translater.change
+    title: qsTr("Login.Title") + Translater.change
     modality: Qt.ApplicationModal
     flags: Qt.Window | Qt.FramelessWindowHint
     width: 1568
@@ -133,7 +133,7 @@ Window {
                 horizontalAlignment: Text.AlignLeft
                 font.pixelSize: 22
                 font.bold: true
-                text: qsTr("AppName") + translater.change
+                text: qsTr("AppName") + Translater.change
             }
             Item {
                 anchors.top: lblTitle.bottom
@@ -153,7 +153,7 @@ Window {
                     horizontalAlignment: Text.AlignLeft
                     leftPadding: imgUserId.width + 24
                     font.pixelSize: 18
-                    placeholderText: qsTr("Login.UserId") + translater.change
+                    placeholderText: qsTr("Login.UserId") + Translater.change
                     focus: true
                     text: reLogin ? "" : Configer.userAccount()
                     onTextChanged: {
@@ -203,7 +203,7 @@ Window {
                     leftPadding: imgUserName.width + 24
                     readOnly: true
                     font.pixelSize: 18
-                    placeholderText: qsTr("Login.UserName") + translater.change
+                    placeholderText: qsTr("Login.UserName") + Translater.change
                     Keys.enabled: true
                     Keys.onReturnPressed: edtUserPwd.focus = true
                     Keys.onDownPressed: edtUserPwd.focus = true
@@ -238,7 +238,7 @@ Window {
                     leftPadding: imgUserPwd.width + 24
                     echoMode: TextInput.Password
                     font.pixelSize: 18
-                    placeholderText: qsTr("Login.UserPassword") + translater.change
+                    placeholderText: qsTr("Login.UserPassword") + Translater.change
                     Keys.enabled: true
                     //Keys.onReturnPressed: btnLogin.focus = true
                     Keys.onDownPressed: btnLogin.focus = true
@@ -296,7 +296,7 @@ Window {
                         Keys.enabled: true
                         Keys.onDownPressed: edtUserName.focus = true
                         Keys.onUpPressed: btnLogin.focus = true
-                        text: qsTr("Login.Cancel") + translater.change
+                        text: qsTr("Login.Cancel") + Translater.change
                         onClicked: {
                             if (reLogin) {
                                 root.close()
@@ -313,7 +313,7 @@ Window {
                         Material.background: "#0075EF"
                         Material.foreground: "white"
                         font.pixelSize: 18
-                        text: qsTr("Login.Login") + translater.change
+                        text: qsTr("Login.Login") + Translater.change
                         Keys.enabled: true
                         Keys.onDownPressed: edtUserId.focus = true
                         Keys.onUpPressed: btnCancel.focus = true

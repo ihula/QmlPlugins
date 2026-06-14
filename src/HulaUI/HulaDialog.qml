@@ -4,6 +4,7 @@ import Qt.labs.qmlmodels
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import "../HulaUI"
+import QmlPlugins
 
 Dialog {
     id: root
@@ -79,7 +80,7 @@ Dialog {
         font.pixelSize: 20
         visible: text.trim() !== ""
         color: "#555555"
-        text: qsTr(formTitle) + translater.change
+        text: qsTr(formTitle) + Translater.change
         verticalAlignment: Qt.AlignVCenter
 
         background: Rectangle {
@@ -96,7 +97,7 @@ Dialog {
 
             HulaButton {
                 id: btnClose
-                tipText: qsTr("Topbar.Quit") + translater.change
+                tipText: qsTr("Topbar.Quit") + Translater.change
                 iconImage: "Images/close.svg"
                 colorHovered: "red"
                 width: 48

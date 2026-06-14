@@ -3,7 +3,6 @@
 
 #include <QMutex>
 #include <QScopedPointer>
-#include <memory>
 #include <mutex>
 
 template <typename T>
@@ -12,36 +11,38 @@ public:
     static T* getInstance();
 
     Singleton(const Singleton& other) = delete;
-    Singleton<T>& operator=(const Singleton& other) = delete;
+    Singleton<T>& operator=(const Singleton<T>& other) = delete;
 
 private:
-    static std::mutex mutex;
-    static T* instance;
+    static QMutex mutex;
+    static T* m_instance;
 };
 
 template <typename T>
-std::mutex Singleton<T>::mutex;
+QMutex Singleton<T>::mutex;
+
 template <typename T>
-T* Singleton<T>::instance;
+T* Singleton<T>::m_instance = nullptr;
+
 template <typename T>
 T* Singleton<T>::getInstance() {
-    if (instance == nullptr) {
-        std::lock_guard<std::mutex> locker(mutex);
-        if (instance == nullptr) {
-            instance = new T();
+    if (m_instance == nullptr) {
+        QMutexLocker locker(&mutex);
+        if (m_instance == nullptr) {
+            m_instance = new T();
         }
     }
-    return instance;
+    return m_instance;
 }
 
-#define SINGLETONG(Class)                           \
+#define SINGLETON(Class)                           \
 private:                                            \
     friend class Singleton<Class>;                  \
     friend struct QScopedPointerDeleter<Class>;     \
                                                        \
     public:                                         \
     static Class* instance() {                      \
-        return Singleton<Class>::getInstance(); \
-}
+        return Singleton<Class>::getInstance();     \
+    }
 
 #endif // SINGLETON_H

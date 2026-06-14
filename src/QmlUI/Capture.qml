@@ -12,7 +12,7 @@ HulaDialog {
     height: mainForm.height - 16
     x: 8
     y: 8
-    formTitle: qsTr("Capture.Title") + translater.change
+    formTitle: qsTr("Capture.Title") + Translater.change
     backColor: "#F8F8F8"
     property bool homeJumped: false
     property var patientData: ({})
@@ -196,7 +196,7 @@ HulaDialog {
             anchors.rightMargin: 6
             Material.foreground: "white"
             font.pixelSize: lblPixelSize
-            text: qsTr("Capture.TestId") + translater.change
+            text: qsTr("Capture.TestId") + Translater.change
         }
         Label {
             id: lblName
@@ -216,7 +216,7 @@ HulaDialog {
             anchors.rightMargin: 12
             Material.foreground: "white"
             font.pixelSize: lblPixelSize
-            text: qsTr("Capture.Name") + translater.change
+            text: qsTr("Capture.Name") + Translater.change
         }
         RowLayout {
             anchors.top: lblName.bottom
@@ -231,7 +231,7 @@ HulaDialog {
                 implicitWidth: btnWidth
                 Material.foreground: "white"
                 Material.background: "#2f2f2f"
-                text: qsTr("Capture.CaptureImage") + translater.change
+                text: qsTr("Capture.CaptureImage") + Translater.change
                 enabled: !canvasDraw.drawing
                 onClicked: {
                     itemPreview.grabToImage(function (result) {
@@ -246,7 +246,7 @@ HulaDialog {
                 implicitWidth: btnWidth
                 Material.foreground: "white"
                 Material.background: "#2f2f2f"
-                text: qsTr("Capture.CaptureRoiImage") + translater.change
+                text: qsTr("Capture.CaptureRoiImage") + Translater.change
                 enabled: !canvasDraw.drawing
                 onClicked: {
                     itemPreview.grabToImage(function (result) {
@@ -262,7 +262,7 @@ HulaDialog {
                 Material.foreground: "white"
                 Material.background: canvasDraw.drawing ? "#707070" : "#2f2f2f"
                 property string title: canvasDraw.drawing ? "Capture.SaveImageRoi" : "Capture.ImageRoi"
-                text: qsTr(title) + translater.change
+                text: qsTr(title) + Translater.change
                 onClicked: {
                     canvasDraw.drawing = !canvasDraw.drawing
                     if (!canvasDraw.drawing) {
@@ -296,7 +296,7 @@ HulaDialog {
                 implicitWidth: btnWidth
                 Material.foreground: "white"
                 Material.background: "#2f2f2f"
-                text: qsTr("Capture.VideoProperty") + translater.change
+                text: qsTr("Capture.VideoProperty") + Translater.change
                 enabled: !canvasDraw.drawing
                 onClicked: {
                     camera.openDialog(0)
@@ -309,7 +309,7 @@ HulaDialog {
                 implicitWidth: btnWidth
                 Material.foreground: "white"
                 Material.background: "#2f2f2f"
-                text: qsTr("Capture.MakeReport") + translater.change
+                text: qsTr("Capture.MakeReport") + Translater.change
                 enabled: !canvasDraw.drawing
                 onClicked: {
                     if (!root.homeJumped) {
@@ -331,7 +331,7 @@ HulaDialog {
                 implicitWidth: btnWidth
                 Material.foreground: "white"
                 Material.background: "#0888FF"
-                text: qsTr("Capture.SaveImage") + translater.change
+                text: qsTr("Capture.SaveImage") + Translater.change
                 enabled: !canvasDraw.drawing
                 onClicked: {
                     camera.savePreviewImage(lblTestId.text)
@@ -359,7 +359,7 @@ HulaDialog {
             x: sldContrast.x + 6
             y: sldContrast.y - height + 10
             color: "white"
-            text: qsTr("Capture.Contras") + translater.change
+            text: qsTr("Capture.Contras") + Translater.change
         }
         Label {
             id: lblContrasVal
@@ -388,7 +388,7 @@ HulaDialog {
             x: sldSaturation.x + 6
             y: sldSaturation.y - height + 10
             color: "white"
-            text: qsTr("Capture.Saturation") + translater.change
+            text: qsTr("Capture.Saturation") + Translater.change
         }
         Label {
             id: lblSaturationVal
@@ -417,7 +417,7 @@ HulaDialog {
             x: sldBrightness.x + 6
             y: sldBrightness.y - height + 10
             color: "white"
-            text: qsTr("Capture.Brightness") + translater.change
+            text: qsTr("Capture.Brightness") + Translater.change
         }
         Label {
             id: lblBrightnessVal
@@ -446,7 +446,7 @@ HulaDialog {
             x: lblSaturationTxt.x
             y: sldBrightness.y - height + 10
             color: "white"
-            text: qsTr("Capture.Hue") + translater.change
+            text: qsTr("Capture.Hue") + Translater.change
         }
         Label {
             id: lblHueVal
@@ -493,7 +493,7 @@ HulaDialog {
                 height: 40
                 font.pixelSize: 16
                 color: "#555555"
-                text: qsTr("Report.Images") + translater.change
+                text: qsTr("Report.Images") + Translater.change
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 background: Rectangle {

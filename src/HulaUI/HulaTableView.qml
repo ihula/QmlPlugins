@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls.Fusion
 import Qt.labs.qmlmodels
+import QmlPlugins
 
 Rectangle {
     id: control
@@ -65,7 +66,7 @@ Rectangle {
     signal itemReused
 
     function itemAtIndex(row, column) {
-        return tableview.itemAtIndex(tableview.index(row, column))
+        return tableview.itemAtIndex(tableview.index(row, column));
     }
 
     //表格内容（不包含表头）
@@ -92,19 +93,19 @@ Rectangle {
         onTopRowChanged: itemReused()
 
         rowHeightProvider: function (row) {
-            return control.rowHeight
+            return control.rowHeight;
         }
         //此属性可以保存一个函数，该函数返回模型中每个列的列宽
         columnWidthProvider: function (column) {
             if (!calced) {
-                calced = true
-                calcFirstLastColumn()
+                calced = true;
+                calcFirstLastColumn();
             }
 
             if (column < control.columnsWidth.length)
-                return control.columnsWidth[column]
+                return control.columnsWidth[column];
             else
-                return 60
+                return 60;
         }
 
         ScrollBar.vertical: ScrollBar {}
@@ -125,21 +126,20 @@ Rectangle {
             required property bool current
 
             clip: true
-            color: (row === tableview.currentRow) ? highlightColor : (alternatingRows
-                                                                      && row % 2 !== 0) ? alternatingRow : rowColor
+            color: (row === tableview.currentRow) ? highlightColor : (alternatingRows && row % 2 !== 0) ? alternatingRow : rowColor
 
             MouseArea {
                 anchors.fill: parent
                 //propagateComposedEvents: true
                 onClicked: mouse => {
-                               mouse.accepted = false
-                               selectRow(row)
-                               cellClicked(row, column)
-                           }
+                    mouse.accepted = false;
+                    selectRow(row);
+                    cellClicked(row, column);
+                }
                 onDoubleClicked: mouse => {
-                                     cellDoubleClicked(row, column)
-                                     mouse.accepted = false
-                                 }
+                    cellDoubleClicked(row, column);
+                    mouse.accepted = false;
+                }
             }
             Rectangle {
                 width: columnBorderWidth
@@ -192,7 +192,7 @@ Rectangle {
                 Component.onCompleted: selectAll()
 
                 TableView.onCommit: {
-                    display = text
+                    display = text;
                     //model.edit = text
                     // 'display = text' is short-hand for:
                     //let index = TableView.view.index(row, column)
@@ -233,8 +233,7 @@ Rectangle {
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr(index < headerTitles.length ? headerTitles[index] : "")
-                              + translater.change
+                        text: qsTr(index < headerTitles.length ? headerTitles[index] : "") + Translater.change
                         //text: tablemodel.headerData(index, Qt.Horizontal)
                     }
 
@@ -258,16 +257,15 @@ Rectangle {
                         onPressed: horHeader.lastX = mouseX
                         onPositionChanged: {
                             if ((horHeaderItem.width - (horHeader.lastX - mouseX)) > 10) {
-                                horHeaderItem.width -= (horHeader.lastX - mouseX)
+                                horHeaderItem.width -= (horHeader.lastX - mouseX);
                             } else {
-                                horHeaderItem.width = 10
+                                horHeaderItem.width = 10;
                             }
-                            horHeader.lastX = mouseX
-                            control.columnsWidth[index] = (horHeaderItem.width
-                                                           - tableview.columnSpacing)
+                            horHeader.lastX = mouseX;
+                            control.columnsWidth[index] = (horHeaderItem.width - tableview.columnSpacing);
                             //刷新布局，这样宽度才会改变
-                            horHeaderRow.forceLayout()
-                            tableview.forceLayout()
+                            horHeaderRow.forceLayout();
+                            tableview.forceLayout();
                         }
                     }
                 }
@@ -337,7 +335,7 @@ Rectangle {
             anchors.centerIn: parent
             onCheckedChanged: {
                 for (var i = 0; i < tableview.rows; i++) {
-                    checkBoxAt(i).checked = checked
+                    checkBoxAt(i).checked = checked;
                 }
             }
         }
@@ -359,26 +357,27 @@ Rectangle {
     function calcFirstLastColumn() {
         for (var i = 0; i < columnsWidth.length; i++) {
             if (columnsWidth[i] > 0) {
-                firstVisibleColumn = i
-                break
+                firstVisibleColumn = i;
+                break;
             }
         }
         for (i = columnsWidth.length - 1; i > -1; i--) {
             if (columnsWidth[i] > 0) {
-                lastVisibleColumn = i
-                break
+                lastVisibleColumn = i;
+                break;
             }
         }
     }
 
-    function getColumnWidth(column) {}
+    function getColumnWidth(column) {
+    }
 
     function checkBoxAt(index) {
-        return rowHeader.itemAt(index).checkbox
+        return rowHeader.itemAt(index).checkbox;
     }
 
     function uncheckAll() {
-        ckbAll.checked = false
+        ckbAll.checked = false;
     }
 
     Timer {
@@ -388,27 +387,26 @@ Rectangle {
         property int row: -1
         onTriggered: {
             if (row === -1)
-                stop()
+                stop();
 
             if (tableview.model.rowCount !== tableview.rows) {
-                restart()
-                return
+                restart();
+                return;
             }
-            selectRow(row)
-            row = -1
-            stop()
+            selectRow(row);
+            row = -1;
+            stop();
         }
     }
 
     function selectRow(row) {
         if (tableview.model.rowCount !== tableview.rows) {
-            timer.row = row
-            timer.start()
-            return
+            timer.row = row;
+            timer.start();
+            return;
         }
 
-        var index = tableview.index(row, 0)
-        tableview.selectionModel.setCurrentIndex(
-                    index, ItemSelectionModel.Select | ItemSelectionModel.Rows)
+        var index = tableview.index(row, 0);
+        tableview.selectionModel.setCurrentIndex(index, ItemSelectionModel.Select | ItemSelectionModel.Rows);
     }
 }

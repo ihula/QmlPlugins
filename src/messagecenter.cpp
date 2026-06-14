@@ -1,51 +1,87 @@
 #include "messagecenter.h"
 #include "configer.h"
 #include "dbmanager.h"
+#include "hulalogger.h"
 #include <QDate>
-#include <QDebug>
+#include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QGuiApplication>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QSqlError>
-#include <QSqlQuery>
+#include <QSettings>
 
 MessageCenter::MessageCenter(QObject *parent) : QObject(parent)
 {
-    // 记录类的方法名,用于权限管理
-    /*
-    QString className = this->objectName();
-    QString cls = GET_CLASS_NAME(MessageCenter);
-    QString funcName = GET_FUNC_NAME(MessageCenter::getDatas);
-
-    qDebug().noquote() << 12 << className  << 13 << cls << 14 << funcName;
-    */
+    QString dir = getErrorInfoDir();
+    QDir d(dir);
+    if (!d.exists())
+    {
+        d.mkpath(dir);
+    }
 }
 
-QList<QVariantMap> MessageCenter::getDatas(QString date)
+QString MessageCenter::getErrorInfoDir() const
 {
-    QMutexLocker locker(&m_fileMutex);
-    m_currFileName = date.trimmed();
-    if (m_currFileName == "")
-        m_currFileName = QDate::currentDate().toString("yyyyMMdd");
-    QString infofile = "ErrorInfo/" + m_currFileName + ".txt";
-    QSettings file(infofile, QSettings::IniFormat);
+    return QGuiApplication::applicationDirPath() + "/ErrorInfo/";
+}
+
+QString MessageCenter::getCurrentFileName(const QString& date) const
+{
+    QString dateStr = date.trimmed();
+    if (dateStr.isEmpty())
+    {
+        dateStr = QDate::currentDate().toString("yyyyMMdd");
+    }
+    return getErrorInfoDir() + dateStr + ".txt";
+}
+
+int MessageCenter::generateNextId(const QString& fileName)
+{
+    QSettings infoFile(fileName, QSettings::IniFormat);
+    return infoFile.childGroups().size() + 1;
+}
+
+QList<QVariantMap> MessageCenter::getDatas(const QString& date)
+{
+    QMutexLocker locker(&m_mutex);
+    
+    QString dateStr = date.trimmed();
+    if (dateStr.isEmpty())
+    {
+        dateStr = QDate::currentDate().toString("yyyyMMdd");
+    }
+    m_currentDate = dateStr;
+    
+    QString infoFile = getCurrentFileName(dateStr);
+    if (!QFile::exists(infoFile))
+    {
+        return QList<QVariantMap>();
+    }
+    
+    QSettings file(infoFile, QSettings::IniFormat);
     QStringList groupList = file.childGroups();
-    std::sort(groupList.begin(), groupList.end(), [](const QString &a, const QString &b) { return QString::compare(a, b, Qt::CaseInsensitive) > 0; });
+    std::sort(groupList.begin(), groupList.end(), 
+              [](const QString &a, const QString &b) { 
+                  return QString::compare(a, b, Qt::CaseInsensitive) > 0; 
+              });
 
     QList<QVariantMap> datas;
-    for (int i = 0; i < groupList.size(); i++)
+    const QStringList& groupsRef = groupList;
+    for (int i = 0; i < groupsRef.size(); ++i)
     {
-        file.beginGroup(groupList[i]);
-        QString str = file.value("ErrorInfo").toString();
-        if (str.isEmpty())
+        const QString& group = groupsRef.at(i);
+        file.beginGroup(group);
+        
+        QString errorInfo = file.value("ErrorInfo").toString();
+        if (errorInfo.isEmpty())
+        {
+            file.endGroup();
             continue;
+        }
 
-        QVariantMap data = {};
-        data["Id"] = groupList[i];
+        QVariantMap data;
+        data["Id"] = group;
         data["StatusCode"] = file.value("StatusCode").toString();
-        data["ErrorInfo"] = file.value("ErrorInfo").toString();
+        data["ErrorInfo"] = errorInfo;
         data["UserCode"] = file.value("UserCode").toString();
         data["UserName"] = file.value("UserName").toString();
         data["LogTime"] = file.value("LogTime").toString();
@@ -58,47 +94,78 @@ QList<QVariantMap> MessageCenter::getDatas(QString date)
 
 int MessageCenter::deleteData(quint64 id)
 {
-    QMutexLocker locker(&m_fileMutex);
-    QString infofile = "ErrorInfo/" + m_currFileName + ".txt";
-    QSettings file(infofile, QSettings::IniFormat);
+    QMutexLocker locker(&m_mutex);
+    
+    if (m_currentDate.isEmpty())
+    {
+        HulaLogger::instance()->writeLog(QtMsgType::QtWarningMsg, 
+            "MessageCenter::deleteData called without prior getDatas", 
+            QMessageLogContext());
+        return -1;
+    }
+    
+    QString infoFile = getCurrentFileName(m_currentDate);
+    QSettings file(infoFile, QSettings::IniFormat);
     file.remove(QString::number(id));
+    
     return 0;
 }
 
 int MessageCenter::deleteAllData()
 {
-    QMutexLocker locker(&m_fileMutex);
-    QString infofile = "ErrorInfo/" + m_currFileName + ".txt";
-    QFile::remove(infofile);
+    QMutexLocker locker(&m_mutex);
+    
+    if (m_currentDate.isEmpty())
+    {
+        HulaLogger::instance()->writeLog(QtMsgType::QtWarningMsg, 
+            "MessageCenter::deleteAllData called without prior getDatas", 
+            QMessageLogContext());
+        return -1;
+    }
+    
+    QString infoFile = getCurrentFileName(m_currentDate);
+    if (QFile::exists(infoFile))
+    {
+        if (!QFile::remove(infoFile))
+        {
+            HulaLogger::instance()->writeLog(QtMsgType::QtWarningMsg, 
+                QString("Failed to remove file: %1").arg(infoFile), 
+                QMessageLogContext());
+            return -1;
+        }
+    }
+    
     return 0;
 }
 
 bool MessageCenter::hasNewInfo()
 {
+    QMutexLocker locker(&m_mutex);
     return m_hasNewInfo;
 }
 
-void MessageCenter::appendData(QVariantMap data)
+void MessageCenter::appendData(const QVariantMap& data)
 {
-    QMutexLocker locker(&m_fileMutex);
-    QString fileName = "ErrorInfo/" + QDate::currentDate().toString("yyyyMMdd") + ".txt";
-    QSettings infoFile(fileName, QSettings::IniFormat);
-    int id = infoFile.childGroups().size();
-
-    id++;
+    QMutexLocker locker(&m_mutex);
+    
+    QString fileName = getCurrentFileName(QString());
+    int id = generateNextId(fileName);
     QString group = QString::number(id);
+    
+    QSettings infoFile(fileName, QSettings::IniFormat);
     infoFile.beginGroup(group);
     infoFile.setValue("StatusCode", data["StatusCode"].toString());
     infoFile.setValue("ErrorInfo", data["ErrorInfo"].toString());
     infoFile.setValue("UserCode", data["UserCode"].toString());
     infoFile.setValue("UserName", data["UserName"].toString());
     infoFile.setValue("LogTime", data["LogTime"].toString());
+    infoFile.endGroup();
+    
     m_hasNewInfo = true;
 }
 
 void MessageCenter::handleMessage(const MessageInfo &msg)
 {
-    // 错误码非成功时保存到文件
     if (static_cast<int>(msg.statusCode) != 0)
     {
         QVariantMap data;
