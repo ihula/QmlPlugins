@@ -83,7 +83,6 @@ qt_add_qml_module(${APP_NAME}
     QML_FILES ${QML_SOURCES}
     SOURCES
         src/common.h
-        #src/basemsgsender.h src/basemsgsender.cpp
         src/userinfo.h src/userinfo.cpp
         src/messagecenter.h src/messagecenter.cpp
         src/configer.h src/configer.cpp

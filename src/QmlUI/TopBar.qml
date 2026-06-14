@@ -6,7 +6,7 @@ import QtQuick.Shapes
 import Qt5Compat.GraphicalEffects
 import QmlPlugins 1.0
 import "../HulaUI"
-import "."
+import QmlPlugin 1.0
 
 Rectangle {
     id: titleBar
@@ -376,17 +376,19 @@ Rectangle {
         btnInfo.opacity = 1.0;
     }
 
-    function showInfo(msg, type) {
-        if (type === Enums.PromptType.Toast) {
-            snackMessage(info);
-        } else if (type === Enums.PromptType.Error) {
+    function showInfo(msg) {
+        console.log(1, PromptType.Toast);
+        console.log(msg.text);
+        if (msg.promptType === PromptType.Toast) {
+            snackMessage(msg.text);
+        } else if (msg.promptType === PromptType.Error) {
             startBreath();
-            var msgBox = openDialogPrompt(info, null, "Error");
+            var msgBox = openDialogPrompt(msg.text, null, "Error");
             msgBox.autoClose = true;
-        } else if (type === Enums.PromptType.Confirmation) {
-            var confirmBox = openDialogPrompt(info, null, "Information");
+        } else if (msg.promptType === PromptType.Confirmation) {
+            var confirmBox = openDialogPrompt(msg.text, null, "Information");
             confirmBox.autoClose = true;
-        } else if (type === Enums.PromptType.Log) {
+        } else if (msg.promptType === PromptType.Log) {
             startBreath();
         }
     }

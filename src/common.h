@@ -18,6 +18,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QtQml/qqmlregistration.h>
 
 /**
  * @brief 提示类型枚举
@@ -29,6 +30,7 @@ enum class PromptType
     Confirmation, ///< 确认并记录（弹窗）：模态对话框，提示用户
     Error         ///< 错误并记录（弹窗）：模态对话框，警告用户
 };
+Q_DECLARE_METATYPE(PromptType)
 
 /**
  * @brief 设备状态枚举
@@ -119,11 +121,13 @@ enum class StatusCode
     AuthorizationFailed = 2003,  ///< 授权失败
     RateLimitExceeded = 2004,    ///< 请求频率超限
 };
+Q_DECLARE_METATYPE(StatusCode)
 
 // 为命名空间添加 Qt 元对象支持
 namespace Enums
 {
 Q_NAMESPACE
+QML_ELEMENT
 Q_ENUM_NS(PromptType)
 Q_ENUM_NS(DeviceStatus)
 Q_ENUM_NS(StatusCode)

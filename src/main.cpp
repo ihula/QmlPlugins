@@ -48,7 +48,9 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    qRegisterMetaType<MessageInfo>("MessageInfo");
+    qmlRegisterUncreatableType<PromptType>("QmlPlugin", 1, 0, "PromptType", "PromptType is not creatable");
+    qmlRegisterUncreatableType<StatusCode>("QmlPlugin", 1, 0, "StatusCode", "StatusCode is not creatable");
+    qmlRegisterUncreatableType<MessageInfo>("QmlPlugin", 1, 0, "MessageInfo", "MessageInfo is not creatable");
 
     StatusCode dbResult = DbManager::instance()->connect(DB_FILE);
     if (dbResult != StatusCode::Success)
