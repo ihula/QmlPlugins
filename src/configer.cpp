@@ -1,22 +1,19 @@
 ﻿#include "configer.h"
-#include <QSettings>
 #include <QDebug>
-#include <QFileInfo>
-#include <QFile>
 #include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #include <QGuiApplication>
-#include <QJsonDocument>
 #include <QJsonArray>
-
+#include <QJsonDocument>
+#include <QSettings>
 
 Configer::~Configer()
 {
-
 }
 
 Configer::Configer(QObject *parent) : QObject(parent)
 {
-
 }
 
 QString Configer::userName()
@@ -24,7 +21,7 @@ QString Configer::userName()
     return m_userName;
 }
 
-void Configer::setUserName(const QString& userName)
+void Configer::setUserName(const QString &userName)
 {
     m_userName = userName;
 }
@@ -34,7 +31,7 @@ QString Configer::userAccount()
     return m_userAccount;
 }
 
-void Configer::setUserAccount(const QString& userAccount)
+void Configer::setUserAccount(const QString &userAccount)
 {
     m_userAccount = userAccount;
 }
@@ -49,12 +46,12 @@ void Configer::setLogLevel(int level)
     writeValue("TraceLevel", level, "Log");
 }
 
-QString Configer::currLanguage()
+QString Configer::language()
 {
     return readValue("Language").toString();
 }
 
-void Configer::setCurrLanguage(const QString& langName)
+void Configer::setLanguage(const QString &langName)
 {
     writeValue("Language", langName);
 }
@@ -64,7 +61,7 @@ QString Configer::fontName()
     return readValue("FontName").toString();
 }
 
-void Configer::setFontName(const QString& font)
+void Configer::setFontName(const QString &font)
 {
     writeValue("FontName", font);
 }
@@ -84,7 +81,7 @@ QString Configer::theme()
     return readValue("Theme").toString();
 }
 
-void Configer::setTheme(const QString& style)
+void Configer::setTheme(const QString &style)
 {
     writeValue("Theme", style);
 }
@@ -175,6 +172,7 @@ void Configer::setUseWallPaper(bool used)
 {
     int val = used ? 1 : 0;
     writeValue("UseWallPaper", val);
+    emit wallPaperUpdated();
 }
 
 bool Configer::liveWallPaper()
@@ -187,9 +185,10 @@ void Configer::setLiveWallPaper(bool used)
 {
     int val = used ? 1 : 0;
     writeValue("LiveWallPaper", val);
+    emit wallPaperUpdated();
 }
 
-bool Configer::fileExisted(const QString& fileName)
+bool Configer::fileExisted(const QString &fileName)
 {
     return QFileInfo::exists(fileName);
 }
@@ -212,7 +211,7 @@ bool Configer::reportPreviewed()
 
 void Configer::setReportPreviewed(bool sure)
 {
-     int reportPreviewed = sure ? 1 : 0;
+    int reportPreviewed = sure ? 1 : 0;
     writeValue("ReportPreviewed", reportPreviewed);
 }
 
@@ -232,8 +231,8 @@ QStringList Configer::reportTemplateList()
 {
     QStringList list = {};
     QDir dir("./");
-    const auto infos = dir.entryInfoList({ "*.lrxml" }, QDir::Files);
-    for (const auto& info : infos)
+    const auto infos = dir.entryInfoList({"*.lrxml"}, QDir::Files);
+    for (const auto &info : infos)
     {
         list.append(info.baseName());
     }
@@ -245,22 +244,22 @@ QString Configer::reportTemplate()
     return readValue("ReportTemplate").toString();
 }
 
-void Configer::setReportTemplate(const QString& text)
+void Configer::setReportTemplate(const QString &text)
 {
     writeValue("ReportTemplate", text);
 }
 
-QString Configer::reportTitel(const QString& reportNo)
+QString Configer::reportTitel(const QString &reportNo)
 {
     return readValue("ReportTitle" + reportNo).toString();
 }
 
-void Configer::setReportTitel(const QString& reportNo, const QString& text)
+void Configer::setReportTitel(const QString &reportNo, const QString &text)
 {
     writeValue("ReportTitle" + reportNo, text);
 }
 
-QString Configer::reportTitelColor(const QString& reportNo)
+QString Configer::reportTitelColor(const QString &reportNo)
 {
     QString str = readValue("ReportTitleColor" + reportNo).toString();
     if (str == "")
@@ -268,33 +267,33 @@ QString Configer::reportTitelColor(const QString& reportNo)
     return str;
 }
 
-void Configer::setReportTitelColor(const QString& reportNo, const QString& text)
+void Configer::setReportTitelColor(const QString &reportNo, const QString &text)
 {
     writeValue("ReportTitleColor" + reportNo, text);
 }
 
-int Configer::reportTitelSize(const QString& reportNo)
+int Configer::reportTitelSize(const QString &reportNo)
 {
     return readValue("ReportTitleSize" + reportNo).toInt();
 }
 
-void Configer::setReportTitelSize(const QString& reportNo, int size)
+void Configer::setReportTitelSize(const QString &reportNo, int size)
 {
     writeValue("ReportTitleSize" + reportNo, size);
 }
 
-QString Configer::hospitalName(const QString& reportNo)
+QString Configer::hospitalName(const QString &reportNo)
 {
 
     return readValue("HospitalName" + reportNo).toString();
 }
 
-void Configer::setHospitalName(const QString& reportNo, const QString& text)
+void Configer::setHospitalName(const QString &reportNo, const QString &text)
 {
     writeValue("HospitalName" + reportNo, text);
 }
 
-QString Configer::hospitalNameColor(const QString& reportNo)
+QString Configer::hospitalNameColor(const QString &reportNo)
 {
     QString str = readValue("HospitalNameColor" + reportNo).toString();
     if (str == "")
@@ -302,27 +301,27 @@ QString Configer::hospitalNameColor(const QString& reportNo)
     return str;
 }
 
-void Configer::setHospitalNameColor(const QString& reportNo, const QString& text)
+void Configer::setHospitalNameColor(const QString &reportNo, const QString &text)
 {
     writeValue("HospitalNameColor" + reportNo, text);
 }
 
-int Configer::hospitalNameSize(const QString& reportNo)
+int Configer::hospitalNameSize(const QString &reportNo)
 {
     return readValue("HospitalNameSize" + reportNo).toInt();
 }
 
-void Configer::setHospitalNameSize(const QString& reportNo, int size)
+void Configer::setHospitalNameSize(const QString &reportNo, int size)
 {
     writeValue("HospitalNameSize" + reportNo, size);
 }
 
-QString Configer::hospitalLogo(const QString& reportNo)
+QString Configer::hospitalLogo(const QString &reportNo)
 {
     return readValue("HospitalLogo" + reportNo).toString();
 }
 
-void Configer::setHospitalLogo(const QString& reportNo, const QString& path)
+void Configer::setHospitalLogo(const QString &reportNo, const QString &path)
 {
     writeValue("HospitalLogo" + reportNo, path);
 }
@@ -332,7 +331,7 @@ QString Configer::imagePath()
     return readValue("ImagePath").toString();
 }
 
-void Configer::setImagePath(const QString& path)
+void Configer::setImagePath(const QString &path)
 {
     writeValue("ImagePath", path);
 }
@@ -342,7 +341,7 @@ QString Configer::cameraName()
     return readValue("CameraName").toString();
 }
 
-void Configer::setCameraName(const QString& camera)
+void Configer::setCameraName(const QString &camera)
 {
     writeValue("CameraName", camera);
 }
@@ -352,7 +351,7 @@ QString Configer::cameraSize()
     return readValue("CameraSize").toString();
 }
 
-void Configer::setCameraSize(const QString& r)
+void Configer::setCameraSize(const QString &r)
 {
     writeValue("CameraSize", r);
 }
@@ -401,7 +400,7 @@ void Configer::setCameraRoi(int x, int y, int w, int h)
     writeValue("CameraRoiH", h);
 }
 
-void Configer::writeValue(const QString& key, const QVariant& value, const QString& group, const QString& file)
+void Configer::writeValue(const QString &key, const QVariant &value, const QString &group, const QString &file)
 {
     QSettings settings(file, QSettings::IniFormat);
     settings.beginGroup(group);
@@ -409,7 +408,7 @@ void Configer::writeValue(const QString& key, const QVariant& value, const QStri
     settings.endGroup();
 }
 
-QVariant Configer::readValue(const QString& key, const QString& group, const QString& file)
+QVariant Configer::readValue(const QString &key, const QString &group, const QString &file)
 {
     QSettings settings(file, QSettings::IniFormat);
     settings.beginGroup(group);
@@ -417,4 +416,3 @@ QVariant Configer::readValue(const QString& key, const QString& group, const QSt
     settings.endGroup();
     return val;
 }
-

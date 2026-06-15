@@ -130,16 +130,9 @@ void Translater::setLanguage(const QString &currentLang)
     }
 
     m_currentLang = currentLang;
-    emit LanguageChanged(m_currentLang);
+    emit languageChanged(m_currentLang);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
-    if (m_ctx && m_ctx->engine())
-    {
-        m_ctx->engine()->retranslate();
-    }
-#else
     emit changeChanged();
-#endif
 }
 
 void Translater::setLanguages(const QStringList &languages)

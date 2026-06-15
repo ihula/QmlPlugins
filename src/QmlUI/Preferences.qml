@@ -56,7 +56,7 @@ HulaDialog {
         }
 
         cmbLang.currentIndex = -1;
-        var currLang = Configer.currLanguage();
+        var currLang = Configer.language();
         var langList = Translater.languages;
         cmbLang.model = langList;
         for (i = 0; i < langList.length; i++) {
@@ -314,22 +314,21 @@ HulaDialog {
             radius: 4
             Material.background: "white"
             Material.foreground: "#535353"
-            implicitWidth: 84
+            implicitWidth: 96
             Layout.fillHeight: true
             text: qsTr("Preferences.Ok") + Translater.change
             font.pixelSize: Themer.theme.buttonFontSize
             onClicked: {
-                Configer.setCameraName(cmbCamera.currentText);
-                Configer.setCameraSize(cmbRate.currentText);
-                Configer.setCurrLanguage(cmbLang.editText.trim());
-                configer.setUseWallPaper(ckbUseWallPaper.checked);
-                Configer.setLiveWallPaper(ckbLiveWallPaper.checked);
-                Configer.changedBool();
-                var fontName = Configer.fontName();
-                if (edtFont.font.family !== fontName) {
-                    Configer.setFontName(edtFont.font.family);
-                    reportPrint.changFontName();
-                }
+                // Configer.setCameraName(cmbCamera.currentText);
+                // Configer.setCameraSize(cmbRate.currentText);
+                Configer.setLanguage(cmbLang.editText.trim());
+                // Configer.setUseWallPaper(ckbUseWallPaper.checked);
+                // Configer.setLiveWallPaper(ckbLiveWallPaper.checked);
+                // var fontName = Configer.fontName();
+                // if (edtFont.font.family !== fontName) {
+                //     Configer.setFontName(edtFont.font.family);
+                //     reportPrint.changFontName();
+                // }
                 root.hide();
             }
         }
@@ -339,7 +338,7 @@ HulaDialog {
             radius: 4
             Material.background: "white"
             Material.foreground: "#535353"
-            implicitWidth: 84
+            implicitWidth: 96
             Layout.fillHeight: true
             font.pixelSize: Themer.theme.buttonFontSize
             text: qsTr("Preferences.Cancel") + Translater.change

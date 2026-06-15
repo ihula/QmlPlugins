@@ -324,7 +324,7 @@ Window {
 
     Connections {
         target: Configer
-        function onChangedBool() {
+        function onWallPaperUpdated() {
             loadWallPaperParam();
         }
     }

@@ -127,8 +127,8 @@ class Configer : public QObject
     Q_INVOKABLE void setLogLevel(int level);
 
     /** @brief 当前使用的语言 */
-    Q_INVOKABLE QString currLanguage();
-    Q_INVOKABLE void setCurrLanguage(const QString &langName);
+    Q_INVOKABLE QString language();
+    Q_INVOKABLE void setLanguage(const QString &langName);
 
     /** @brief 字体 */
     Q_INVOKABLE QString fontName();
@@ -250,8 +250,8 @@ class Configer : public QObject
     Q_INVOKABLE void setCameraRoi(int x, int y, int w, int h);
 
   signals:
-    /** @brief 配置更新时通过此方法的信号通知 */
-    void changedBool();
+    /** @brief 通知有配置更新 */
+    void wallPaperUpdated();
 
   private:
     /** @brief 读取key的值到配置文件 */

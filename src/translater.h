@@ -16,7 +16,7 @@ class Translater : public QTranslator
     Q_OBJECT
     QML_ELEMENT
     QML_SINGLETON
-    Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY LanguageChanged)
+    Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
     Q_PROPERTY(QStringList languages READ languages NOTIFY languagesChanged)
     Q_PROPERTY(QString change READ change NOTIFY changeChanged)
 
@@ -56,7 +56,7 @@ class Translater : public QTranslator
     void setLanguage(const QString &currentLang);
 
   signals:
-    void LanguageChanged(const QString &currentLang);
+    void languageChanged(const QString &currentLang);
     void languagesChanged(const QStringList &languages);
     void langLoaded(const QString &lang);
     void folderLoaded(const QString &folder);

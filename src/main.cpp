@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
     engine.rootContext()->setContextProperty("APP_PATH", app.applicationDirPath());
 
-    QString currLang = Configer::instance()->currLanguage();
+    QString currLang = Configer::instance()->language();
     Translater::instance()->initialize("Languages/");
     Translater::instance()->setLanguage(currLang);
     app.setApplicationDisplayName(Translater::instance()->trans("AppName"));
