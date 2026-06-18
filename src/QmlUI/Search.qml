@@ -11,8 +11,10 @@ Rectangle {
     id: root
     color: "transparent"
     property bool autoDestroy: false
+    // loader加载组件时,组件不执行onVisibleChanged事件,通过此方法桥接
+    property bool isVisible: visible
     property QtObject ownerLoader: null
-    property string formTitle: qsTr("Search.SampleSearch") + Translater.change
+    property string formTitle: qsTr("Search.SampleSearch")
     property var patientData: ({})
 
     enum FieldType {
@@ -31,7 +33,7 @@ Rectangle {
         id: patients
     }
 
-    onVisibleChanged: {
+    onIsVisibleChanged: {
         if (visible) {
             init();
             return;
@@ -55,8 +57,8 @@ Rectangle {
         id: fileDialog
         property bool exporting: false
         fileMode: FileDialog.SaveFile
-        title: qsTr("Search.SelectFileSavePath") + Translater.change
-        property string filterName: qsTr("Search.FileType") + Translater.change
+        title: qsTr("Search.SelectFileSavePath")
+        property string filterName: qsTr("Search.FileType")
         nameFilters: [filterName + " (*.bak)"]
         onAccepted: {
             if (exporting) {
@@ -96,7 +98,7 @@ Rectangle {
                 anchors.top: parent.top
                 font.pixelSize: 14
                 font.bold: true
-                text: qsTr("Search.Filter") + Translater.change
+                text: qsTr("Search.Filter")
                 background: Rectangle {
                     height: 1
                     color: Themer.theme.lineColor
@@ -129,7 +131,7 @@ Rectangle {
                     Layout.preferredHeight: layBaseEditor.lblHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-                    text: qsTr("Home.TestId") + Translater.change
+                    text: qsTr("Home.TestId")
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -148,7 +150,7 @@ Rectangle {
                     Layout.preferredHeight: layBaseEditor.lblHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-                    text: qsTr("Home.Name") + Translater.change
+                    text: qsTr("Home.Name")
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -166,7 +168,7 @@ Rectangle {
                     Layout.preferredHeight: layBaseEditor.lblHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-                    text: qsTr("Home.Sex") + Translater.change
+                    text: qsTr("Home.Sex")
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                     background: createMouse(this, cmbSex)
@@ -193,7 +195,7 @@ Rectangle {
                     Layout.preferredHeight: layBaseEditor.lblHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-                    text: qsTr("Home.Age") + Translater.change
+                    text: qsTr("Home.Age")
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -218,7 +220,7 @@ Rectangle {
                         height: layBaseEditor.txtHeight
                         verticalAlignment: Text.AlignVCenter
                         horizontalAlignment: Text.AlignLeft
-                        text: qsTr("Home.AgeY") + Translater.change
+                        text: qsTr("Home.AgeY")
                         font.pixelSize: layBaseEditor.lblFontSize
                         Material.foreground: Themer.theme.editorFontColor
                     }
@@ -237,7 +239,7 @@ Rectangle {
                         height: layBaseEditor.txtHeight
                         verticalAlignment: Text.AlignVCenter
                         horizontalAlignment: Text.AlignLeft
-                        text: qsTr("Home.AgeM") + Translater.change
+                        text: qsTr("Home.AgeM")
                         font.pixelSize: layBaseEditor.lblFontSize
                         Material.foreground: Themer.theme.editorFontColor
                     }
@@ -256,7 +258,7 @@ Rectangle {
                         height: layBaseEditor.txtHeight
                         verticalAlignment: Text.AlignVCenter
                         horizontalAlignment: Text.AlignLeft
-                        text: qsTr("Home.AgeD") + Translater.change
+                        text: qsTr("Home.AgeD")
                         font.pixelSize: layBaseEditor.lblFontSize
                         Material.foreground: Themer.theme.editorFontColor
                     }
@@ -267,7 +269,7 @@ Rectangle {
                     Layout.preferredHeight: layBaseEditor.lblHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-                    text: qsTr("Home.MRN") + Translater.change
+                    text: qsTr("Home.MRN")
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -285,7 +287,7 @@ Rectangle {
                     Layout.preferredHeight: layBaseEditor.lblHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-                    text: qsTr("Home.Dept") + Translater.change
+                    text: qsTr("Home.Dept")
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                     background: createMouse(this, cmbFromDept)
@@ -313,7 +315,7 @@ Rectangle {
                     Layout.preferredHeight: layBaseEditor.lblHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-                    text: qsTr("Home.Doctor") + Translater.change
+                    text: qsTr("Home.Doctor")
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                     background: createMouse(this, cmbDoctor)
@@ -341,7 +343,7 @@ Rectangle {
                     Layout.preferredHeight: layBaseEditor.lblHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-                    text: qsTr("Home.Tester") + Translater.change
+                    text: qsTr("Home.Tester")
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -367,7 +369,7 @@ Rectangle {
                     Layout.preferredHeight: layBaseEditor.lblHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-                    text: qsTr("Home.SpecimenType") + Translater.change
+                    text: qsTr("Home.SpecimenType")
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                     background: createMouse(this, cmbSpecimenType)
@@ -396,7 +398,7 @@ Rectangle {
                     Layout.preferredHeight: layBaseEditor.lblHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-                    text: qsTr("Search.FromDate") + Translater.change
+                    text: qsTr("Search.FromDate")
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -418,7 +420,7 @@ Rectangle {
                     Layout.preferredHeight: layBaseEditor.lblHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-                    text: qsTr("Search.ToDate") + Translater.change
+                    text: qsTr("Search.ToDate")
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.theme.editorFontColor
                 }
@@ -452,7 +454,7 @@ Rectangle {
                 RoundButton {
                     radius: 4
                     font.pixelSize: layButtons.btnFontSize
-                    text: qsTr("Search.OpenReport") + Translater.change
+                    text: qsTr("Search.OpenReport")
                     Material.background: "white"
                     Material.foreground: "#535353"
                     Layout.fillWidth: true
@@ -462,7 +464,7 @@ Rectangle {
                 RoundButton {
                     radius: 4
                     font.pixelSize: layButtons.btnFontSize
-                    text: qsTr("Search.StartSearch") + Translater.change
+                    text: qsTr("Search.StartSearch")
                     Material.background: "#0075FF"
                     Material.foreground: "white"
                     Layout.fillWidth: true
@@ -472,7 +474,7 @@ Rectangle {
                 RoundButton {
                     radius: 4
                     font.pixelSize: layButtons.btnFontSize
-                    text: qsTr("Search.DbBackup") + Translater.change
+                    text: qsTr("Search.DbBackup")
                     Material.background: "white"
                     Material.foreground: "#535353"
                     Layout.fillWidth: true
@@ -488,7 +490,7 @@ Rectangle {
                 RoundButton {
                     radius: 4
                     font.pixelSize: layButtons.btnFontSize
-                    text: qsTr("Search.DbRecovery") + Translater.change
+                    text: qsTr("Search.DbRecovery")
                     Material.background: "white"
                     Material.foreground: "#535353"
                     Layout.fillWidth: true
@@ -504,7 +506,7 @@ Rectangle {
                 RoundButton {
                     radius: 4
                     font.pixelSize: layButtons.btnFontSize
-                    text: qsTr("Search.ImportExcel") + Translater.change
+                    text: qsTr("Search.ImportExcel")
                     Material.background: "white"
                     Material.foreground: "#535353"
                     Layout.fillWidth: true
@@ -521,7 +523,7 @@ Rectangle {
                 RoundButton {
                     radius: 4
                     font.pixelSize: layButtons.btnFontSize
-                    text: qsTr("Search.Delete") + Translater.change
+                    text: qsTr("Search.Delete")
                     Material.background: checked ? (Themer.theme.buttonCheckedBackground) : (Themer.theme.buttonBackground)
                     Material.foreground: "#535353"
                     Layout.fillWidth: true
@@ -540,7 +542,7 @@ Rectangle {
                 RoundButton {
                     radius: 4
                     font.pixelSize: layButtons.btnFontSize
-                    text: qsTr("Search.Close") + Translater.change
+                    text: qsTr("Search.Close")
                     Material.background: "white"
                     Material.foreground: "#535353"
                     Layout.fillWidth: true
@@ -556,7 +558,7 @@ Rectangle {
                 anchors.top: layButtons.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.topMargin: 48
-                property string info: qsTr("Search.RecordNum") + Translater.change
+                property string info: qsTr("Search.RecordNum")
                 text: info.replace("%1", 0).replace("%2", 0)
             }
         }
@@ -588,7 +590,7 @@ Rectangle {
                 horizontalAlignment: Text.AlignHCenter
                 font.pixelSize: 14
                 font.bold: true
-                text: qsTr("Search.SearchResult") + Translater.change
+                text: qsTr("Search.SearchResult")
                 background: Rectangle {
                     height: 1
                     color: Themer.theme.lineColor
@@ -667,7 +669,7 @@ Rectangle {
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.top: parent.top
-                    text: qsTr("Search.SelectExportInfo") + Translater.change
+                    text: qsTr("Search.SelectExportInfo")
                 }
                 Flow {
                     id: layExportInfo
@@ -689,7 +691,7 @@ Rectangle {
                     RoundButton {
                         radius: 4
                         font.pixelSize: layButtons.btnFontSize
-                        text: qsTr("Search.StartExport") + Translater.change
+                        text: qsTr("Search.StartExport")
                         Material.background: "white"
                         Material.foreground: "#535353"
                         implicitWidth: layButtons.btnWidth
@@ -725,7 +727,7 @@ Rectangle {
                     RoundButton {
                         radius: 4
                         font.pixelSize: layButtons.btnFontSize
-                        text: qsTr("Search.SelectAll") + Translater.change
+                        text: qsTr("Search.SelectAll")
                         Material.background: "white"
                         Material.foreground: "#535353"
                         implicitWidth: layButtons.btnWidth
@@ -746,7 +748,7 @@ Rectangle {
                     RoundButton {
                         radius: 4
                         font.pixelSize: layButtons.btnFontSize
-                        text: qsTr("Search.HideSelectExportInfo") + Translater.change
+                        text: qsTr("Search.HideSelectExportInfo")
                         Material.background: "white"
                         Material.foreground: "#535353"
                         implicitWidth: layButtons.btnWidth
@@ -914,7 +916,7 @@ Rectangle {
             if (String(child).indexOf("TextField") !== -1) {
                 child.text = "";
             } else if (String(child).indexOf("DateField") !== -1) {
-                child.editText = child.currDateString();
+                child.editText = child.dateString();
             } else if (String(child).indexOf("ComboBox") !== -1) {
                 child.editText = "";
             }

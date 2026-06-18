@@ -25,15 +25,34 @@ QtObject {
     property color workFormColor: "#ffffff"
     property color iconHoveredColor: "#2b7adb"
     property color editorFontColor: "#535353"
+    property color editedFontColor: "#e91e63"
     property color lineColor: "#d8d8d8"
     property color buttonBackground: "white"
     property color buttonCheckedBackground: "#f1f1f1"
+    property color buttonTextColor: "white"
+    property color buttonColor: "#436fF6"
     property color viewColor: "#ebedf3"
     property color borderColor: "#f1f1f1"
+    property color borderGrayColor: "gray"
     property color barColor: "#1296db"
     property color leftTitleColor: "white"
+    property color warnColor: "#f67b3e"//Qt.rgba(246, 123, 62,0)
     property int editorFontSize: 18
+    property int editorHeight: 36
     property int buttonFontSize: 18
+    property int buttonHeight: 48
+    property int buttonWidth: 120
+
+    property Gradient buttonGradient: Gradient {
+        GradientStop {
+            position: 0.0
+            color: "#3b477f"
+        }
+        GradientStop {
+            position: 1.0
+            color: "#5a6bb8"
+        }
+    }
 
     property Gradient titleBarGradient: Gradient {
         GradientStop {

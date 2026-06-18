@@ -4,42 +4,48 @@ import QtQuick.Layouts
 
 Rectangle {
     id: control
-    implicitWidth: 260
-    implicitHeight: 300
+    implicitWidth: 280
+    implicitHeight: 320
     border.color: "#d1d1d1"
-    property color accentColor: "#2196f3"
+    property color hoverBorderColor: "#e91e63"
+    property color textColor: "black"
+    property color selectedTextColor: "white"
+    property color selectedBackColor: "#e91e63"
     property alias font: monthgrid.font
     property alias locale: monthgrid.locale
     property string dateFormat: "yyyy-MM-dd"
+    property var dayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     property date selectedDate: new Date()
     signal clicked
 
-    function currDateString(format = "") {
+    function dateString(format = "") {
         if (format === "")
-            format = dateFormat
-        var currDate = new Date()
-        return currDate.toLocaleString(Qt.locale(), format)
+            format = dateFormat;
+        var currDate = new Date();
+        return currDate.toLocaleString(Qt.locale(), format);
     }
 
-    function selectDate(format = "") {
+    function date(format = "") {
         if (format === "")
-            format = dateFormat
-        return selectedDate.toLocaleString(Qt.locale(), format)
+            format = dateFormat;
+        return selectedDate.toLocaleString(Qt.locale(), format);
     }
 
-    //自定义按钮样式
     component CalendarButton: AbstractButton {
         id: btn
-        implicitWidth: 30
-        implicitHeight: 30
+        implicitWidth: 34
+        implicitHeight: 34
         contentItem: Text {
             font: control.font
             text: btn.text
-            color: "black"
+            color: textColor
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
         }
-        background: Item {}
+        background: Rectangle {
+            color: btn.pressed ? "#e0e0e0" : "transparent"
+            radius: 4
+        }
     }
 
     Item {
@@ -48,56 +54,57 @@ Rectangle {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.margins: 6
-        implicitHeight: 32
+        implicitHeight: 36
 
         RowLayout {
             anchors.fill: parent
-            anchors.leftMargin: 20
-            anchors.rightMargin: 20
+            anchors.leftMargin: 12
+            anchors.rightMargin: 12
+
             CalendarButton {
                 text: "<"
-                onClicked: {
-                    monthgrid.year -= 1
-                }
+                onClicked: monthgrid.year -= 1
             }
             Text {
                 font: control.font
-                color: "black"
+                color: textColor
                 text: monthgrid.year
+                Layout.alignment: Qt.AlignHCenter
             }
             CalendarButton {
                 text: ">"
-                onClicked: {
-                    monthgrid.year += 1
-                }
+                onClicked: monthgrid.year += 1
             }
+
             Item {
-                implicitWidth: 20
+                Layout.fillWidth: true
             }
+
             CalendarButton {
                 text: "<"
                 onClicked: {
                     if (monthgrid.month === 0) {
-                        monthgrid.year -= 1
-                        monthgrid.month = 11
+                        monthgrid.year -= 1;
+                        monthgrid.month = 11;
                     } else {
-                        monthgrid.month -= 1
+                        monthgrid.month -= 1;
                     }
                 }
             }
             Text {
                 font: control.font
-                color: "black"
+                color: textColor
                 text: monthgrid.month + 1
+                Layout.alignment: Qt.AlignHCenter
             }
             CalendarButton {
                 text: ">"
                 onClicked: {
                     if (monthgrid.month === 11) {
-                        monthgrid.year += 1
-                        monthgrid.month = 0
+                        monthgrid.year += 1;
+                        monthgrid.month = 0;
                     } else {
-                        monthgrid.month += 1
+                        monthgrid.month += 1;
                     }
                 }
             }
@@ -113,17 +120,29 @@ Rectangle {
         height: 1
     }
 
-    //星期1-7
-    DayOfWeekRow {
+    Row {
         id: weekrow
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: line.bottom
         anchors.margins: 6
-        implicitHeight: 32
-        font: control.font
+        height: 32
+        spacing: 0
+
+        Repeater {
+            model: control.dayNames
+            delegate: Text {
+                text: modelData
+                font: control.font
+                color: textColor
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                width: parent.width / 7
+                height: parent.height
+            }
+        }
     }
-    //日期单元格
+
     MonthGrid {
         id: monthgrid
         anchors.left: parent.left
@@ -131,24 +150,29 @@ Rectangle {
         anchors.top: weekrow.bottom
         anchors.bottom: parent.bottom
         anchors.margins: 6
-        spacing: 0
         delegate: Rectangle {
             color: "transparent"
-            border.color: accentColor
+            border.color: itemmouse.containsMouse ? hoverBorderColor : "transparent"
             border.width: itemmouse.containsMouse ? 1 : 0
-            radius: height / 2
+            width: height
+            radius: width / 2
             Rectangle {
                 anchors.fill: parent
-                anchors.margins: 2
-                radius: height / 2
-                color: model.today ? "orange" : control.selectedDate.valueOf(
-                                         ) === model.date.valueOf(
-                                         ) ? accentColor : "transparent"
+                anchors.margins: 1
+                radius: width / 2
+                color: control.selectedDate.valueOf() === model.date.valueOf() ? selectedBackColor : "transparent"
             }
             Text {
                 anchors.centerIn: parent
                 text: model.day
-                color: model.month === monthgrid.month ? "black" : "gray"
+                font: control.font
+                color: {
+                    if (control.selectedDate.valueOf() === model.date.valueOf()) {
+                        return selectedTextColor;
+                    } else {
+                        return model.today ? selectedBackColor : (model.month === monthgrid.month ? textColor : "#999999");
+                    }
+                }
             }
             MouseArea {
                 id: itemmouse
@@ -158,8 +182,8 @@ Rectangle {
             }
         }
         onClicked: date => {
-                       control.selectedDate = date
-                       control.clicked()
-                   }
+            control.selectedDate = date;
+            control.clicked();
+        }
     }
 }

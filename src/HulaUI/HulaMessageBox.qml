@@ -8,7 +8,7 @@ HulaDialog {
     id: root
     width: 336
     height: 90 + lblText.contentHeight + buttonBar.height
-    formTitle: qsTr("MessageBox.Confirm") + Translater.change
+    formTitle: qsTr("MessageBox.Confirm")
     property alias textPixelSize: lblText.font.pixelSize
     property string messageText: ""
     property string buttonOkText: "MessageBox.Ok"
@@ -29,7 +29,7 @@ HulaDialog {
         anchors.topMargin: 0
         anchors.bottomMargin: 10
         font.pixelSize: 18
-        text: qsTr(messageText) + Translater.change
+        text: qsTr(messageText)
         wrapMode: TextEdit.WordWrap
         horizontalAlignment: (lineCount > 1) ? Text.AlignLeft : Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
@@ -55,7 +55,7 @@ HulaDialog {
             flat: true
             font.pixelSize: 18
             Material.foreground: "#535353"
-            text: qsTr(buttonCancelText) + Translater.change
+            text: qsTr(buttonCancelText)
             height: parent.height
             width: 84
             visible: (text !== "")
@@ -73,7 +73,7 @@ HulaDialog {
             font.pixelSize: 18
             Material.foreground: "#535353"
             Material.background: "#cfcfcf"
-            property string title: qsTr(buttonOkText) + Translater.change
+            property string title: qsTr(buttonOkText)
             text: autoClose ? title + "(" + String(timer.sum) + ")" : title
             height: parent.height
             width: 84

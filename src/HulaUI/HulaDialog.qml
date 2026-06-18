@@ -33,17 +33,16 @@ Dialog {
     //standardButtons: Dialog.Ok | Dialog.Cancel
     onVisibleChanged: {
         if (visible) {
-            showForm()
-            return
+            showForm();
+            return;
         }
 
-        hideForm()
+        hideForm();
         if (autoDestroy) {
             if (parent && parent instanceof Loader) {
-                root.parent.source = ""
-            } else {
-                destroy()
+                parent.active = false;
             }
+            destroy();
         }
     }
     background: Rectangle {
@@ -80,7 +79,7 @@ Dialog {
         font.pixelSize: 20
         visible: text.trim() !== ""
         color: "#555555"
-        text: qsTr(formTitle) + Translater.change
+        text: qsTr(formTitle)
         verticalAlignment: Qt.AlignVCenter
 
         background: Rectangle {
@@ -97,7 +96,7 @@ Dialog {
 
             HulaButton {
                 id: btnClose
-                tipText: qsTr("Topbar.Quit") + Translater.change
+                tipText: qsTr("Topbar.Quit")
                 iconImage: "Images/close.svg"
                 colorHovered: "red"
                 width: 48
@@ -118,20 +117,18 @@ Dialog {
             anchors.fill: parent
             onDoubleClicked: root.hide()
             onClicked: mouse => {
-                           var x2 = btnClose.x + btnClose.width
-                           var y2 = btnClose.y + btnClose.height
-                           if ((mouse.x >= btnClose.x) && (mouse.x <= x2)
-                               && (mouse.y >= btnClose.y) && (mouse.y <= y2))
-                           root.hide()
-                       }
+                var x2 = btnClose.x + btnClose.width;
+                var y2 = btnClose.y + btnClose.height;
+                if ((mouse.x >= btnClose.x) && (mouse.x <= x2) && (mouse.y >= btnClose.y) && (mouse.y <= y2))
+                    root.hide();
+            }
             onPressed: mouse => {
-                           clickPoint = Qt.point(mouse.x, mouse.y)
-                       }
+                clickPoint = Qt.point(mouse.x, mouse.y);
+            }
             onPositionChanged: function (mouse) {
-                var offset = Qt.point(mouse.x - clickPoint.x,
-                                      mouse.y - clickPoint.y)
-                root.x = root.x + offset.x
-                root.y = root.y + offset.y
+                var offset = Qt.point(mouse.x - clickPoint.x, mouse.y - clickPoint.y);
+                root.x = root.x + offset.x;
+                root.y = root.y + offset.y;
             }
         }
     }
@@ -287,97 +284,98 @@ Dialog {
         id: connector
         target: animInDown
         function onStopped() {
-            close()
+            close();
         }
     }
 
     function getRoot(item) {
-        return (item.parent !== null) ? getRoot(item.parent) : item
+        return (item.parent !== null) ? getRoot(item.parent) : item;
     }
 
     function show() {
         switch (animationType) {
         case "fade":
-            animFadeIn.start()
-            break
+            animFadeIn.start();
+            break;
         case "focus":
-            animFocusIn.start()
-            break
+            animFocusIn.start();
+            break;
         case "width":
-            animWidthIncrease.start()
-            break
+            animWidthIncrease.start();
+            break;
         case "height":
-            animHeightIncrease.start()
-            break
+            animHeightIncrease.start();
+            break;
         case "size":
-            animBig.start()
-            break
+            animBig.start();
+            break;
         case "flyDown":
-            animInDown.start()
-            break
+            animInDown.start();
+            break;
         case "flyUp":
-            animInUp.start()
-            break
+            animInUp.start();
+            break;
         case "flyLeft":
-            animInLeft.start()
-            break
+            animInLeft.start();
+            break;
         case "flyRight":
-            animInRight.start()
-            break
+            animInRight.start();
+            break;
         default:
-            this.visible = true
+            this.visible = true;
         }
     }
 
     function hide() {
         switch (animationType) {
         case "fade":
-            connector.target = animFadeOut
-            animFadeOut.start()
-            break
+            connector.target = animFadeOut;
+            animFadeOut.start();
+            break;
         case "width":
-            connector.target = animWidthDecrease
-            animWidthDecrease.start()
-            break
+            connector.target = animWidthDecrease;
+            animWidthDecrease.start();
+            break;
         case "height":
-            connector.target = animHeightDecrease
-            animHeightDecrease.start()
-            break
+            connector.target = animHeightDecrease;
+            animHeightDecrease.start();
+            break;
         case "size":
-            connector.target = animSmall
-            animSmall.start()
-            break
+            connector.target = animSmall;
+            animSmall.start();
+            break;
         case "flyDown":
-            connector.target = animOutUp
-            animOutUp.start()
-            break
+            connector.target = animOutUp;
+            animOutUp.start();
+            break;
         case "flyUp":
-            connector.target = animOutDown
-            animOutDown.start()
-            break
+            connector.target = animOutDown;
+            animOutDown.start();
+            break;
         case "flyLeft":
-            connector.target = animOutRight
-            animOutRight.start()
-            break
+            connector.target = animOutRight;
+            animOutRight.start();
+            break;
         case "flyRight":
-            connector.target = animOutLeft
-            animOutLeft.start()
-            break
+            connector.target = animOutLeft;
+            animOutLeft.start();
+            break;
         default:
-            close()
+            close();
         }
     }
 
     function getOkButton(parentItem) {
-        parentItem = parentItem || root
+        parentItem = parentItem || root;
         for (var i = 0; i < parentItem.contentChildren.length; i++) {
-            var child = parentItem.contentChildren[i]
+            var child = parentItem.contentChildren[i];
             if (typeof child.isDefaultButton !== 'undefined') {
-                return child.text
+                return child.text;
             }
-            var result = getOkButton(child)
-            if (result) return result
+            var result = getOkButton(child);
+            if (result)
+                return result;
         }
-        return ""
+        return "";
     }
 }

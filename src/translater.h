@@ -43,7 +43,7 @@ class Translater : public QTranslator
         return QString::number(reinterpret_cast<qint64>(this), 16);
     }
 
-    void initialize(const QString &folder);
+    void initialize(const QString &folder, QQmlContext *ctx);
 
     QString translate(const char *context, const char *sourceText, const char *disambiguation = nullptr, int n = -1) const override;
 

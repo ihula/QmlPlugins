@@ -5,12 +5,19 @@ ComboBox {
     id: root
     property int popupX: 0
     property int popupY: 0
-    property string dateFormat: "yyyy-MM-dd"
+    property alias dayNames: cdPick.dayNames
+    property alias calendarBorder: cdPick.border
+    property alias hoverBorderColor: cdPick.hoverBorderColor
+    property alias textColor: cdPick.textColor
+    property alias selectedTextColor: cdPick.selectedTextColor
+    property alias selectedBackColor: cdPick.selectedBackColor
+    property alias calendarFont: cdPick.font
+    property alias dateFormat: cdPick.dateFormat
     selectTextByMouse: true
     editable: true
 
-    function currDateString(format = "") {
-        return cdPick.currDateString(format)
+    function dateString(format = "") {
+        return cdPick.dateString(format);
     }
 
     popup: Popup {
@@ -27,10 +34,11 @@ ComboBox {
             id: cdPick
             clip: true
             radius: 4
-            property string dateFormat: root.dateFormat
+            locale: root.locale
+            dateFormat: root.dateFormat
             onClicked: {
-                root.editText = selectDate()
-                popup.close()
+                root.editText = date();
+                popup.close();
             }
         }
     }

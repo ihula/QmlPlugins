@@ -12,50 +12,33 @@ Window {
     property double alpha: Configer.useWallPaper() ? (0xb0 / 255) : 1
     width: 1568
     height: 864
-    title: qsTr("AppName") + Translater.change
+    title: qsTr("AppName")
     flags: Qt.Window | Qt.FramelessWindowHint
     color: Themer.theme.backColor
+    opacity: 0
     property string userName: ""
-    property color borderColor: "#d1d1d1"
-    property int floatTipSum: 0
-    property int msgBoxSum: 0
-    property QtObject dictForm: null
-    property QtObject editTitleForm: null
-    property int workForm: MainForm.WorkForm.None
-    objectName: "MainForm"
-
-    enum WorkForm {
-        None,
-        Home,
-        Search,
-        Statistic,
-        Setting
-    }
-
-    QtObject {
-        id: pageState
-        property bool page1Loaded: false
-        property bool page2Loaded: false
-        property bool profileLoaded: false
-    }
+    signal showing
+    signal closeing
 
     function showForm() {
         leftRepeater.itemAt(0).clicked();
         leftRepeater.itemAt(0).checked = true;
         if (mainForm.formShowMode === 0) {
+            mainForm.x = (Screen.desktopAvailableWidth - mainForm.width) / 2;
+            mainForm.y = (Screen.desktopAvailableHeight - mainForm.height) / 2;
             mainForm.showNormal();
         } else if (mainForm.formShowMode === 1) {
             mainForm.showMaximized();
         } else {
             mainForm.showFullScreen();
         }
+        fadeInAni.start();
         onLogined();
     }
 
-    onVisibleChanged: visible => {
+    onVisibleChanged: {
         if (visible) {
-            main.loaderSplash.source = "";
-            main.loaderLogin.source = "";
+            showing();
         }
     }
 
@@ -141,7 +124,7 @@ Window {
                         id: txtAppName
                         font.pixelSize: 20
                         color: Themer.theme.buttonBackground
-                        text: qsTr("CompanyAbbrName") + Translater.change
+                        text: qsTr("CompanyAbbrName")
                         anchors.verticalCenter: parent.verticalCenter
                     }
                 }
@@ -153,6 +136,7 @@ Window {
 
                 Repeater {
                     id: leftRepeater
+                    property int currentIndex: -1
                     property var iconList: ["Images/test.svg", "Images/search.svg", "Images/statistic.svg", "Images/setting.svg", "Images/user.svg"]
                     property var pages: [loader1, loader2, loader3, loader4, loader5]
                     model: ["MainForm.Testing", "MainForm.Search", "MainForm.Statistics", "MainForm.Setting", "User"]
@@ -162,7 +146,7 @@ Window {
                         anchors.left: parent.left
                         anchors.right: parent.right
                         display: AbstractButton.TextBesideIcon
-                        text: qsTr(modelData) + Translater.change
+                        text: qsTr(modelData)
                         font.pixelSize: 18
                         icon.source: "file:" + leftRepeater.iconList[index]
                         icon.height: 36
@@ -180,6 +164,10 @@ Window {
                         }
 
                         onClicked: {
+                            if (leftRepeater.currentIndex === index)
+                                return;
+
+                            leftRepeater.currentIndex = index;
                             leftRepeater.pages[index].active = true;
                             router.replace(leftRepeater.pages[index], StackView.PopTransition);
                         }
@@ -192,7 +180,7 @@ Window {
                     anchors.right: parent.right
                     display: AbstractButton.TextBesideIcon
                     font.pixelSize: 18
-                    text: qsTr("MainForm.About") + Translater.change
+                    text: qsTr("MainForm.About")
                     icon.source: "file:" + "Images/about.svg"
                     radius: 8
                     Material.foreground: "white"
@@ -242,19 +230,19 @@ Window {
     Loader {
         id: loader2
         active: false
-        source: "Page2.qml"
+        source: "Search.qml"
     }
 
     Loader {
         id: loader3
         active: false
-        source: "Search.qml"
+        source: "Page2.qml" //"Page2.qml" //"Statistic.qml"
     }
 
     Loader {
         id: loader4
         active: false
-        source: "Statistic.qml"
+        source: "Setting.qml"
     }
 
     Loader {
@@ -480,8 +468,17 @@ Window {
     }
 
     function isDateString(str) {
-        // 使用正则表达式判断字符串是否符合日期格式
         const regex = /^\d{4}-\d{2}-\d{2}$/;
         return regex.test(str);
+    }
+
+    PropertyAnimation {
+        id: fadeInAni
+        target: mainForm
+        property: "opacity"
+        from: 0
+        to: 1
+        duration: 500
+        easing.type: Easing.InOutQuad
     }
 }

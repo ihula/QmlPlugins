@@ -9,16 +9,17 @@ Item {
     height: 500
     property bool autoDestroy: false
     property QtObject ownerLoader: null
+    property bool isVisible: visible
 
-    onVisibleChanged: {
+    onIsVisibleChanged: {
         if (visible) {
-            return
+            return;
         }
         if (autoDestroy) {
             if (ownerLoader !== null) {
-                ownerLoader.source = ""
+                ownerLoader.source = "";
             } else {
-                destroy()
+                destroy();
             }
         }
     }

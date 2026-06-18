@@ -7,32 +7,58 @@ QtObject {
     id: main
     property bool useSplash: Configer.enableSplash()
     property bool useLogin: Configer.enableLogin()
-    property bool mainFormLoaded: false
-    property bool waitMainFormShow: false
 
     // 加载界面文件
-    property Loader loaderSplash: Loader {
+    property Loader splashLoader: Loader {
         active: useSplash
         source: "./Splash.qml"
         onLoaded: {
+            item.showing.connect(function () {
+                if (useLogin)
+                    loginLoader.active = true;
+                mainLoader.active = true;
+            });
+
+            item.closeing.connect(function () {
+                if (useLogin)
+                    loginLoader.item.showForm();
+                else
+                    mainLoader.item.showForm();
+
+                item.closeWithAnimation();
+            });
+
             item.showForm();
         }
     }
 
-    property Loader loaderLogin: Loader {
+    property Loader loginLoader: Loader {
         source: "./Login.qml"
-        active: ((!useSplash) && useLogin)
+        active: useLogin
+        visible: false
         onLoaded: {
-            if (!useSplash)
-                item.showForm();
+            item.showing.connect(function () {
+                mainLoader.active = true;
+            });
+
+            item.closeing.connect(function () {
+                mainLoader.item.showForm();
+                item.closeWithAnimation();
+            });
         }
     }
 
-    property Loader loaderMain: Loader {
+    property Loader mainLoader: Loader {
         asynchronous: (useSplash || useLogin)
         source: "./MainForm.qml"
         active: ((!useSplash) && (!useLogin))
         onLoaded: {
+            if (useSplash)
+                splashLoader.item.loadedMainForm();
+
+            if (useLogin)
+                loginLoader.item.loadedMainForm();
+
             if ((!useSplash) && (!useLogin))
                 item.showForm();
         }

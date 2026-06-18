@@ -12,7 +12,7 @@ HulaDialog {
     width: 360
     height: 460
     property int dictType: 0
-    formTitle: qsTr("DataDict.Title") + Translater.change
+    formTitle: qsTr("DataDict.Title")
     signal selected(int dictType, string text)
 
     onShowForm: {
@@ -32,7 +32,7 @@ HulaDialog {
             Layout.fillHeight: true
             width: 80
             verticalAlignment: Text.AlignVCenter
-            text: qsTr("DataDict.AddNew") + Translater.change
+            text: qsTr("DataDict.AddNew")
         }
         TextField {
             id: edtInfo
@@ -75,7 +75,7 @@ HulaDialog {
             Material.foreground: "#535353"
             Layout.fillWidth: true
             Layout.fillHeight: true
-            text: qsTr("DataDict.Add") + Translater.change
+            text: qsTr("DataDict.Add")
             onClicked: appendData()
         }
 
@@ -86,7 +86,7 @@ HulaDialog {
             Material.foreground: "#535353"
             Layout.fillWidth: true
             Layout.fillHeight: true
-            text: qsTr("DataDict.Save") + Translater.change
+            text: qsTr("DataDict.Save")
             onClicked: updateData()
         }
 
@@ -97,7 +97,7 @@ HulaDialog {
             Material.foreground: "#535353"
             Layout.fillWidth: true
             Layout.fillHeight: true
-            text: qsTr("DataDict.Delete") + Translater.change
+            text: qsTr("DataDict.Delete")
             onClicked: deleteData()
         }
     }

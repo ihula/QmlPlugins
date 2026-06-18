@@ -13,7 +13,7 @@ HulaDialog {
     height: isAdmin ? 480 : 360
     x: (mainForm.width - width) / 2
     y: (mainForm.height - height) / 2
-    formTitle: qsTr("User.Title") + Translater.change
+    formTitle: qsTr("User.Title")
     property int dictType: 0
 
     onShowForm: {
@@ -39,7 +39,7 @@ HulaDialog {
             Layout.preferredHeight: 32
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
-            text: qsTr("User.Type") + Translater.change
+            text: qsTr("User.Type")
             font.pixelSize: parent.lblFontSize
         }
         ComboBox {
@@ -53,8 +53,8 @@ HulaDialog {
             selectTextByMouse: true
             editable: false
             enabled: isAdmin
-            property string admin: qsTr("User.Admin") + Translater.change
-            property string normal: qsTr("User.Normal") + Translater.change
+            property string admin: qsTr("User.Admin")
+            property string normal: qsTr("User.Normal")
             model: [normal, admin]
         }
 
@@ -62,7 +62,7 @@ HulaDialog {
             Layout.preferredHeight: 32
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
-            text: qsTr("User.Name") + Translater.change
+            text: qsTr("User.Name")
             font.pixelSize: parent.lblFontSize
         }
         TextField {
@@ -81,7 +81,7 @@ HulaDialog {
             Layout.preferredHeight: 32
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
-            text: qsTr("User.Account") + Translater.change
+            text: qsTr("User.Account")
             font.pixelSize: parent.lblFontSize
         }
         TextField {
@@ -100,7 +100,7 @@ HulaDialog {
             Layout.preferredHeight: 32
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
-            text: qsTr("User.NewPassword") + Translater.change
+            text: qsTr("User.NewPassword")
             font.pixelSize: parent.lblFontSize
         }
         TextField {
@@ -120,7 +120,7 @@ HulaDialog {
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
             property string title: (!isAdmin) ? "User.OldPassword" : (btnAdd.enabled ? "User.OldPassword" : "User.RepeatPassword")
-            text: qsTr(title) + Translater.change
+            text: qsTr(title)
             font.pixelSize: parent.lblFontSize
         }
         TextField {
@@ -182,7 +182,7 @@ HulaDialog {
             id: btnAdd
             radius: 4
             font.pixelSize: editBar.lblFontSize
-            text: qsTr("User.Add") + Translater.change
+            text: qsTr("User.Add")
             Material.background: "white"
             Material.foreground: "#535353"
             width: parent.width / 4 - 8
@@ -199,7 +199,7 @@ HulaDialog {
             id: btnSave
             radius: 4
             font.pixelSize: editBar.lblFontSize
-            text: qsTr("User.Save") + Translater.change
+            text: qsTr("User.Save")
             Material.background: "white"
             Material.foreground: "#535353"
             width: parent.width / 4 - 8
@@ -212,7 +212,7 @@ HulaDialog {
         RoundButton {
             radius: 4
             font.pixelSize: editBar.lblFontSize
-            text: qsTr("User.Delete") + Translater.change
+            text: qsTr("User.Delete")
             Material.background: "white"
             Material.foreground: "#535353"
             width: parent.width / 4 - 8
@@ -226,7 +226,7 @@ HulaDialog {
         RoundButton {
             radius: 4
             font.pixelSize: editBar.lblFontSize
-            text: qsTr("User.Back") + Translater.change
+            text: qsTr("User.Back")
             Material.background: "white"
             Material.foreground: "#535353"
             width: parent.width / 4 - 8

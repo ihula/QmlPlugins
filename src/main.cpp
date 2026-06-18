@@ -21,13 +21,17 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
+    // 必须设置这两项，否则 Settings 无法确定存储路径
+    app.setOrganizationName("Hula");
+    app.setApplicationName("CE");
+
     // 先初始化日志系统
     HulaLogger::instance()->initialize(LogLevel::Debug); // 使用默认级别
     // 然后再初始化其他模块
     LogLevel level = static_cast<LogLevel>(Configer::instance()->logLevel());
     HulaLogger::instance()->initialize(level);
 
-#if (!DEPLOY_MODE)
+#if (DEPLOY_MODE)
     Utils::syncDir("../resources/Images", "./Images");
     Utils::syncDir("../resources/Languages", "./Languages");
     Utils::syncDir("../resources/Splash", "./Splash");
@@ -52,6 +56,8 @@ int main(int argc, char *argv[])
     app.setFont(font);
 
     QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty("APP_PATH", app.applicationDirPath());
+    engine.rootContext()->setContextProperty("CUSTOM_PATH", app.applicationDirPath() + "/Custom/");
 
     StatusCode dbResult = DbManager::instance()->connect(DB_FILE);
     if (dbResult != StatusCode::Success)
@@ -60,10 +66,8 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    engine.rootContext()->setContextProperty("APP_PATH", app.applicationDirPath());
-
     QString currLang = Configer::instance()->language();
-    Translater::instance()->initialize("Languages/");
+    Translater::instance()->initialize("Languages/", engine.rootContext());
     Translater::instance()->setLanguage(currLang);
     app.setApplicationDisplayName(Translater::instance()->trans("AppName"));
 

@@ -80,7 +80,7 @@ Popup {
         id: snackText
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: (lineCount > 1) ? Text.AlignLeft : Text.AlignHCenter
-        text: qsTr(snackbar.text) + Translater.change
+        text: qsTr(snackbar.text)
         wrapMode: Text.Wrap
         color: "white"
         anchors.fill: parent

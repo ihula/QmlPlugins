@@ -13,7 +13,7 @@ HulaDialog {
     property var callbackOk: function () {}
     x: (mainForm.width - width) / 2
     y: (mainForm.height - height) / 2
-    formTitle: qsTr("ReportSelect.Title") + Translater.change
+    formTitle: qsTr("ReportSelect.Title")
 
     Label {
         id: lblReportName
@@ -24,7 +24,7 @@ HulaDialog {
         width: 80
         height: 40
         verticalAlignment: Text.AlignVCenter
-        text: qsTr("ReportSelect.SelectReportTemplate") + Translater.change
+        text: qsTr("ReportSelect.SelectReportTemplate")
     }
 
     ComboBox {
@@ -50,7 +50,7 @@ HulaDialog {
         radius: 4
         Material.background: "white"
         Material.foreground: "#535353"
-        text: qsTr("Ok") + Translater.change
+        text: qsTr("Ok")
         onClicked: {
             root.reportNo = String(cmbReportName.currentIndex + 1);
             if (callbackOk)

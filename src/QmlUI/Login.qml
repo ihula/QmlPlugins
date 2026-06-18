@@ -5,50 +5,48 @@ import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import QmlPlugins
 
-
 Window {
     id: root
     property int formShowMode: Configer.loginFormShowMode()
-    title: qsTr("Login.Title") + Translater.change
-    modality: Qt.ApplicationModal
+    title: qsTr("Login.Title")
     flags: Qt.Window | Qt.FramelessWindowHint
     width: 1568
     height: 864
-    property bool nextFormLoaded: false
+    opacity: 0
     property bool reLogin: false
     property bool unfoundUserId: false
-    signal closed
+    signal showing
+    signal closeing
 
     function showForm() {
+        btnLogin.enabled = false;
         if (root.formShowMode === 1) {
-            root.maximumWidth = Screen.desktopAvailableWidth
-            root.maximumHeight = Screen.desktopAvailableHeight
+            root.maximumWidth = Screen.desktopAvailableWidth;
+            root.maximumHeight = Screen.desktopAvailableHeight;
         }
-        if (formShowMode === 0)
-            root.show()
-        else if (formShowMode === 1)
-            root.showMaximized()
-        else
-            root.showFullScreen()
+        if (formShowMode === 0) {
+            root.x = (Screen.desktopAvailableWidth - root.width) / 2;
+            root.y = (Screen.desktopAvailableHeight - root.height) / 2;
+            root.show();
+        } else if (formShowMode === 1) {
+            root.showMaximized();
+        } else {
+            root.showFullScreen();
+        }
+        fadeInAni.start();
+    }
+
+    function loadedMainForm() {
+        btnLogin.enabled = true;
     }
 
     onVisibleChanged: {
         if (visible) {
-            loaderSplash.source = ""
-            edtUserId.text = ""
-            edtUserName.text = ""
-            edtUserPwd.text = ""
-            main.loaderMain.active = true
-        } else {
-            closed()
+            edtUserId.text = "";
+            edtUserName.text = "";
+            edtUserPwd.text = "";
+            showing();
         }
-    }
-
-    Binding {
-        target: root
-        property: "nextFormLoaded"
-        value: true
-        when: main.loaderMain.item
     }
 
     UserInfo {
@@ -133,7 +131,7 @@ Window {
                 horizontalAlignment: Text.AlignLeft
                 font.pixelSize: 22
                 font.bold: true
-                text: qsTr("AppName") + Translater.change
+                text: qsTr("AppName")
             }
             Item {
                 anchors.top: lblTitle.bottom
@@ -153,21 +151,21 @@ Window {
                     horizontalAlignment: Text.AlignLeft
                     leftPadding: imgUserId.width + 24
                     font.pixelSize: 18
-                    placeholderText: qsTr("Login.UserId") + Translater.change
+                    placeholderText: qsTr("Login.UserId")
                     focus: true
                     text: reLogin ? "" : Configer.userAccount()
                     onTextChanged: {
-                        lblHint.text = ""
-                        unfoundUserId = false
+                        lblHint.text = "";
+                        unfoundUserId = false;
                         if (text.trim() === "") {
-                            edtUserName.text = ""
-                            return
+                            edtUserName.text = "";
+                            return;
                         }
 
-                        edtUserName.text = userInfo.getUserName(text.trim())
+                        edtUserName.text = userInfo.getUserName(text.trim());
                         if (edtUserName.text === "") {
-                            lblHint.text = qsTr("Login.UnfoundId")
-                            unfoundUserId = true
+                            lblHint.text = qsTr("Login.UnfoundId");
+                            unfoundUserId = true;
                         }
                     }
                     Keys.enabled: true
@@ -203,7 +201,7 @@ Window {
                     leftPadding: imgUserName.width + 24
                     readOnly: true
                     font.pixelSize: 18
-                    placeholderText: qsTr("Login.UserName") + Translater.change
+                    placeholderText: qsTr("Login.UserName")
                     Keys.enabled: true
                     Keys.onReturnPressed: edtUserPwd.focus = true
                     Keys.onDownPressed: edtUserPwd.focus = true
@@ -238,14 +236,14 @@ Window {
                     leftPadding: imgUserPwd.width + 24
                     echoMode: TextInput.Password
                     font.pixelSize: 18
-                    placeholderText: qsTr("Login.UserPassword") + Translater.change
+                    placeholderText: qsTr("Login.UserPassword")
                     Keys.enabled: true
                     //Keys.onReturnPressed: btnLogin.focus = true
                     Keys.onDownPressed: btnLogin.focus = true
                     Keys.onUpPressed: edtUserId.focus = true
                     onTextChanged: lblHint.text = ""
                     onAccepted: {
-                        btnLogin.clicked()
+                        btnLogin.clicked();
                     }
                     Image {
                         id: imgUserPwd
@@ -296,46 +294,71 @@ Window {
                         Keys.enabled: true
                         Keys.onDownPressed: edtUserName.focus = true
                         Keys.onUpPressed: btnLogin.focus = true
-                        text: qsTr("Login.Cancel") + Translater.change
+                        text: qsTr("Login.Cancel")
                         onClicked: {
                             if (reLogin) {
-                                root.close()
+                                root.close();
                             } else {
-                                Qt.quit()
+                                Qt.quit();
                             }
                         }
                     }
                     RoundButton {
                         id: btnLogin
-                        enabled: root.nextFormLoaded
                         height: parent.height
                         width: parent.width / 5 * 3 - 12
                         Material.background: "#0075EF"
                         Material.foreground: "white"
                         font.pixelSize: 18
-                        text: qsTr("Login.Login") + Translater.change
+                        text: qsTr("Login.Login")
                         Keys.enabled: true
                         Keys.onDownPressed: edtUserId.focus = true
                         Keys.onUpPressed: btnCancel.focus = true
                         Keys.onReturnPressed: btnLogin.clicked()
                         onClicked: {
                             if (unfoundUserId)
-                                return
-
-                            if (!userInfo.login(edtUserId.text.trim(),
-                                                edtUserPwd.text.trim())) {
-                                lblHint.text = qsTr("Login.PasswordError")
-                                return
+                                return;
+                            if (!userInfo.login(edtUserId.text.trim(), edtUserPwd.text.trim())) {
+                                lblHint.text = qsTr("Login.PasswordError");
+                                return;
                             }
 
-                            if (!reLogin)
-                                main.loaderMain.item.showForm()
-
-                            root.close()
+                            if (!reLogin) {
+                                closeing();
+                            } else {
+                                root.close();
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    PropertyAnimation {
+        id: fadeInAni
+        target: root
+        property: "opacity"
+        from: 0
+        to: 1
+        duration: 500
+        easing.type: Easing.InOutQuad
+    }
+
+    PropertyAnimation {
+        id: fadeOutAni
+        target: root
+        property: "opacity"
+        from: 1
+        to: 0
+        duration: 500
+        easing.type: Easing.InOutQuad
+        onFinished: {
+            root.close();
+        }
+    }
+
+    function closeWithAnimation() {
+        fadeOutAni.start();
     }
 }

@@ -79,6 +79,9 @@ class DbManager : public QObject
     /** @brief 连接数据库 */
     StatusCode connect(const QString &dbname);
 
+    /** @brief 设置数据库WAL模式 */
+    StatusCode setWalMode(bool enable);
+
     /** @brief 获取所在线程的数据库连接 */
     QSqlDatabase *getDatabase();
 
@@ -146,7 +149,7 @@ class DbManager : public QObject
      *@param[in] whereFileds:where字段名
      *@param[in] tableName:待更新的表名
      */
-    QList<QJsonObject> findDatas(const QJsonObject &data);
+    StatusCode findDatas(const QVariantMap &data, QList<QVariantMap> &datas);
 
     /**
      *@brief 查询表数据

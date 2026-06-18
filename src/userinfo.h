@@ -15,7 +15,6 @@
 #define USERINFO_H
 
 #include "basemsgsender.h"
-#include <QAbstractTableModel>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QMutex>
@@ -26,24 +25,15 @@
 #include <QSqlRecord>
 #include <QtQml>
 
-class UserInfo : public QAbstractTableModel
+class UserInfo : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
   public:
-    explicit UserInfo(QObject *parent = nullptr) : QAbstractTableModel(parent), m_sender(this)
+    explicit UserInfo(QObject *parent = nullptr) : QObject(parent), m_sender(this)
     {
         connect(this, &UserInfo::messageEmitted, &m_sender, &BaseMsgSender::messageEmitted);
     }
-
-    // 必须重写的 3 个模型函数
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
     Q_INVOKABLE void loadDatas();
 
@@ -100,11 +90,11 @@ class UserInfo : public QAbstractTableModel
 
     /**
      *@brief 用户登录
-     *@param[in] account:用户账号
-     *@param[in] pwd:用户密码
-     *@return 0:完成;1:失败
+     *@param[in] account 用户账号
+     *@param[in] pwd 用户密码
+     *@return true:成功;false:失败
      */
-    Q_INVOKABLE int login(const QString &account, const QString &pwd);
+    Q_INVOKABLE bool login(const QString &account, const QString &pwd);
 
     /**
      *@brief 获取用户名
@@ -142,6 +132,10 @@ class UserInfo : public QAbstractTableModel
 
     /** @brief 通过账号查找用户 */
     QJsonObject findUserByAccount(const QString &account);
+
+    /** @brief 通过字段名查找用户
+     */
+    QVariantMap findUser(const QString &fieldName, const QString &val);
 
     /** @brief 验证密码 */
     bool verifyPassword(const QString &password, const QString &storedHash, const QString &salt);

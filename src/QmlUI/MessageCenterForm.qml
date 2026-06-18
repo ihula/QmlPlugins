@@ -8,7 +8,7 @@ HulaDialog {
     id: root
     width: 960
     height: 660
-    formTitle: qsTr("MessageCenter.Title") + Translater.change
+    formTitle: qsTr("MessageCenter.Title")
 
     onVisibleChanged: {
         if (visible) {
@@ -46,20 +46,20 @@ HulaDialog {
             NormalButton {
                 id: btnDelete
                 implicitWidth: 100
-                text: qsTr("Delete") + Translater.change
+                text: qsTr("Delete")
                 onClicked: deleteData()
             }
 
             NormalButton {
                 id: btnDeleteAll
                 implicitWidth: 100
-                text: qsTr("DeleteAll") + Translater.change
+                text: qsTr("DeleteAll")
                 onClicked: deleteAllData()
             }
 
             NormalButton {
                 implicitWidth: 100
-                text: qsTr("Close") + Translater.change
+                text: qsTr("Close")
                 onClicked: hide()
             }
         }

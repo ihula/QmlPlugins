@@ -57,7 +57,8 @@ QList<QJsonObject> Patients::findPatients(const QJsonObject &data)
 {
     QJsonObject queryData = data;
     queryData.insert("TableName", "PatientInfo");
-    QList<QJsonObject> datas = DbManager::instance()->findDatas(queryData);
+    // hula todo: searchDatas
+    QList<QJsonObject> datas; // = DbManager::instance()->findDatas(queryData);
     return datas;
 }
 

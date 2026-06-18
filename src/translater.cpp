@@ -25,8 +25,9 @@ QString Translater::getAbsoluteFolder(const QString &folder) const
     return QGuiApplication::applicationDirPath() + "/" + folder;
 }
 
-void Translater::initialize(const QString &folder)
+void Translater::initialize(const QString &folder, QQmlContext *ctx)
 {
+    m_ctx = ctx;
     loadFolder(folder);
     qApp->installTranslator(this);
 }
@@ -131,8 +132,9 @@ void Translater::setLanguage(const QString &currentLang)
 
     m_currentLang = currentLang;
     emit languageChanged(m_currentLang);
-
-    emit changeChanged();
+    // 不需要在QML中使用 qsTr("Mail.Host")
+    m_ctx->engine()->retranslate();
+    // emit changeChanged();
 }
 
 void Translater::setLanguages(const QStringList &languages)

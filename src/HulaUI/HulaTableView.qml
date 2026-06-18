@@ -233,7 +233,7 @@ Rectangle {
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr(index < headerTitles.length ? headerTitles[index] : "") + Translater.change
+                        text: qsTr(index < headerTitles.length ? headerTitles[index] : "")
                         //text: tablemodel.headerData(index, Qt.Horizontal)
                     }
 

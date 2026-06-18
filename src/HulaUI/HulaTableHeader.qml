@@ -9,7 +9,7 @@ Rectangle {
     implicitWidth: 500
     border.width: 1
     radius: 8
-    border.color: "red"//"#d1d1d1"
+    border.color: "#d1d1d1"
     color: "#00000000"
 
     property bool useCellCheckbox: false
@@ -24,10 +24,10 @@ Rectangle {
     property color alternatingRow: Qt.darker("white", 1.1)
     property color headerColor: "#F5F5F5"
     //行表头-竖向的
-    property int rowHeight: 30
-    property int verHeaderWidth: 30
+    property int rowHeight: 40
+    property int verHeaderWidth: 40
     //列表头-横向的
-    property int horHeaderHeight: 30
+    property int horHeaderHeight: 40
     property bool displayRowNo: true
     property bool calced: false
     property int firstVisibleColumn: 0
@@ -71,15 +71,16 @@ Rectangle {
 
                 Rectangle {
                     id: horHeaderItem
-                    width: view.columnsWidth[index]
+                    width: view["col" + String(index)]
                     height: control.horHeaderHeight
                     color: headerColor
                     gradient: headerUseGradient ? headerGradient : null
                     topLeftRadius: control.radius
+                    visible: width > 0
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr(index < view.headerTitles.length ? view.headerTitles[index] : "") + Translater.change
+                        text: qsTr(index < view.headerTitles.length ? view.headerTitles[index] : "")
                         //text: tablemodel.headerData(index, Qt.Horizontal)
                     }
 
@@ -102,13 +103,16 @@ Rectangle {
                         cursorShape: Qt.SplitHCursor
                         onPressed: horHeader.lastX = mouseX
                         onPositionChanged: {
+                            if (horHeader.width === 0)
+                                return;
                             if ((horHeaderItem.width - (horHeader.lastX - mouseX)) > 10) {
                                 horHeaderItem.width -= (horHeader.lastX - mouseX);
                             } else {
                                 horHeaderItem.width = 10;
                             }
                             horHeader.lastX = mouseX;
-                            view.columnsWidth[index] = (horHeaderItem.width - view.columnSpacing);
+                            var key = "col" + String(index);
+                            view[key] = (horHeaderItem.width - view.columnSpacing);
                             //刷新布局，这样宽度才会改变
                             horHeaderRow.forceLayout();
                             view.forceLayout();

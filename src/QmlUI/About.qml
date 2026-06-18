@@ -7,7 +7,7 @@ HulaDialog {
     id: root
     width: 776
     height: 380
-    formTitle: qsTr("About.Title") + Translater.change
+    formTitle: qsTr("About.Title")
 
     Image {
         id: imgLogo
@@ -31,7 +31,7 @@ HulaDialog {
         anchors.margins: 32
         Text {
             id: txtSoftware
-            text: qsTr("About.SoftName") + ": " + qsTr("AppName") + Translater.change
+            text: qsTr("About.SoftName") + ": " + qsTr("AppName")
             font.pixelSize: 20
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
@@ -39,7 +39,7 @@ HulaDialog {
 
         Text {
             id: txtVer
-            text: qsTr("About.VerName") + ": " + qsTr("About.Ver") + Translater.change
+            text: qsTr("About.VerName") + ": " + qsTr("About.Ver")
 
             font.pixelSize: 14
             horizontalAlignment: Text.AlignLeft
@@ -48,7 +48,7 @@ HulaDialog {
 
         Text {
             id: txtViewVer
-            text: qsTr("About.ReleaseVerName") + ": " + qsTr("About.ReleaseVer") + Translater.change
+            text: qsTr("About.ReleaseVerName") + ": " + qsTr("About.ReleaseVer")
             font.pixelSize: 14
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
@@ -61,7 +61,7 @@ HulaDialog {
 
         Text {
             id: txtCompany
-            text: qsTr("About.Company") + Translater.change
+            text: qsTr("About.Company")
             font.pixelSize: 14
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
@@ -69,7 +69,7 @@ HulaDialog {
 
         Text {
             id: txtCopyright
-            text: qsTr("About.Copyright") + Translater.change
+            text: qsTr("About.Copyright")
             font.pixelSize: 14
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
@@ -81,13 +81,13 @@ HulaDialog {
             wrapMode: Text.WordWrap
             width: parent.width
             readOnly: true
-            text: qsTr("About.Declaration") + Translater.change
+            text: qsTr("About.Declaration")
             font.pixelSize: 14
         }
 
         Text {
             id: txtWebsite
-            text: qsTr("About.Website") + Translater.change
+            text: qsTr("About.Website")
             font.pixelSize: 14
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
@@ -99,7 +99,7 @@ HulaDialog {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.margins: 12
-        text: qsTr("About.Close") + Translater.change
+        text: qsTr("About.Close")
         onClicked: hide()
         focus: true
         Keys.onPressed: event => {

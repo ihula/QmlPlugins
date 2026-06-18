@@ -7,8 +7,8 @@
 ** Web: www.123hula.com
 ** WeChat: ihula123
 ** Contact: benny1225@hotmail.com
-** Date: 2018.4.25
-** Brief: 病人信息类
+** Date: 2026.5.25
+** Brief: 用户类
 ** History:
 ****************************************************************************/
 #include "userinfo.h"
@@ -20,64 +20,8 @@
 #include <QUuid>
 #include <QVariant>
 
-int UserInfo::rowCount(const QModelIndex &parent) const
-{
-    return parent.isValid() ? 0 : m_data.size();
-}
-
-int UserInfo::columnCount(const QModelIndex &parent) const
-{
-    return parent.isValid() ? 0 : m_headers.size();
-}
-
-QVariant UserInfo::data(const QModelIndex &index, int role) const
-{
-    QMutexLocker locker(&m_dataMutex);
-
-    if (!index.isValid() || index.row() >= m_data.size() || index.column() >= m_headers.size())
-    {
-        return QVariant();
-    }
-
-    if (role == Qt::DisplayRole)
-    {
-        return m_data[index.row()][index.column()];
-    }
-
-    return QVariant();
-}
-
-QVariant UserInfo::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    QMutexLocker locker(&m_dataMutex);
-
-    if (role != Qt::DisplayRole)
-    {
-        return QVariant();
-    }
-
-    if (orientation == Qt::Horizontal)
-    {
-        if (section >= 0 && section < m_headers.size())
-        {
-            return m_headers[section];
-        }
-    }
-    else
-    {
-        return QString("Row %1").arg(section);
-    }
-
-    return QVariant();
-}
-
 void UserInfo::loadDatas()
 {
-    QMutexLocker locker(&m_dataMutex);
-    beginResetModel();
-    m_headers.clear();
-    m_data.clear();
-
     QString sql = "SELECT * FROM UserInfo";
     QSqlQuery query = DbManager::instance()->newQuery();
     if (!query.exec(sql))
@@ -85,7 +29,7 @@ void UserInfo::loadDatas()
         QString error = query.lastError().text();
         qWarning() << "Query failed:" << error;
         emit messageEmitted(MessageInfo(error, StatusCode::DbExecuteFailed));
-        endResetModel();
+
         return;
     }
 
@@ -106,7 +50,6 @@ void UserInfo::loadDatas()
         }
         m_data << row;
     }
-    endResetModel();
 }
 
 QJsonObject UserInfo::find(const QString &value, const QString &key)
@@ -240,17 +183,26 @@ int UserInfo::checkPassword(const QString &account, const QString &pwd)
     return 1; // 密码错误
 }
 
-int UserInfo::login(const QString &account, const QString &pwd)
+bool UserInfo::login(const QString &account, const QString &pwd)
 {
     bool isLogined = false;
-    QJsonObject user = findUserByAccount(account);
+    QVariantMap user = findUser("Account", account);
     if (!user.isEmpty())
     {
         QString storedHash = user["Password"].toString();
         QString salt = user["Salt"].toString();
-        if (verifyPassword(pwd, storedHash, salt))
+        if (salt.isEmpty())
         {
-            isLogined = true;
+            isLogined = (storedHash == pwd);
+        }
+        else
+        {
+            QString computedHash = hashPassword(pwd, salt);
+            isLogined = (computedHash == storedHash);
+        }
+
+        if (isLogined)
+        {
             QString userName = user["Name"].toString();
             Configer::instance()->setUserAccount(account);
             Configer::instance()->setUserName(userName);
@@ -262,15 +214,13 @@ int UserInfo::login(const QString &account, const QString &pwd)
 
 QString UserInfo::getUserName(const QString &account)
 {
-    QJsonObject user = findUserByAccount(account);
+    QVariantMap user = findUser("Account", account);
     if (!user.isEmpty())
     {
         return user["Name"].toString();
     }
     return "";
 }
-
-// ========== 私有辅助方法 ==========
 
 QJsonObject UserInfo::findUserByAccount(const QString &account)
 {
@@ -291,6 +241,21 @@ QJsonObject UserInfo::findUserByAccount(const QString &account)
         data = datas[0];
     }
     return data;
+}
+
+QVariantMap UserInfo::findUser(const QString &fieldName, const QString &val)
+{
+    QVariantMap data;
+    data.insert(fieldName + "=", QVariant(val));
+    data.insert("TableName", "UserInfo");
+    QList<QVariantMap> datas;
+    StatusCode status = DbManager::instance()->searchDatas(data, datas);
+    if (status != StatusCode::Success)
+        sendDbMessage();
+    if (datas.size() > 0)
+        return datas[0];
+    else
+        return QVariantMap();
 }
 
 QString UserInfo::hashPassword(const QString &password, const QString &salt)

@@ -70,11 +70,41 @@ StatusCode DbManager::connect(const QString &dbname)
         setLastError(MessageInfo(err, StatusCode::DbOpenFailed));
         return StatusCode::DbOpenFailed;
     }
-    QSqlQuery query(db);
+    m_dbList.setLocalData(db);
+    setWalMode(false);
+    loadDbSchema();
+    return StatusCode::Success;
+}
+
+StatusCode DbManager::setWalMode(bool enable)
+{
+    QSqlQuery query = newQuery();
+    bool isWal = false;
+    query.exec("PRAGMA journal_mode");
+    if (query.next())
+    {
+        QString mode = query.value(0).toString().toLower();
+        if (mode == "wal")
+            isWal = true;
+        else
+            isWal = false;
+    }
+
+    if (isWal == enable)
+        return StatusCode::Success;
+
+    if (!enable)
+    {
+        if (query.exec("PRAGMA journal_mode = DELETE"))
+            return StatusCode::Success;
+        else
+            return StatusCode::DbExecuteFailed;
+    }
+
     // 开启 WAL 模式
     if (!query.exec("PRAGMA journal_mode=WAL"))
     {
-        QString err = QString("Failed to enable WAL mode: %1").arg(db.lastError().text());
+        QString err = QString("Failed to enable WAL mode: %1").arg(query.lastError().text());
         setLastError(MessageInfo(err, StatusCode::DbOpenFailed));
         return StatusCode::DbOpenFailed;
     }
@@ -84,9 +114,6 @@ StatusCode DbManager::connect(const QString &dbname)
         // 防止多线程并发写入时因锁冲突立即抛出 "database is locked" 错误
         query.exec("PRAGMA busy_timeout=5000");
     }
-
-    m_dbList.setLocalData(db);
-    loadDbSchema();
     return StatusCode::Success;
 }
 
@@ -643,104 +670,60 @@ StatusCode DbManager::getDatas(const QString &sql, QList<QVariantMap> &datas)
     return StatusCode::Success;
 }
 
-QList<QJsonObject> DbManager::findDatas(const QJsonObject &data)
+StatusCode DbManager::findDatas(const QVariantMap &data, QList<QVariantMap> &datas)
 {
-    QList<QJsonObject> datas = {};
-
-    // 1. 提取表名
-    QString tableName = data.value("TableName").toString();
+    // 提取表名
+    QString tableName = data["TableName"].toString();
     if (tableName.isEmpty())
     {
         setLastError(MessageInfo("The table name is empty.", StatusCode::InvalidParameter));
-        return datas;
+        return StatusCode::InvalidParameter;
     }
 
-    // 2. 创建查询副本，移除TableName
-    QJsonObject queryData = data;
-    queryData.remove("TableName");
-
-    if (queryData.isEmpty())
+    QString fieldName = data["FieldName"].toString();
+    if (fieldName.isEmpty())
     {
-        // 无查询条件，返回全部数据
-        QString sql = QString("SELECT * FROM %1").arg(tableName);
-        QSqlQuery qry = newQuery();
-        if (!qry.exec(sql))
-        {
-            setLastError(MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed));
-            qry.finish();
-            return datas;
-        }
-        getDbDatas(qry, datas);
-        qry.finish();
-        return datas;
+        setLastError(MessageInfo("The field name is empty.", StatusCode::InvalidParameter));
+        return StatusCode::InvalidParameter;
     }
 
-    // 3. 定义操作符优先级（从长到短，避免匹配错误）
-    const QList<QPair<QString, QString>> operators = {{">=", "_ge"}, {"<=", "_le"}, {">", "_gt"}, {"<", "_lt"}, {"=", "_eq"}};
-
-    QStringList conditions;
-    QMap<QString, QJsonValue> bindValues;
-
-    // 4. 解析查询条件
-    for (const QString &key : queryData.keys())
+    QVariant val = data["Value"];
+    if (!val.isValid())
     {
-        QString compareOp;
-        QString fieldName = key;
-        QString opSuffix;
-
-        // 查找匹配的操作符
-        bool found = false;
-        for (const auto &op : operators)
-        {
-            if (key.contains(op.first))
-            {
-                compareOp = op.first;
-                opSuffix = op.second;
-                fieldName = key;
-                fieldName.replace(compareOp, "");
-                found = true;
-                break;
-            }
-        }
-
-        if (!found)
-            continue;
-
-        // 生成唯一的占位符名称
-        QString placeholder = QString(":f_%1_%2").arg(fieldName, opSuffix);
-
-        // 添加SQL条件
-        conditions.append(QString("%1 %2 %3").arg(fieldName, compareOp, placeholder));
-
-        // 存储参数值（使用原始key获取值）
-        bindValues.insert(placeholder, queryData.value(key));
+        setLastError(MessageInfo("The value is invalid.", StatusCode::InvalidParameter));
+        return StatusCode::InvalidParameter;
     }
 
-    // 5. 构建SQL语句
-    QString sql = QString("SELECT * FROM %1").arg(tableName);
-    if (!conditions.isEmpty())
-        sql += " WHERE " + conditions.join(" AND ");
-
-    // 6. 执行查询
+    QString sql = QString("SELECT * FROM %1 WHERE %2=:f1").arg(tableName, fieldName);
     QSqlQuery qry = newQuery();
     qry.prepare(sql);
 
-    // 绑定参数
-    for (auto it = bindValues.constBegin(); it != bindValues.constEnd(); ++it)
+    BindInfo bindInfo;
+    bindInfo.holder = ":f1";
+    bindInfo.val = val;
+    bindInfo.fieldInfo = m_dbSchema[tableName][fieldName];
+    QList<BindInfo> bindInfos;
+    bindInfos.append(bindInfo);
+    StatusCode status = bindVariantValue(qry, bindInfos);
+    if (status != StatusCode::Success)
     {
-        bindJsonValue(qry, it.key(), it.value());
+        setLastError(MessageInfo(qry.lastError().text(), status));
+        return status;
     }
 
     if (!qry.exec())
     {
         setLastError(MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed));
-        qry.finish();
-        return datas;
+        return StatusCode::DbExecuteFailed;
     }
 
-    getDbDatas(qry, datas);
-    qry.finish();
-    return datas;
+    status = getQueryDatas(qry, datas);
+    if (status != StatusCode::Success)
+    {
+        setLastError(MessageInfo(qry.lastError().text(), status));
+        return status;
+    }
+    return StatusCode::Success;
 }
 
 StatusCode DbManager::searchDatas(const QVariantMap &data, QList<QVariantMap> &datas)
@@ -928,13 +911,6 @@ StatusCode DbManager::getQueryDatas(QSqlQuery &qry, QList<QVariantMap> &datas)
         }
     }
 
-    QList<QString> names;
-    QList<int> types;
-    for (int i = 0; i < qry.record().count(); i++)
-    {
-        names.append(qry.record().field(i).name());
-        types.append(qry.record().field(i).metaType().id());
-    }
     while (qry.next())
     {
         QVariantMap map;

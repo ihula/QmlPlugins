@@ -63,7 +63,7 @@ Rectangle {
         color: "#4F6371"
         font.pixelSize: 20
         font.bold: false
-        text: qsTr("AppName") + Translater.change
+        text: qsTr("AppName")
     }
 
     Row {
@@ -88,7 +88,7 @@ Rectangle {
     HulaButton {
         id: btnPowerOff
         visible: true
-        tipText: qsTr("Topbar.PowerOff") + Translater.change
+        tipText: qsTr("Topbar.PowerOff")
         iconImage: "Images/shutdown.svg"
         colorHovered: "red"
         width: 48
@@ -111,7 +111,7 @@ Rectangle {
 
     HulaButton {
         id: btnClose
-        tipText: qsTr("Topbar.Quit") + Translater.change
+        tipText: qsTr("Topbar.Quit")
         iconImage: "Images/close.svg"
         colorHovered: "red"
         width: 48
@@ -134,7 +134,7 @@ Rectangle {
 
     HulaButton {
         id: btnRestore
-        tipText: qsTr("Topbar.Restore") + Translater.change
+        tipText: qsTr("Topbar.Restore")
         iconImage: "Images/restore.svg"
         colorHovered: "#e6e6e6"
         width: 48
@@ -154,7 +154,7 @@ Rectangle {
 
     HulaButton {
         id: btnMin
-        tipText: qsTr("Topbar.Minimal") + Translater.change
+        tipText: qsTr("Topbar.Minimal")
         iconImage: "Images/min.svg"
         colorHovered: "#e6e6e6"
         width: 48
@@ -187,7 +187,7 @@ Rectangle {
         icon.color: hovered ? (Themer.theme.iconHoveredColor) : "transparent"
 
         HulaToolTip {
-            text: qsTr("Topbar.Preferences") + Translater.change
+            text: qsTr("Topbar.Preferences")
         }
 
         onClicked: mainForm.openDialog("Preferences.qml")
@@ -208,7 +208,7 @@ Rectangle {
         icon.color: breathed ? "#E31C75" : (hovered ? (Themer.theme.iconHoveredColor) : "transparent")
 
         HulaToolTip {
-            text: qsTr("MessageCenter.Title") + Translater.change
+            text: qsTr("MessageCenter.Title")
         }
 
         Component.onCompleted: {
@@ -225,7 +225,7 @@ Rectangle {
 
     RoundButton {
         id: btnUser
-        property string caption: (mainForm.userName !== "") ? mainForm.userName : qsTr("Topbar.Unlogin") + Translater.change
+        property string caption: (mainForm.userName !== "") ? mainForm.userName : qsTr("Topbar.Unlogin")
         anchors.right: btnInfo.visible ? btnInfo.left : btnSetting.left
         anchors.verticalCenter: parent.verticalCenter
         display: AbstractButton.TextBesideIcon
@@ -250,7 +250,7 @@ Rectangle {
             id: menuUser
             font.pixelSize: 18
             MenuItem {
-                text: qsTr("Topbar.Relogin") + Translater.change
+                text: qsTr("Topbar.Relogin")
                 onTriggered: {
                     mainForm.openLogin({
                         "reLogin": true
@@ -259,7 +259,7 @@ Rectangle {
             }
 
             MenuItem {
-                text: qsTr("User.Title") + Translater.change
+                text: qsTr("User.Title")
                 onTriggered: {
                     mainForm.openDialog("UserInfoForm.qml");
                 }

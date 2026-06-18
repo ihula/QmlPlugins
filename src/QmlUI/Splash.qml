@@ -7,40 +7,22 @@ import QmlPlugins
 Window {
     id: root
     property int formShowMode: Configer.splashFormShowMode()
-    modality: Qt.ApplicationModal
-    flags: Qt.Window | Qt.FramelessWindowHint//Qt.SplashScreen
+    flags: Qt.SplashScreen
     width: 1568
     height: 864
-    property bool useLogin: Configer.enableLogin()
-    property bool nextFormLoaded: false
-    property bool isRender: false
     property var imageList: []
+    signal showing
+    signal closeing
 
     onVisibleChanged: {
-        if (visible) {
-            main.loaderLogin.active = useLogin;
-            main.loaderMain.active = true;
-        } else {
-            if (useLogin)
-                main.loaderLogin.item.showForm();
-            else
-                main.loaderMain.item.showForm();
-        }
+        if (visible)
+            showing();
     }
 
-    Binding {
-        target: root
-        property: "nextFormLoaded"
-        value: true
-        when: main.loaderMain.item
-    }
-
-    onNextFormLoadedChanged: {
-        if (root.nextFormLoaded) {
-            ani.pause();
-            ani.duration = 300;
-            ani.restart();
-        }
+    function loadedMainForm() {
+        ani.pause();
+        ani.duration = 300;
+        ani.restart();
     }
 
     function showForm() {
@@ -49,12 +31,15 @@ Window {
             root.maximumHeight = Screen.desktopAvailableHeight;
         }
         ani.start();
-        if (formShowMode === 0)
+        if (formShowMode === 0) {
+            root.x = (Screen.desktopAvailableWidth - root.width) / 2;
+            root.y = (Screen.desktopAvailableHeight - root.height) / 2;
             root.show();
-        else if (formShowMode === 1)
+        } else if (formShowMode === 1) {
             root.showMaximized();
-        else
+        } else {
             root.showFullScreen();
+        }
     }
 
     Image {
@@ -82,7 +67,7 @@ Window {
             anchors.verticalCenter: parent.verticalCenter
             font.pixelSize: 28
             font.bold: false
-            text: qsTr("CompanyName") + Translater.change
+            text: qsTr("CompanyName")
         }
     }
     Text {
@@ -91,7 +76,7 @@ Window {
         anchors.horizontalCenter: parent.horizontalCenter
         font.bold: false
         font.pixelSize: 18
-        text: qsTr("Splash.Slogan") + Translater.change
+        text: qsTr("Splash.Slogan")
     }
 
     ProgressBar {
@@ -149,7 +134,25 @@ Window {
         running: true
         easing.type: Easing.Linear
         onFinished: {
-            close();
+            closeing();
         }
+    }
+
+    PropertyAnimation {
+        id: fadeOutAni
+        target: root
+        property: "opacity"
+        from: 1
+        to: 0
+        duration: 500
+        easing.type: Easing.InOutQuad
+        onFinished: {
+            root.close();
+        }
+    }
+
+    function closeWithAnimation() {
+        ani.stop();
+        fadeOutAni.start();
     }
 }

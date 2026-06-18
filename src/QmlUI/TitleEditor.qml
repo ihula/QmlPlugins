@@ -12,7 +12,7 @@ HulaDialog {
     height: 200
     property int dictType: 0
     property string lblTitle: (dictType === DictType.ReportName) ? "TitleEditor.ReportName" : "TitleEditor.ReportHospitalName"
-    formTitle: qsTr("TitleEditor.Title") + Translater.change
+    formTitle: qsTr("TitleEditor.Title")
     property alias editText: edtInfo.text
     property alias fontSize: edtSize.text
     property string fontColor: ""
@@ -21,7 +21,7 @@ HulaDialog {
     // 基础颜色对话框
     ColorDialog {
         id: colorDialog
-        title: qsTr("TitleEditor.SelectFontColor") + Translater.change
+        title: qsTr("TitleEditor.SelectFontColor")
         selectedColor: fontColor
         onAccepted: {
             fontColor = String(selectedColor)
@@ -41,7 +41,7 @@ HulaDialog {
             height: 40
             width: 80
             verticalAlignment: Text.AlignVCenter
-            text: qsTr(lblTitle) + Translater.change
+            text: qsTr(lblTitle)
         }
         TextField {
             id: edtInfo
@@ -64,7 +64,7 @@ HulaDialog {
             height: 40
             width: 80
             verticalAlignment: Text.AlignVCenter
-            text: qsTr("TitleEditor.EditFontSize") + Translater.change
+            text: qsTr("TitleEditor.EditFontSize")
         }
         TextField {
             id: edtSize
@@ -86,7 +86,7 @@ HulaDialog {
             Material.foreground: "#535353"
             implicitWidth: 84
             implicitHeight: 40
-            text: qsTr("TitleEditor.Ok") + Translater.change
+            text: qsTr("TitleEditor.Ok")
             onClicked: {
                 var size = parseInt(edtSize.text.trim())
                 if (size > 24) {
@@ -115,7 +115,7 @@ HulaDialog {
             Material.foreground: "#535353"
             width: 120
             Layout.fillHeight: true
-            text: qsTr("TitleEditor.EditFontColor") + Translater.change
+            text: qsTr("TitleEditor.EditFontColor")
             onClicked: {
                 colorDialog.open()
             }
@@ -128,7 +128,7 @@ HulaDialog {
             Material.foreground: "#535353"
             implicitWidth: 84
             Layout.fillHeight: true
-            text: qsTr("TitleEditor.Back") + Translater.change
+            text: qsTr("TitleEditor.Back")
             onClicked: {
                 edited = false
                 root.close()
