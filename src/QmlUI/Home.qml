@@ -44,6 +44,22 @@ Item {
         clearEditor();
         unifyEditorLabelWidth();
     }
+    Dialog {
+        id: dlg
+        width: 400
+        height: 240
+        //default property alias content: dlg.data
+        background: Rectangle {
+            anchors.fill: parent
+            color: "white"
+            radius: 8
+        }
+        contentItem: Rectangle {
+            anchors.fill: parent
+            anchors.margins: 8
+            //content {}
+        }
+    }
 
     Component {
         id: compTab
@@ -69,7 +85,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.topMargin: 4
         width: 280
-        color: Themer.theme.workFormColor
+        color: Themer.workFormColor
         Label {
             id: lblSpecimenList
             anchors.left: parent.left
@@ -82,7 +98,7 @@ Item {
             text: qsTr("Home.SpecimenList")
             font.pixelSize: layBaseEditor.lblFontSize
             font.bold: false
-            Material.foreground: Themer.theme.editorFontColor
+            Material.foreground: Themer.editorFontColor
         }
 
         Rectangle {
@@ -94,7 +110,7 @@ Item {
             anchors.topMargin: 8
             anchors.leftMargin: 12
             anchors.rightMargin: 12
-            color: Themer.theme.lineColor
+            color: Themer.lineColor
         }
 
         Row {
@@ -134,7 +150,7 @@ Item {
             id: listview
             clip: true
             property color itemColor: Qt.alpha("#F4F4F4", mainForm.alpha)
-            property color highColor: Qt.alpha(Themer.theme.hoveredColor, mainForm.alpha)
+            property color highColor: Qt.alpha(Themer.hoveredColor, mainForm.alpha)
             property bool selectAll: chkAll.checked
             property bool selectMulti: chkMulti.checked
             property int spaceing: 2
@@ -286,7 +302,7 @@ Item {
         anchors.leftMargin: 8
         anchors.rightMargin: (itemHint.width === 0) ? 0 : 8
         anchors.topMargin: 0
-        color: Qt.alpha(Themer.theme.workFormColor, mainForm.alpha)
+        color: Qt.alpha(Themer.workFormColor, mainForm.alpha)
         clip: true
 
         Label {
@@ -301,7 +317,7 @@ Item {
             text: qsTr("Home.SpecimenInfo")
             font.pixelSize: layBaseEditor.lblFontSize
             font.bold: false
-            Material.foreground: Themer.theme.editorFontColor
+            Material.foreground: Themer.editorFontColor
         }
 
         Row {
@@ -319,14 +335,15 @@ Item {
                 width: 106
                 height: 46
                 onClicked: {
-                    root.patientData["ReportNo"] = reportSelect.reportNo;
-                    if (savePatientInfo() !== 0) {
-                        return;
-                    } else {
-                        root.patientId = 0;
-                        root.patientData = {};
-                        clearEditor();
-                    }
+                    dlg.open();
+                    // root.patientData["ReportNo"] = reportSelect.reportNo;
+                    // if (savePatientInfo() !== 0) {
+                    //     return;
+                    // } else {
+                    //     root.patientId = 0;
+                    //     root.patientData = {};
+                    //     clearEditor();
+                    // }
                 }
             }
 
@@ -369,7 +386,7 @@ Item {
             height: 1
             anchors.leftMargin: 12
             anchors.rightMargin: 12
-            color: Themer.theme.lineColor
+            color: Themer.lineColor
         }
 
         Flow {
@@ -397,7 +414,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.SpecimenId")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
 
                 TextField {
@@ -407,7 +424,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     text: ""
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     placeholderText: "标本编号"
                 }
             }
@@ -420,7 +437,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.Name")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
 
                 TextField {
@@ -435,7 +452,7 @@ Item {
                     height: layBaseEditor.ctrlHeight
                     text: "ddd"
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: hasEdited ? Themer.theme.editedFontColor : Themer.theme.editorFontColor
+                    Material.foreground: hasEdited ? Themer.editedFontColor : Themer.editorFontColor
                     onTextChanged: {
                         if (oldText === text) {
                             hasEdited = false;
@@ -458,7 +475,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.Age")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
 
                 TextField {
@@ -471,7 +488,7 @@ Item {
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     inputMask: "999" + txtY + "99" + txtM + "99" + ageD //"999y99m99\\d"
                     //onDisplayTextChanged: console.log(text)
                 }
@@ -486,7 +503,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.Sex")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     background: createMouse(this, cmbSex)
                 }
                 ComboBox {
@@ -496,7 +513,7 @@ Item {
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     currentIndex: -1
                     selectTextByMouse: true
                     editable: true
@@ -516,7 +533,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.OutpatientNo")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
                 TextField {
                     id: edtOutpatientNo
@@ -524,7 +541,7 @@ Item {
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
             }
 
@@ -536,7 +553,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.MRN")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
                 TextField {
                     id: edtMRN
@@ -544,7 +561,7 @@ Item {
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
             }
 
@@ -557,7 +574,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.Dept")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     background: createMouse(this, cmbFromDept)
                 }
                 ComboBox {
@@ -565,7 +582,7 @@ Item {
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     currentIndex: -1
                     selectTextByMouse: true
                     editable: true
@@ -587,7 +604,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.Doctor")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     background: createMouse(this, cmbDoctor)
                 }
                 ComboBox {
@@ -595,7 +612,7 @@ Item {
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     currentIndex: -1
                     selectTextByMouse: true
                     editable: true
@@ -617,7 +634,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.InpatientNo")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
                 TextField {
                     id: edtInpatientNo
@@ -625,7 +642,7 @@ Item {
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
             }
 
@@ -637,14 +654,14 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.Tester")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
                 ComboBox {
                     id: cmbTester
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     currentIndex: -1
                     selectTextByMouse: true
                     editable: true
@@ -665,14 +682,14 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.Reviewer")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
                 ComboBox {
                     id: cmbReviewer
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     currentIndex: -1
                     selectTextByMouse: true
                     editable: true
@@ -693,7 +710,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.Bed")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
                 TextField {
                     id: edtBed
@@ -701,7 +718,7 @@ Item {
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
             }
 
@@ -713,7 +730,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.SpecimenType")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     background: createMouse(this, cmbSpecimenType)
                 }
                 ComboBox {
@@ -721,7 +738,7 @@ Item {
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     currentIndex: -1
                     selectTextByMouse: true
                     editable: true
@@ -743,7 +760,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.SpecimenQuality")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     background: createMouse(this, cmbSpecimenQuality)
                 }
                 ComboBox {
@@ -751,7 +768,7 @@ Item {
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     currentIndex: -1
                     selectTextByMouse: true
                     editable: true
@@ -774,7 +791,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.CollectionTime")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
                 DateField {
                     id: cmbCollectionTime
@@ -782,7 +799,7 @@ Item {
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     popupX: x - (popup.width - width)
                     popupY: height + y
                     property string fieldName: "CollectionTime"
@@ -800,7 +817,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.ReportDate")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
                 DateField {
                     id: cmbReportDate
@@ -808,7 +825,7 @@ Item {
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     popupX: x - (popup.width - width)
                     popupY: height + y
                     property string fieldName: "ReportDate"
@@ -826,7 +843,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.Diagnosis")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     background: createMouse(this, cmbDiagnosis)
                 }
                 ComboBox {
@@ -834,7 +851,7 @@ Item {
                     width: layBaseEditor.txtWidth * 3
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     currentIndex: -1
                     selectTextByMouse: true
                     editable: true
@@ -853,7 +870,7 @@ Item {
                     horizontalAlignment: Text.AlignRight
                     text: qsTr("Home.TestId")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
                 TextField {
                     id: edtTestId
@@ -861,7 +878,7 @@ Item {
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                     readOnly: true
                 }
             }
@@ -939,10 +956,10 @@ Item {
         return 0;
     }
 
-    ReportSelect {
-        id: reportSelect
-        autoDestroy: false
-    }
+    // ReportSelect {
+    //     id: reportSelect
+    //     autoDestroy: false
+    // }
 
     function unifyEditorLabelWidth() {
         var rowWidth = 0;

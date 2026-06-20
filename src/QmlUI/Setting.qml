@@ -44,7 +44,7 @@ Item {
                 font.pixelSize: 18
                 text: qsTr(modelData)
                 width: implicitWidth + 40
-                Material.foreground: hovered ? Themer.theme.buttonColor : "black"
+                Material.foreground: hovered ? Themer.buttonColor : "black"
                 background: Rectangle {
                     anchors.fill: parent
                     color: hovered ? "#10000000" : "transparent"

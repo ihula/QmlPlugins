@@ -63,7 +63,7 @@ void HulaLogger::initialize(const LoggerConfig &config)
     qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &context, const QString &msg) { HulaLogger::instance()->writeLog(type, msg, context); });
 }
 
-void HulaLogger::initialize(LogLevel level, const QString &directory, int maxFileSizeMB, int maxDaysToKeep)
+void HulaLogger::initialize(QtMsgType level, const QString &directory, int maxFileSizeMB, int maxDaysToKeep)
 {
     LoggerConfig config;
     config.level = level;
@@ -74,17 +74,23 @@ void HulaLogger::initialize(LogLevel level, const QString &directory, int maxFil
     initialize(config);
 }
 
-LogLevel HulaLogger::logLevel() const
+QtMsgType HulaLogger::logLevel() const
 {
     return m_config.level;
 }
 
-void HulaLogger::setLogLevel(LogLevel level)
+void HulaLogger::setLogLevel(QtMsgType level)
 {
     QMutexLocker locker(&m_fileMutex);
     if (m_config.level != level)
     {
         m_config.level = level;
+    }
+    QString msg = QString("Logger set level: %1").arg(static_cast<int>(m_config.level));
+
+    if (m_config.enableConsoleOutput)
+    {
+        std::cout << "[Logger] " << msg.toStdString() << std::endl;
     }
 }
 
@@ -115,7 +121,7 @@ void HulaLogger::setLogDirectory(const QString &directory)
     }
 }
 
-QString HulaLogger::buildMessageHeader(LogLevel level, const QMessageLogContext &context) const
+QString HulaLogger::buildMessageHeader(QtMsgType level, const QMessageLogContext &context) const
 {
     QString levelStr = levelToString(level);
     QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
@@ -127,20 +133,19 @@ QString HulaLogger::buildMessageHeader(LogLevel level, const QMessageLogContext 
 #endif
 }
 
-void HulaLogger::writeLog(QtMsgType type, const QString &message, const QMessageLogContext &context)
+void HulaLogger::writeLog(QtMsgType level, const QString &message, const QMessageLogContext &context)
 {
     if (message.isEmpty())
     {
         return;
     }
 
-    LogLevel msgLevel = qtMsgTypeToLogLevel(type);
-    if (msgLevel > m_config.level)
+    if (level < m_config.level)
     {
         return;
     }
 
-    QString header = buildMessageHeader(msgLevel, context);
+    QString header = buildMessageHeader(level, context);
 
     QMutexLocker locker(&m_fileMutex);
 
@@ -288,40 +293,21 @@ bool HulaLogger::openFileInternal()
     return opened;
 }
 
-QString HulaLogger::levelToString(LogLevel level) const
+QString HulaLogger::levelToString(QtMsgType level) const
 {
     switch (level)
     {
-    case LogLevel::Fatal:
+    case QtFatalMsg:
         return "Fatal";
-    case LogLevel::Critical:
+    case QtCriticalMsg:
         return "Critical";
-    case LogLevel::Warning:
+    case QtWarningMsg:
         return "Warning";
-    case LogLevel::Info:
+    case QtInfoMsg:
         return "Info";
-    case LogLevel::Debug:
+    case QtDebugMsg:
         return "Debug";
     default:
         return "Unknown";
-    }
-}
-
-LogLevel HulaLogger::qtMsgTypeToLogLevel(QtMsgType type) const
-{
-    switch (type)
-    {
-    case QtFatalMsg:
-        return LogLevel::Fatal;
-    case QtCriticalMsg:
-        return LogLevel::Critical;
-    case QtWarningMsg:
-        return LogLevel::Warning;
-    case QtInfoMsg:
-        return LogLevel::Info;
-    case QtDebugMsg:
-        return LogLevel::Debug;
-    default:
-        return LogLevel::Debug;
     }
 }

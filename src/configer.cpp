@@ -1,4 +1,6 @@
-﻿#include "configer.h"
+#include "configer.h"
+#include "utils.h"
+#include <QColor>
 #include <QDebug>
 #include <QDir>
 #include <QFile>
@@ -6,6 +8,10 @@
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QMap>
+#include <QMetaObject>
+#include <QMetaProperty>
+#include <QQuickItem>
 #include <QSettings>
 
 Configer::~Configer()
@@ -84,6 +90,115 @@ QString Configer::theme()
 void Configer::setTheme(const QString &style)
 {
     writeValue("Theme", style);
+}
+
+QVariantMap Configer::loadTheme(const QString &themeName)
+{
+    QVariantMap datas;
+    QString themeFile = THEME_PATH + themeName + ".ini";
+
+    QSettings settings(themeFile, QSettings::IniFormat);
+    const QStringList groups = settings.childGroups();
+    for (const QString &group : groups)
+    {
+        settings.beginGroup(group);
+        const QStringList keys = settings.childKeys();
+        for (const QString &key : keys)
+        {
+            datas[group + "/" + key] = settings.value(key);
+        }
+        settings.endGroup();
+    }
+
+    return datas;
+}
+
+void Configer::saveTheme(const QVariantMap &datas, const QString &themeName)
+{
+    qDebug() << 1 << themeName;
+    if (datas.isEmpty())
+        return;
+
+    // 分类存储：颜色、字体(数值)、渐变
+    QMap<QString, QVariant> strings;
+    QMap<QString, QVariant> ints;
+    QMap<QString, QVariant> numbers;
+    QMap<QString, QVariant> gradients;
+
+    // 获取主题对象的自定义属性
+    const QStringList keys = datas.keys();
+    for (const QString &key : keys)
+    {
+        QVariant value = datas[key];
+        if (!value.isValid())
+            continue;
+
+        // 获取类型名称
+        int type = value.typeId();
+        // qDebug() << "Property:" << key << "type:" << value.typeName() << "value:" << value.toString();
+
+        // 字符类型
+        if (type == QMetaType::QColor)
+        {
+            QColor color = value.value<QColor>();
+            if (color.isValid())
+                strings[key] = color.name();
+        }
+        else if (type == QMetaType::QString)
+        {
+            qDebug() << 23 << type;
+            if (value.toString().indexOf("|") > -1)
+                gradients[key] = value;
+            else
+                strings[key] = value;
+        }
+        else if (type == QMetaType::Int)
+        {
+            // 整数类型
+            ints[key] = value;
+        }
+        else if (type == QMetaType::Double || type == QMetaType::Float || type == QMetaType::QReal)
+        {
+            // 数值类型
+            numbers[key] = value;
+        }
+    }
+
+    // 写入 ini 文件
+    QString themeFile = THEME_PATH + themeName + ".ini";
+    QSettings settings(themeFile, QSettings::IniFormat);
+
+    // 保存 strings
+    settings.beginGroup("String");
+    for (auto it = strings.constBegin(); it != strings.constEnd(); ++it)
+    {
+        settings.setValue(it.key(), it.value());
+    }
+    settings.endGroup();
+
+    // 保存 ints
+    settings.beginGroup("Int");
+    for (auto it = ints.constBegin(); it != ints.constEnd(); ++it)
+    {
+        settings.setValue(it.key(), it.value());
+    }
+    settings.endGroup();
+
+    // 保存 numbers
+    settings.beginGroup("Number");
+    for (auto it = numbers.constBegin(); it != numbers.constEnd(); ++it)
+    {
+        settings.setValue(it.key(), it.value());
+    }
+    settings.endGroup();
+
+    // 保存 Gradients
+    settings.beginGroup("Gradient");
+    for (auto it = gradients.constBegin(); it != gradients.constEnd(); ++it)
+    {
+        settings.setValue(it.key(), it.value());
+    }
+    settings.endGroup();
 }
 
 int Configer::warnDialogCloseTime()

@@ -17,7 +17,7 @@ Rectangle {
     property color pressedColor: "#2e6b89"
     property color releasedColor: "#12687C"
     property alias appName: txtAppName.text
-    gradient: Themer.theme.titleBarGradient
+    gradient: Themer.titleBarGradient
 
     // move windows
     MouseArea {
@@ -80,7 +80,7 @@ Rectangle {
             anchors.bottomMargin: 8
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            color: Themer.theme.lineColor
+            color: Themer.lineColor
             width: 1
         }
     }
@@ -184,7 +184,7 @@ Rectangle {
         height: 54
         flat: true
         hoverEnabled: true
-        icon.color: hovered ? (Themer.theme.iconHoveredColor) : "transparent"
+        icon.color: hovered ? (Themer.iconHoveredColor) : "transparent"
 
         HulaToolTip {
             text: qsTr("Topbar.Preferences")
@@ -205,7 +205,7 @@ Rectangle {
         height: 54
         flat: true
         hoverEnabled: true
-        icon.color: breathed ? "#E31C75" : (hovered ? (Themer.theme.iconHoveredColor) : "transparent")
+        icon.color: breathed ? "#E31C75" : (hovered ? (Themer.iconHoveredColor) : "transparent")
 
         HulaToolTip {
             text: qsTr("MessageCenter.Title")
@@ -239,7 +239,7 @@ Rectangle {
         flat: true
         highlighted: hovered
         hoverEnabled: true
-        icon.color: /*hovered ? Themer.theme.iconHoveredColor :*/ "transparent"
+        icon.color: /*hovered ? Themer.iconHoveredColor :*/ "transparent"
         background: Item {
             anchors.fill: parent
         }

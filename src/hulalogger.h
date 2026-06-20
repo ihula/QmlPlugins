@@ -24,31 +24,15 @@
 #include <QTextStream>
 
 /**
- * @brief 日志级别枚举
- *
- * 按严重程度从高到低排列
- */
-enum class LogLevel
-{
-    Fatal = 0,    // 致命错误，程序将终止
-    Critical = 1, // 严重错误，功能不可用
-    Warning = 2,  // 警告，可能存在问题
-    Info = 3,     // 一般信息
-    Debug = 4     // 调试信息
-};
-
-Q_DECLARE_METATYPE(LogLevel)
-
-/**
  * @brief 日志系统配置结构体
  */
 struct LoggerConfig
 {
-    LogLevel level = LogLevel::Debug; // 日志级别
-    QString directory = QString();    // 日志目录
-    int maxFileSizeKB = 10240;        // 单个文件最大大小（KB），默认10MB
-    int maxRetentionDays = 30;        // 日志保留天数
-    bool enableConsoleOutput = true;  // 是否输出到控制台
+    QtMsgType level = QtMsgType::QtDebugMsg; // 日志级别
+    QString directory = QString();           // 日志目录
+    int maxFileSizeKB = 10240;               // 单个文件最大大小（KB），默认10MB
+    int maxRetentionDays = 30;               // 日志保留天数
+    bool enableConsoleOutput = true;         // 是否输出到控制台
 };
 
 /**
@@ -81,18 +65,18 @@ class HulaLogger : public QObject
      * @param maxFileSizeMB 单个日志文件最大大小（MB）
      * @param maxDaysToKeep 日志保留天数
      */
-    Q_INVOKABLE void initialize(LogLevel level, const QString &directory = QString(), int maxFileSizeMB = 10, int maxDaysToKeep = 30);
+    Q_INVOKABLE void initialize(QtMsgType level, const QString &directory = QString(), int maxFileSizeMB = 10, int maxDaysToKeep = 30);
 
     /**
      * @brief 获取当前日志级别
      */
-    LogLevel logLevel() const;
+    QtMsgType logLevel() const;
 
     /**
      * @brief 设置日志级别
      * @param level 新的日志级别
      */
-    Q_INVOKABLE void setLogLevel(LogLevel level);
+    Q_INVOKABLE void setLogLevel(QtMsgType level);
 
     /**
      * @brief 获取日志目录
@@ -111,7 +95,7 @@ class HulaLogger : public QObject
      * @param message 日志消息内容
      * @param context 日志上下文信息
      */
-    void writeLog(QtMsgType type, const QString &message, const QMessageLogContext &context);
+    void writeLog(QtMsgType level, const QString &message, const QMessageLogContext &context);
 
     /**
      * @brief 手动触发日志轮转
@@ -154,21 +138,14 @@ class HulaLogger : public QObject
      * @param context 日志上下文
      * @return 格式化后的日志消息头
      */
-    QString buildMessageHeader(LogLevel level, const QMessageLogContext &context) const;
+    QString buildMessageHeader(QtMsgType level, const QMessageLogContext &context) const;
 
     /**
      * @brief 将日志级别转换为字符串
      * @param level 日志级别
      * @return 级别对应的字符串
      */
-    QString levelToString(LogLevel level) const;
-
-    /**
-     * @brief 将Qt消息类型转换为日志级别
-     * @param type Qt消息类型
-     * @return 对应的日志级别
-     */
-    LogLevel qtMsgTypeToLogLevel(QtMsgType type) const;
+    QString levelToString(QtMsgType level) const;
 
     // 配置参数
     LoggerConfig m_config;

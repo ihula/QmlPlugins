@@ -5,7 +5,7 @@ import QmlPlugins
 import "../HulaUI"
 
 Rectangle {
-    color: Themer.theme.workFormColor
+    color: Themer.workFormColor
     // 接收参数
     property string content: "无内容"
     radius: 8

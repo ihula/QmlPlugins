@@ -69,9 +69,9 @@ Rectangle {
     Rectangle {
         id: leftBar
         radius: 8
-        color: Themer.theme.workFormColor
+        color: Themer.workFormColor
         border.width: 1
-        border.color: Themer.theme.lineColor
+        border.color: Themer.lineColor
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.bottom: parent.bottom
@@ -94,7 +94,7 @@ Rectangle {
             text: qsTr("Search.Filter")
             background: Rectangle {
                 height: 1
-                color: Themer.theme.lineColor
+                color: Themer.lineColor
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -126,7 +126,7 @@ Rectangle {
                 horizontalAlignment: Text.AlignLeft
                 text: qsTr("Home.TestId")
                 font.pixelSize: layBaseEditor.lblFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
             }
             TextField {
                 id: edtTestId
@@ -136,7 +136,7 @@ Rectangle {
                 Layout.preferredHeight: layBaseEditor.txtHeight
                 text: ""
                 font.pixelSize: layBaseEditor.txtFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
             }
             Label {
                 Layout.fillWidth: true
@@ -145,7 +145,7 @@ Rectangle {
                 horizontalAlignment: Text.AlignLeft
                 text: qsTr("Home.Name")
                 font.pixelSize: layBaseEditor.lblFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
             }
             TextField {
                 id: edtName
@@ -154,7 +154,7 @@ Rectangle {
                 Layout.preferredHeight: layBaseEditor.txtHeight
                 text: ""
                 font.pixelSize: layBaseEditor.txtFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
             }
             Label {
                 Layout.fillWidth: true
@@ -163,7 +163,7 @@ Rectangle {
                 horizontalAlignment: Text.AlignLeft
                 text: qsTr("Home.Sex")
                 font.pixelSize: layBaseEditor.lblFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
                 background: createMouse(this, cmbSex)
             }
             ComboBox {
@@ -171,7 +171,7 @@ Rectangle {
                 Layout.preferredWidth: layBaseEditor.txtWidth
                 Layout.preferredHeight: layBaseEditor.txtHeight
                 font.pixelSize: layBaseEditor.txtFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
                 currentIndex: -1
                 selectTextByMouse: true
                 editable: true
@@ -190,7 +190,7 @@ Rectangle {
                 horizontalAlignment: Text.AlignLeft
                 text: qsTr("Home.Age")
                 font.pixelSize: layBaseEditor.lblFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
             }
 
             Row {
@@ -206,7 +206,7 @@ Rectangle {
                     rightPadding: 4
                     height: layBaseEditor.txtHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
                 Label {
                     id: lblAgeY
@@ -215,7 +215,7 @@ Rectangle {
                     horizontalAlignment: Text.AlignLeft
                     text: qsTr("Home.AgeY")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
                 TextField {
                     id: edtAgeM
@@ -225,7 +225,7 @@ Rectangle {
                     rightPadding: 4
                     height: layBaseEditor.txtHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
                 Label {
                     id: lblAgeM
@@ -234,7 +234,7 @@ Rectangle {
                     horizontalAlignment: Text.AlignLeft
                     text: qsTr("Home.AgeM")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
                 TextField {
                     id: edtAgeD
@@ -244,7 +244,7 @@ Rectangle {
                     rightPadding: 4
                     implicitHeight: layBaseEditor.txtHeight
                     font.pixelSize: layBaseEditor.txtFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
                 Label {
                     id: lblAgeD
@@ -253,7 +253,7 @@ Rectangle {
                     horizontalAlignment: Text.AlignLeft
                     text: qsTr("Home.AgeD")
                     font.pixelSize: layBaseEditor.lblFontSize
-                    Material.foreground: Themer.theme.editorFontColor
+                    Material.foreground: Themer.editorFontColor
                 }
             }
 
@@ -264,7 +264,7 @@ Rectangle {
                 horizontalAlignment: Text.AlignLeft
                 text: qsTr("Home.MRN")
                 font.pixelSize: layBaseEditor.lblFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
             }
             TextField {
                 id: edtMedicalRecordNo
@@ -272,7 +272,7 @@ Rectangle {
                 Layout.preferredWidth: layBaseEditor.txtWidth
                 Layout.preferredHeight: layBaseEditor.txtHeight
                 font.pixelSize: layBaseEditor.txtFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
             }
 
             Label {
@@ -282,7 +282,7 @@ Rectangle {
                 horizontalAlignment: Text.AlignLeft
                 text: qsTr("Home.Dept")
                 font.pixelSize: layBaseEditor.lblFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
                 background: createMouse(this, cmbFromDept)
             }
             ComboBox {
@@ -290,7 +290,7 @@ Rectangle {
                 Layout.preferredWidth: layBaseEditor.txtWidth
                 Layout.preferredHeight: layBaseEditor.txtHeight
                 font.pixelSize: layBaseEditor.txtFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
                 currentIndex: -1
                 selectTextByMouse: true
                 editable: true
@@ -310,7 +310,7 @@ Rectangle {
                 horizontalAlignment: Text.AlignLeft
                 text: qsTr("Home.Doctor")
                 font.pixelSize: layBaseEditor.lblFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
                 background: createMouse(this, cmbDoctor)
             }
             ComboBox {
@@ -318,7 +318,7 @@ Rectangle {
                 Layout.preferredWidth: layBaseEditor.txtWidth
                 Layout.preferredHeight: layBaseEditor.txtHeight
                 font.pixelSize: layBaseEditor.txtFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
                 currentIndex: -1
                 selectTextByMouse: true
                 editable: true
@@ -338,14 +338,14 @@ Rectangle {
                 horizontalAlignment: Text.AlignLeft
                 text: qsTr("Home.Tester")
                 font.pixelSize: layBaseEditor.lblFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
             }
             ComboBox {
                 id: cmbTester
                 Layout.preferredWidth: layBaseEditor.txtWidth
                 Layout.preferredHeight: layBaseEditor.txtHeight
                 font.pixelSize: layBaseEditor.txtFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
                 currentIndex: -1
                 selectTextByMouse: true
                 editable: true
@@ -364,7 +364,7 @@ Rectangle {
                 horizontalAlignment: Text.AlignLeft
                 text: qsTr("Home.SpecimenType")
                 font.pixelSize: layBaseEditor.lblFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
                 background: createMouse(this, cmbSpecimenType)
             }
             ComboBox {
@@ -373,7 +373,7 @@ Rectangle {
                 Layout.preferredWidth: layBaseEditor.txtWidth
                 Layout.preferredHeight: layBaseEditor.txtHeight
                 font.pixelSize: layBaseEditor.txtFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
                 currentIndex: -1
                 selectTextByMouse: true
                 editable: true
@@ -393,7 +393,7 @@ Rectangle {
                 horizontalAlignment: Text.AlignLeft
                 text: qsTr("Search.FromDate")
                 font.pixelSize: layBaseEditor.lblFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
             }
             DateField {
                 id: cmbDateFrom
@@ -402,7 +402,7 @@ Rectangle {
                 Layout.preferredHeight: layBaseEditor.txtHeight
                 editText: ""
                 font.pixelSize: layBaseEditor.txtFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
                 popupX: x - (popup.width - width) + 8
                 popupY: y - popup.height
                 property string fieldName: "ReceivedTime>="
@@ -415,7 +415,7 @@ Rectangle {
                 horizontalAlignment: Text.AlignLeft
                 text: qsTr("Search.ToDate")
                 font.pixelSize: layBaseEditor.lblFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
             }
             DateField {
                 id: edtDateTo
@@ -423,7 +423,7 @@ Rectangle {
                 Layout.preferredWidth: layBaseEditor.txtWidth
                 Layout.preferredHeight: layBaseEditor.txtHeight
                 font.pixelSize: layBaseEditor.txtFontSize
-                Material.foreground: Themer.theme.editorFontColor
+                Material.foreground: Themer.editorFontColor
                 popupX: x - (popup.width - width) + 8
                 popupY: y - popup.height
                 property string fieldName: "ReceivedTime<="
@@ -520,7 +520,7 @@ Rectangle {
                 radius: 4
                 font.pixelSize: layButtons.btnFontSize
                 text: qsTr("Search.Delete")
-                Material.background: checked ? (Themer.theme.buttonCheckedBackground) : (Themer.theme.buttonBackground)
+                Material.background: checked ? (Themer.buttonCheckedBackground) : (Themer.buttonBackground)
                 Material.foreground: "#535353"
                 Layout.fillWidth: true
                 Layout.preferredHeight: layButtons.btnHeight
@@ -562,9 +562,9 @@ Rectangle {
     Rectangle {
         id: rightBar
         radius: 8
-        color: Themer.theme.workFormColor
+        color: Themer.workFormColor
         border.width: 1
-        border.color: Themer.theme.lineColor
+        border.color: Themer.lineColor
         anchors.top: parent.top
         anchors.left: leftBar.right
         anchors.right: parent.right
@@ -587,7 +587,7 @@ Rectangle {
             text: qsTr("Search.SearchResult")
             background: Rectangle {
                 height: 1
-                color: Themer.theme.lineColor
+                color: Themer.lineColor
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom

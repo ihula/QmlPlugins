@@ -12,7 +12,7 @@ HulaDialog {
     property int dictType: 0
     property var devs: []
     property var devsSizes: []
-    formTitle: qsTr("Preferences.Title")
+    title: qsTr("Preferences.Title")
 
     function getDevsSizes() {
         root.devs = [];
@@ -111,7 +111,7 @@ HulaDialog {
 
     RowLayout {
         id: barCamera
-        anchors.top: titleBar.bottom
+        anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.margins: 10
@@ -122,7 +122,7 @@ HulaDialog {
             height: 40
             width: 80
             verticalAlignment: Text.AlignVCenter
-            font.pixelSize: Themer.theme.editorFontSize
+            font.pixelSize: Themer.editorFontSize
             text: qsTr("Preferences.SelectCamera")
         }
         ComboBox {
@@ -130,7 +130,7 @@ HulaDialog {
             Layout.fillWidth: true
             implicitHeight: 36
             editable: false
-            font.pixelSize: Themer.theme.editorFontSize
+            font.pixelSize: Themer.editorFontSize
             onCurrentTextChanged: {
                 if (cmbCamera.currentText !== "") {
                     getDevsSizes();
@@ -162,7 +162,7 @@ HulaDialog {
             height: 40
             width: 80
             verticalAlignment: Text.AlignVCenter
-            font.pixelSize: Themer.theme.editorFontSize
+            font.pixelSize: Themer.editorFontSize
             text: qsTr("Preferences.SelectCameraRate")
         }
         ComboBox {
@@ -170,7 +170,7 @@ HulaDialog {
             Layout.fillWidth: true
             implicitHeight: 36
             editable: false
-            font.pixelSize: Themer.theme.editorFontSize
+            font.pixelSize: Themer.editorFontSize
         }
     }
 
@@ -187,7 +187,7 @@ HulaDialog {
             height: 40
             width: 80
             verticalAlignment: Text.AlignVCenter
-            font.pixelSize: Themer.theme.editorFontSize
+            font.pixelSize: Themer.editorFontSize
             text: qsTr("Preferences.SelectFont")
         }
         TextField {
@@ -196,7 +196,7 @@ HulaDialog {
             implicitHeight: 36
             verticalAlignment: Text.AlignVCenter
             readOnly: true
-            font.pixelSize: Themer.theme.editorFontSize
+            font.pixelSize: Themer.editorFontSize
             text: qsTr("Preferences.DbClickSelectFont")
             MouseArea {
                 anchors.fill: parent
@@ -220,7 +220,7 @@ HulaDialog {
             height: 40
             width: 80
             verticalAlignment: Text.AlignVCenter
-            font.pixelSize: Themer.theme.editorFontSize
+            font.pixelSize: Themer.editorFontSize
             text: qsTr("Preferences.SelectLang")
         }
         ComboBox {
@@ -228,7 +228,7 @@ HulaDialog {
             Layout.fillWidth: true
             implicitHeight: 36
             editable: true
-            font.pixelSize: Themer.theme.editorFontSize
+            font.pixelSize: Themer.editorFontSize
             onEditTextChanged: {
                 if (cmbLang.currentText !== "") {
                     if (Translater.currentLang !== cmbLang.editText.trim())
@@ -251,14 +251,14 @@ HulaDialog {
             height: 40
             width: 80
             verticalAlignment: Text.AlignVCenter
-            font.pixelSize: Themer.theme.editorFontSize
+            font.pixelSize: Themer.editorFontSize
             text: qsTr("Preferences.SelectReport")
         }
         ComboBox {
             id: cmbReport
             Layout.fillWidth: true
             implicitHeight: 36
-            font.pixelSize: Themer.theme.editorFontSize
+            font.pixelSize: Themer.editorFontSize
         }
         RoundButton {
             id: btnDesign
@@ -268,7 +268,7 @@ HulaDialog {
             implicitWidth: 74
             implicitHeight: 48
             Layout.fillHeight: true
-            font.pixelSize: Themer.theme.buttonFontSize
+            font.pixelSize: Themer.buttonFontSize
             text: qsTr("Preferences.DesignReport")
             onClicked: {
                 reportPrint.designReport("0", "0", String(cmbReport.currentIndex + 1));
@@ -288,7 +288,7 @@ HulaDialog {
             id: ckbUseWallPaper
             implicitHeight: 40
             width: 80
-            font.pixelSize: Themer.theme.editorFontSize
+            font.pixelSize: Themer.editorFontSize
             text: qsTr("Preferences.UseWallPaper")
         }
 
@@ -296,7 +296,7 @@ HulaDialog {
             id: ckbLiveWallPaper
             implicitHeight: 40
             width: 80
-            font.pixelSize: Themer.theme.editorFontSize
+            font.pixelSize: Themer.editorFontSize
             text: qsTr("Preferences.LiveWallPaper")
         }
     }
@@ -317,7 +317,7 @@ HulaDialog {
             implicitWidth: 96
             Layout.fillHeight: true
             text: qsTr("Preferences.Ok")
-            font.pixelSize: Themer.theme.buttonFontSize
+            font.pixelSize: Themer.buttonFontSize
             onClicked: {
                 // Configer.setCameraName(cmbCamera.currentText);
                 // Configer.setCameraSize(cmbRate.currentText);
@@ -340,7 +340,7 @@ HulaDialog {
             Material.foreground: "#535353"
             implicitWidth: 96
             Layout.fillHeight: true
-            font.pixelSize: Themer.theme.buttonFontSize
+            font.pixelSize: Themer.buttonFontSize
             text: qsTr("Preferences.Cancel")
             onClicked: {
                 root.hide();

@@ -31,6 +31,7 @@ QtObject {
     property color leftTitleColor: "black"
     property int editorFontSize: 18
     property int buttonFontSize: 18
+    property double test: 1.2
 
     property Gradient titleBarGradient: Gradient {
         GradientStop {

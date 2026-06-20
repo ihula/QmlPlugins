@@ -379,3 +379,46 @@ bool Utils::syncFile(const QString &src, const QString &dst)
 
     return true;
 }
+
+QStringList Utils::getCustomProperties(QObject *obj)
+{
+    QStringList properties;
+    if (!obj)
+        return properties;
+
+    const QMetaObject *meta = obj->metaObject();
+    // 遍历所有属性
+    for (int i = 0; i < meta->propertyCount(); ++i)
+    {
+        QMetaProperty prop = meta->property(i);
+        properties << QString::fromLatin1(prop.name());
+    }
+    return properties;
+}
+
+QStringList Utils::getCustomProps(QObject *obj)
+{
+    QStringList props;
+    if (!obj)
+        return props;
+
+    const QMetaObject *meta = obj->metaObject();
+    // 使用 propertyOffset() 跳过基类的属性，只获取当前类及子类新增的属性
+    for (int i = meta->propertyOffset(); i < meta->propertyCount(); ++i)
+    {
+        QMetaProperty prop = meta->property(i);
+        props << QString::fromLatin1(prop.name());
+    }
+    return props;
+}
+
+void Utils::saveToJson(const QVariantMap &data, const QString &filePath)
+{
+    // 使用 QJsonDocument 将 QVariantMap 序列化并写入文件
+    QJsonDocument doc = QJsonDocument::fromVariant(data);
+    QFile file(filePath);
+    if (file.open(QIODevice::WriteOnly))
+    {
+        file.write(doc.toJson());
+    }
+}

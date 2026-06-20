@@ -26,16 +26,17 @@ int main(int argc, char *argv[])
     app.setApplicationName("CE");
 
     // 先初始化日志系统
-    HulaLogger::instance()->initialize(LogLevel::Debug); // 使用默认级别
+    HulaLogger::instance()->initialize(QtMsgType::QtDebugMsg); // 使用默认级别
     // 然后再初始化其他模块
-    LogLevel level = static_cast<LogLevel>(Configer::instance()->logLevel());
-    HulaLogger::instance()->initialize(level);
+    QtMsgType level = static_cast<QtMsgType>(Configer::instance()->logLevel());
+    HulaLogger::instance()->setLogLevel(level);
 
 #if (DEPLOY_MODE)
     Utils::syncDir("../resources/Images", "./Images");
     Utils::syncDir("../resources/Languages", "./Languages");
     Utils::syncDir("../resources/Splash", "./Splash");
     Utils::syncDir("../resources/wallpaper", "./wallpaper");
+    Utils::syncDir("../resources/Theme", "./Theme");
     Utils::syncFile("../resources/anydata.db", "./anydata.db");
     Utils::syncFile("../resources/Config.ini", "./Config.ini");
 #endif

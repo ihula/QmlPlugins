@@ -1,36 +1,62 @@
 import QtQuick
-import QtQuick.Controls.Fusion
+import QtQuick.Controls.Material
 import Qt.labs.qmlmodels
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
+import QtQuick.Effects
 import "../HulaUI"
 import QmlPlugins
 
 Dialog {
     id: root
-    width: 480
-    height: 320
-    padding: 0
-    topPadding: 0
-    modal: Qt.ApplicationModal
-    closePolicy: Popup.CloseOnEscape
-    title: ""
-    property var defaultButton: null
-    property string formTitle: ""
-    property alias titlePixelSize: titleBar.font.pixelSize
-    property alias titleBar: titleBar
-    property string animationType: 'size'
-    property int duration: 200 //350
-    property int easingType: Easing.Bezier //.OutBounce
-    property bool titleUseGradient: false
-    property bool autoDestroy: true
-    property bool clicked: false
-    property color backColor: "#F4F4F4"
 
+    // 1. 属性声明 (Properties)
+    property var defaultButton: null
+    property alias titleFontSize: titleBar.font.pixelSize
+    property alias textPixelSize: lblText.font.pixelSize
+    property string messageText: ""
+    property string animTypes: "scale"
+    property int duration: 200
+    property int easingType: Easing.Bezier
+    property bool autoDestroy: true
+    property color backColor: "#F4F4F4"
+    property string buttonOkText: "Ok"
+    property string buttonCancelText: "Cancel"
+    property var callbackOnCancel: function () {}
+    property var callbackOnOK: function () {}
+    property bool autoClose: false
+
+    // 2. 信号声明 (Signals)
     signal showForm
     signal hideForm
 
-    //standardButtons: Dialog.Ok | Dialog.Cancel
+    // 3. JavaScript 函数 (Functions)
+
+    // 4. 常规对象属性赋值 (Object Properties)
+    width: 336
+    height: header.height + footer.height + contentHeight //+ 40
+    spacing: 0
+    topPadding: 0
+    modal: Qt.ApplicationModal
+    closePolicy: Popup.CloseOnEscape
+    x: (Overlay.overlay.width - width) / 2
+    y: (Overlay.overlay.height - height) / 2
+    //anchors.centerIn: Overlay.overlay
+
+    enter: EnterTransition {
+        animTypes: root.animTypes
+        duration: root.duration
+        target: root
+        holder: holdedItem
+    }
+
+    exit: ExitTransition {
+        animTypes: root.animTypes
+        duration: root.duration
+        target: root
+        holder: holdedItem
+    }
+
+    // 5. 信号处理器 (Signal Handlers)
     onVisibleChanged: {
         if (visible) {
             showForm();
@@ -45,87 +71,56 @@ Dialog {
             destroy();
         }
     }
+
+    // 6. 子对象 (Child Objects)
     background: Rectangle {
-        anchors.fill: parent
-        anchors.margins: 1
-        radius: 8
+        id: back
         color: backColor
-        border.width: 1
-        border.color: backColor //"#d1d1d1"
-    }
-
-    RectangularGlow {
-        id: effect
-        anchors.fill: rectBack
-        glowRadius: 20
-        spread: 0
-        color: "#80000000"
-    }
-
-    Rectangle {
-        id: rectBack
-        color: backColor
-        anchors.fill: parent
         radius: 8
     }
 
-    Label {
-        id: titleBar
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.margins: 0
-        padding: 10
-        font.pixelSize: 20
-        visible: text.trim() !== ""
-        color: "#555555"
-        text: qsTr(formTitle)
-        verticalAlignment: Qt.AlignVCenter
+    header: Item {
+        implicitHeight: 54
+        visible: (title.trim() !== "")
+        Text {
+            id: titleBar
+            height: parent.height
+            anchors.left: parent.left
+            anchors.leftMargin: 12
+            font.pixelSize: 20
+            color: "#555555"
+            text: qsTr(title)
+            verticalAlignment: Qt.AlignVCenter
+        }
 
-        background: Rectangle {
-            anchors.fill: parent
-            anchors.margins: 0
-            radius: rectBack.radius
-            color: "#cfcfcf"
-            Rectangle {
-                anchors.bottom: parent.bottom
-                height: 8
-                width: parent.width
-                color: "#cfcfcf"
-            }
-
-            HulaButton {
-                id: btnClose
-                tipText: qsTr("Topbar.Quit")
-                iconImage: "Images/close.svg"
-                colorHovered: "red"
-                width: 48
-                height: 32
-                iconHeight: 24
-                iconWidth: 24
-                anchors {
-                    right: parent.right
-                    leftMargin: 1
-                    rightMargin: 4
-                    verticalCenter: parent.verticalCenter
-                }
-            }
+        HulaButton {
+            id: btnClose
+            tipText: qsTr("Topbar.Quit")
+            iconImage: "Images/close.svg"
+            colorHovered: "red"
+            width: 48
+            height: 32
+            iconHeight: 24
+            iconWidth: 24
+            anchors.right: parent.right
+            anchors.rightMargin: 4
+            anchors.verticalCenter: parent.verticalCenter
         }
 
         MouseArea {
             property point clickPoint: "0, 0"
             anchors.fill: parent
-            onDoubleClicked: root.hide()
+            onDoubleClicked: root.close()
             onClicked: mouse => {
                 var x2 = btnClose.x + btnClose.width;
                 var y2 = btnClose.y + btnClose.height;
                 if ((mouse.x >= btnClose.x) && (mouse.x <= x2) && (mouse.y >= btnClose.y) && (mouse.y <= y2))
-                    root.hide();
+                    root.close();
             }
             onPressed: mouse => {
                 clickPoint = Qt.point(mouse.x, mouse.y);
             }
-            onPositionChanged: function (mouse) {
+            onPositionChanged: mouse => {
                 var offset = Qt.point(mouse.x - clickPoint.x, mouse.y - clickPoint.y);
                 root.x = root.x + offset.x;
                 root.y = root.y + offset.y;
@@ -133,249 +128,107 @@ Dialog {
         }
     }
 
-    // 动画
-    PropertyAnimation {
-        id: animFadeIn
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'opacity'
-        from: 0
-        to: 1
-    }
-    PropertyAnimation {
-        id: animFadeOut
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'opacity'
-        from: 1
-        to: 0
-    }
-    PropertyAnimation {
-        id: animWidthIncrease
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'width'
-        from: 0
-        to: root.width
-    }
-    PropertyAnimation {
-        id: animWidthDecrease
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'width'
-        from: root.width
-        to: 0
-    }
-    PropertyAnimation {
-        id: animHeightIncrease
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'height'
-        from: 0
-        to: root.height
-    }
-    PropertyAnimation {
-        id: animHeightDecrease
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'height'
-        from: root.height
-        to: 0
-    }
-    PropertyAnimation {
-        id: animBig
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'scale'
-        from: 0.2
-        to: 1
-    }
-    PropertyAnimation {
-        id: animSmall
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'scale'
-        from: 1
-        to: 0.2
-    }
-    PropertyAnimation {
-        id: animInRight
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'x'
-        from: -root.width
-        to: root.x
-    }
-    PropertyAnimation {
-        id: animInLeft
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'x'
-        from: getRoot(root).width
-        to: root.x
-    }
-    PropertyAnimation {
-        id: animInUp
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'y'
-        from: getRoot(root).height
-        to: root.y
-    }
-    PropertyAnimation {
-        id: animInDown
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'y'
-        from: -root.height
-        to: root.y
-    }
-    PropertyAnimation {
-        id: animOutRight
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'x'
-        from: root.x
-        to: getRoot(root).width
-    }
-    PropertyAnimation {
-        id: animOutLeft
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'x'
-        from: root.x
-        to: -root.width
-    }
-    PropertyAnimation {
-        id: animOutUp
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'y'
-        from: root.y
-        to: -root.height
-    }
-    PropertyAnimation {
-        id: animOutDown
-        target: root
-        duration: root.duration
-        easing.type: root.easingType
-        property: 'y'
-        from: root.y
-        to: getRoot(root).height
+    contentItem: Label {
+        id: lblText
+        wrapMode: Text.WordWrap
+        text: qsTr(messageText)
+        font.pixelSize: 18
+        horizontalAlignment: (lineCount > 1) ? Text.AlignLeft : Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        height: Math.max(50, implicitHeight)
     }
 
-    // 动画结束后调用的脚本
-    Connections {
-        id: connector
-        target: animInDown
-        function onStopped() {
-            close();
-        }
-    }
+    footer: Row {
+        id: buttonBar
+        layoutDirection: Qt.RightToLeft
+        height: 54
+        spacing: 0
+        RoundButton {
+            id: btnCancel
+            radius: 4
+            flat: true
+            font.pixelSize: 18
+            Material.foreground: "#535353"
+            text: qsTr(buttonCancelText)
+            height: 48
+            width: 84
+            visible: (text !== "")
+            onClicked: {
+                if (callbackOnCancel)
+                    callbackOnCancel();
 
-    function getRoot(item) {
-        return (item.parent !== null) ? getRoot(item.parent) : item;
-    }
-
-    function show() {
-        switch (animationType) {
-        case "fade":
-            animFadeIn.start();
-            break;
-        case "focus":
-            animFocusIn.start();
-            break;
-        case "width":
-            animWidthIncrease.start();
-            break;
-        case "height":
-            animHeightIncrease.start();
-            break;
-        case "size":
-            animBig.start();
-            break;
-        case "flyDown":
-            animInDown.start();
-            break;
-        case "flyUp":
-            animInUp.start();
-            break;
-        case "flyLeft":
-            animInLeft.start();
-            break;
-        case "flyRight":
-            animInRight.start();
-            break;
-        default:
-            this.visible = true;
-        }
-    }
-
-    function hide() {
-        switch (animationType) {
-        case "fade":
-            connector.target = animFadeOut;
-            animFadeOut.start();
-            break;
-        case "width":
-            connector.target = animWidthDecrease;
-            animWidthDecrease.start();
-            break;
-        case "height":
-            connector.target = animHeightDecrease;
-            animHeightDecrease.start();
-            break;
-        case "size":
-            connector.target = animSmall;
-            animSmall.start();
-            break;
-        case "flyDown":
-            connector.target = animOutUp;
-            animOutUp.start();
-            break;
-        case "flyUp":
-            connector.target = animOutDown;
-            animOutDown.start();
-            break;
-        case "flyLeft":
-            connector.target = animOutRight;
-            animOutRight.start();
-            break;
-        case "flyRight":
-            connector.target = animOutLeft;
-            animOutLeft.start();
-            break;
-        default:
-            close();
-        }
-    }
-
-    function getOkButton(parentItem) {
-        parentItem = parentItem || root;
-        for (var i = 0; i < parentItem.contentChildren.length; i++) {
-            var child = parentItem.contentChildren[i];
-            if (typeof child.isDefaultButton !== 'undefined') {
-                return child.text;
+                root.close();
             }
-            var result = getOkButton(child);
-            if (result)
-                return result;
         }
-        return "";
+
+        RoundButton {
+            id: btnOk
+            radius: 4
+            flat: true
+            font.pixelSize: 18
+            Material.foreground: "#535353"
+            Material.background: "#cfcfcf"
+            property string title: qsTr(buttonOkText)
+            text: autoClose ? title + "(" + String(timer.sum) + ")" : title
+            height: 48
+            width: 84
+            visible: (text !== "")
+            onClicked: {
+                if (callbackOnOK)
+                    callbackOnOK();
+
+                root.close();
+            }
+        }
+    }
+
+    // 自动关闭倒计时
+    Timer {
+        id: timer
+        property int sum: 5
+        interval: 1000
+        repeat: true
+        running: autoClose
+        onTriggered: {
+            if (root.clicked) {
+                timer.stop();
+                btnOk.text = btnOk.title;
+                timer.repeat = false;
+                return;
+            }
+
+            sum--;
+            btnOk.text = btnOk.title + "(" + String(sum) + ")";
+            if (sum == 0) {
+                btnOk.clicked();
+            }
+        }
+    }
+
+    // 监控按键事件
+    Item {
+        id: keyItem
+        height: 0
+        focus: true
+        Keys.onPressed: event => {
+            if (event.key === Qt.Key_Enter) {
+                // 小键盘上的回车
+                btnOk.clicked();
+            } else if (event.key === Qt.Key_Return) {
+                btnOk.clicked();
+            }
+
+            // 打印按键的扫描码和文本字符
+            //console.log("Scan code: " + event.nativeScanCode)
+            //console.log("Text: " + event.text)
+        }
+    }
+
+    // 辅助Item,用于转移 Enter, Exit 的 Transtion 中不使用的 PropertyAnimation
+    Item {
+        id: holdedItem
+        height: 0
+        width: 0
+        visible: true
     }
 }

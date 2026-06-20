@@ -8,7 +8,7 @@ HulaDialog {
     id: root
     width: 960
     height: 660
-    formTitle: qsTr("MessageCenter.Title")
+    title: qsTr("MessageCenter.Title")
 
     onVisibleChanged: {
         if (visible) {
@@ -18,13 +18,13 @@ HulaDialog {
 
     Rectangle {
         id: btnBar
-        anchors.top: titleBar.bottom
+        anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.margins: 12
         radius: 8
         border.width: 1
-        border.color: Themer.theme.borderColor
+        border.color: Themer.borderColor
         color: "#F1F1F1"
         height: 56
         Row {
@@ -73,7 +73,7 @@ HulaDialog {
         anchors.margins: 12
         radius: 4
         border.width: 1
-        border.color: Themer.theme.barColor
+        border.color: Themer.barColor
         Label {
             id: tableTitle
             anchors.left: parent.left
@@ -86,7 +86,7 @@ HulaDialog {
             leftPadding: 12
             verticalAlignment: Text.AlignVCenter
             background: Rectangle {
-                color: Themer.theme.barColor
+                color: Themer.barColor
             }
         }
 
@@ -101,7 +101,7 @@ HulaDialog {
             alternatingRows: false
             color: "white"
             headerColor: "white"
-            headerGradient: Themer.theme.viewGradient
+            headerGradient: Themer.viewGradient
             editTriggers: TableView.NoEditTriggers
             columnBorderWidth: 0
             border.width: 0
@@ -109,6 +109,10 @@ HulaDialog {
             useCheckBox: false
             columnsWidth: [0, 100, 420, 100, 200]
             headerTitles: ["Id", "MessageCenter.ErrorNum", "MessageCenter.ErrorInfo", "MessageCenter.UserName", "MessageCenter.LogTime"]
+            Component.onCompleted: {
+                console.log(1, JSON.stringify(Themer.viewGradient));
+            }
+
             model: TableModel {
                 TableModelColumn {
                     id: colId
@@ -148,7 +152,7 @@ HulaDialog {
         anchors.right: parent.right
         anchors.margins: 12
         border.width: 1
-        border.color: Themer.theme.barColor
+        border.color: Themer.barColor
         implicitHeight: 100
         radius: 4
         Label {
@@ -163,7 +167,7 @@ HulaDialog {
             leftPadding: 12
             verticalAlignment: Text.AlignVCenter
             background: Rectangle {
-                color: Themer.theme.barColor
+                color: Themer.barColor
             }
         }
         TextArea {
@@ -185,7 +189,7 @@ HulaDialog {
         anchors.margins: 12
         implicitHeight: 160
         border.width: 1
-        border.color: Themer.theme.barColor
+        border.color: Themer.barColor
         radius: 4
         Label {
             id: detailTitle
@@ -199,7 +203,7 @@ HulaDialog {
             color: "white"
             verticalAlignment: Text.AlignVCenter
             background: Rectangle {
-                color: Themer.theme.barColor
+                color: Themer.barColor
             }
         }
         TextArea {

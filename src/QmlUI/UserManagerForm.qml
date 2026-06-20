@@ -171,7 +171,7 @@ Item {
         height: 60
         color: "white"
         border.width: 1
-        border.color: Themer.theme.borderColor
+        border.color: Themer.borderColor
         radius: 8
 
         Row {
@@ -184,9 +184,9 @@ Item {
             TextField {
                 id: edtSearchAccount
                 width: 160
-                height: Themer.theme.editorHeight
+                height: Themer.editorHeight
                 placeholderText: qsTr("User.Account")
-                font.pixelSize: Themer.theme.buttonFontSize
+                font.pixelSize: Themer.buttonFontSize
                 anchors.verticalCenter: parent.verticalCenter
                 // verticalAlignment: Text.AlignVCenter
             }
@@ -194,9 +194,9 @@ Item {
             TextField {
                 id: edtSearchName
                 width: 160
-                height: Themer.theme.editorHeight
+                height: Themer.editorHeight
                 placeholderText: qsTr("User.Name")
-                font.pixelSize: Themer.theme.buttonFontSize
+                font.pixelSize: Themer.buttonFontSize
                 anchors.verticalCenter: parent.verticalCenter
                 // verticalAlignment: Text.AlignVCenter
             }
@@ -204,8 +204,8 @@ Item {
             ComboBox {
                 id: cmbSearchType
                 width: 160
-                height: Themer.theme.editorHeight
-                font.pixelSize: Themer.theme.buttonFontSize
+                height: Themer.editorHeight
+                font.pixelSize: Themer.buttonFontSize
                 anchors.verticalCenter: parent.verticalCenter
                 currentIndex: 0
                 model: [qsTr("User.TypeAll"), qsTr("User.Normal"), qsTr("User.Admin")]
@@ -217,10 +217,10 @@ Item {
 
             RoundButton {
                 id: btnSearch
-                width: Themer.theme.buttonWidth
-                implicitHeight: Themer.theme.buttonHeight
-                font.pixelSize: Themer.theme.buttonFontSize
-                Material.background: "white" //Themer.theme.buttonColor
+                width: Themer.buttonWidth
+                implicitHeight: Themer.buttonHeight
+                font.pixelSize: Themer.buttonFontSize
+                Material.background: "white" //Themer.buttonColor
                 Material.foreground: "black"
                 text: qsTr("User.Search")
                 radius: 4
@@ -235,10 +235,10 @@ Item {
 
             RoundButton {
                 id: btnReset
-                width: Themer.theme.buttonWidth
-                implicitHeight: Themer.theme.buttonHeight
-                font.pixelSize: Themer.theme.buttonFontSize
-                Material.background: "#535353"//Themer.theme.buttonColor
+                width: Themer.buttonWidth
+                implicitHeight: Themer.buttonHeight
+                font.pixelSize: Themer.buttonFontSize
+                Material.background: "#535353"//Themer.buttonColor
                 Material.foreground: "white"
                 text: qsTr("User.Reset")
                 radius: 4
@@ -256,18 +256,18 @@ Item {
 
             Rectangle {
                 width: 1
-                border.color: Themer.theme.lineColor
-                implicitHeight: Themer.theme.editorHeight
+                border.color: Themer.lineColor
+                implicitHeight: Themer.editorHeight
                 anchors.margins: 16
                 anchors.verticalCenter: parent.verticalCenter
             }
 
             RoundButton {
                 id: btnBatchDelete
-                width: Themer.theme.buttonWidth
-                implicitHeight: Themer.theme.buttonHeight
-                font.pixelSize: Themer.theme.buttonFontSize
-                Material.background: Themer.theme.warnColor
+                width: Themer.buttonWidth
+                implicitHeight: Themer.buttonHeight
+                font.pixelSize: Themer.buttonFontSize
+                Material.background: Themer.warnColor
                 Material.foreground: "white"
                 text: qsTr("User.Delete")
                 radius: 4
@@ -277,10 +277,10 @@ Item {
 
             RoundButton {
                 id: btnAdd
-                width: Themer.theme.buttonWidth
-                implicitHeight: Themer.theme.buttonHeight
-                font.pixelSize: Themer.theme.buttonFontSize
-                Material.background: Themer.theme.buttonColor
+                width: Themer.buttonWidth
+                implicitHeight: Themer.buttonHeight
+                font.pixelSize: Themer.buttonFontSize
+                Material.background: Themer.buttonColor
                 Material.foreground: "white"
                 Layout.alignment: Qt.AlignVCenter
                 text: qsTr("User.Add")
@@ -290,10 +290,10 @@ Item {
 
             RoundButton {
                 id: btnEdit
-                width: Themer.theme.buttonWidth
-                implicitHeight: Themer.theme.buttonHeight
-                font.pixelSize: Themer.theme.buttonFontSize
-                Material.background: Themer.theme.buttonColor
+                width: Themer.buttonWidth
+                implicitHeight: Themer.buttonHeight
+                font.pixelSize: Themer.buttonFontSize
+                Material.background: Themer.buttonColor
                 Material.foreground: "white"
                 Layout.alignment: Qt.AlignVCenter
                 text: qsTr("User.Edit")
@@ -314,10 +314,10 @@ Item {
         anchors.topMargin: 8
         anchors.bottom: paginationBar.top
         anchors.bottomMargin: 8
-        color: Themer.theme.workFormColor
+        color: Themer.workFormColor
         radius: 8
-        itemBorderColor: Themer.theme.lineColor
-        border.color: Qt.alpha(Themer.theme.borderGrayColor, 0.2)
+        itemBorderColor: Themer.lineColor
+        border.color: Qt.alpha(Themer.borderGrayColor, 0.2)
         view: tableview
 
         TableView {
@@ -430,13 +430,13 @@ Item {
                     anchors.bottom: parent.bottom
                     width: parent.width
                     height: 1
-                    color: Themer.theme.lineColor
+                    color: Themer.lineColor
                 }
                 Rectangle {
                     anchors.right: parent.right
                     height: parent.height
                     width: 1
-                    color: Themer.theme.lineColor
+                    color: Themer.lineColor
                 }
             }
         }
@@ -450,7 +450,7 @@ Item {
         height: 50
         color: "white"
         border.width: 1
-        border.color: Themer.theme.borderColor
+        border.color: Themer.borderColor
         radius: 8
 
         RowLayout {

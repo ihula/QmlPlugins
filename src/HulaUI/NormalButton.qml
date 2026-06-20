@@ -15,7 +15,7 @@ Button {
         radius: root.radius
         border.width: root.focus ? 0 : 0
         border.color: "#1afa29"
-        color: parent.pressed ? Themer.theme.pressedColor : (parent.hovered ? Themer.theme.normalColor : Themer.theme.hoveredColor)
+        color: parent.pressed ? Themer.pressedColor : (parent.hovered ? Themer.normalColor : Themer.hoveredColor)
     }
 
     contentItem: Text {

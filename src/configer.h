@@ -53,6 +53,9 @@
 // 多语言文件目录
 #define LANG_PATH PATH_PRE + "Languages/"
 
+// 主题配置文件目录
+#define THEME_PATH PATH_PRE + "Theme/"
+
 // 配置文件
 #define CFG_FILE PATH_PRE + "Config.ini"
 
@@ -141,6 +144,12 @@ class Configer : public QObject
     /** @brief 软件主题配置文件名 */
     Q_INVOKABLE QString theme();
     Q_INVOKABLE void setTheme(const QString &style);
+
+    /** @brief 加载主题配置为QVariantMap */
+    Q_INVOKABLE QVariantMap loadTheme(const QString &themeName);
+
+    /** @brief 保存主题对象到配置文件 */
+    Q_INVOKABLE void saveTheme(const QVariantMap &datas, const QString &themeName);
 
     /** @brief 报警对话框自动关闭时间 */
     Q_INVOKABLE int warnDialogCloseTime();

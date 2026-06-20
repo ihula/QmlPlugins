@@ -11,8 +11,8 @@ TextField {
 
     // 背景颜色
     background: Rectangle {
-        color: Themer.theme.backColor
-        border.color: Themer.theme.borderColor
+        color: Themer.backColor
+        border.color: Themer.borderColor
         border.width: 1
         radius: 4
     }

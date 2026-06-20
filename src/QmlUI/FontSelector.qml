@@ -37,7 +37,7 @@ HulaDialog {
 
             // 字体列表
             Rectangle {
-                color: Themer.theme.workFormColor
+                color: Themer.workFormColor
                 width: 200
                 Layout.fillHeight: true
                 radius: 8
@@ -46,8 +46,8 @@ HulaDialog {
                     anchors.fill: parent
                     anchors.margins: 8
                     property string currentText: ""
-                    property color itemColor: Qt.alpha(Themer.theme.workFormColor, mainForm.alpha)
-                    property color highColor: Qt.alpha(Themer.theme.hoveredColor, mainForm.alpha)
+                    property color itemColor: Qt.alpha(Themer.workFormColor, mainForm.alpha)
+                    property color highColor: Qt.alpha(Themer.hoveredColor, mainForm.alpha)
                     model: Qt.fontFamilies().filter(f => {
                         // 拉黑所有会报 DirectWrite 错误的古董系统字体
                         const badFonts = ["System", "Small Fonts", "Terminal", "Fixedsys", "OEM", "Roman", "Script", "Modern", "MS Sans Serif", "MS Serif", "MS Gothic", "MS PGothic", "Symbol", "Marlett", "Webdings", "Wingdings"];
@@ -88,7 +88,7 @@ HulaDialog {
                         Text {
                             id: itemText
                             anchors.verticalCenter: parent.verticalCenter
-                            font.pixelSize: Themer.theme.editorFontSize
+                            font.pixelSize: Themer.editorFontSize
                             text: modelData
                             font.family: modelData
                             anchors.left: parent.left
@@ -106,12 +106,12 @@ HulaDialog {
                 RowLayout {
                     Layout.fillWidth: true
                     Label {
-                        font.pixelSize: Themer.theme.editorFontSize
+                        font.pixelSize: Themer.editorFontSize
                         text: "字号："
                     }
                     SpinBox {
                         id: sizeSpin
-                        font.pixelSize: Themer.theme.editorFontSize
+                        font.pixelSize: Themer.editorFontSize
                         implicitHeight: 36
                         from: 8
                         to: 72
@@ -124,17 +124,17 @@ HulaDialog {
                     Layout.fillWidth: true
                     CheckBox {
                         id: checkBold
-                        font.pixelSize: Themer.theme.editorFontSize
+                        font.pixelSize: Themer.editorFontSize
                         text: "粗体"
                     }
                     CheckBox {
                         id: checkItalic
-                        font.pixelSize: Themer.theme.editorFontSize
+                        font.pixelSize: Themer.editorFontSize
                         text: "斜体"
                     }
                     CheckBox {
                         id: checkUnderline
-                        font.pixelSize: Themer.theme.editorFontSize
+                        font.pixelSize: Themer.editorFontSize
                         text: "下划线"
                     }
                 }
@@ -169,7 +169,7 @@ HulaDialog {
                 Material.background: "white"
                 Material.foreground: "#535353"
                 implicitWidth: 84
-                font.pixelSize: Themer.theme.buttonFontSize
+                font.pixelSize: Themer.buttonFontSize
                 text: qsTr("Preferences.Ok")
                 onClicked: {
                     // 把选中的字体参数抛出去给外部使用
@@ -189,7 +189,7 @@ HulaDialog {
                 Material.background: "white"
                 Material.foreground: "#535353"
                 implicitWidth: 84
-                font.pixelSize: Themer.theme.buttonFontSize
+                font.pixelSize: Themer.buttonFontSize
                 text: qsTr("Preferences.Cancel")
                 onClicked: {
                     fontDialogPopup.hide();

@@ -213,7 +213,7 @@ HulaDialog {
             text: qsTr("Common.Save")
             radius: 4
             font.pixelSize: 14
-            Material.background: Themer.theme.mainColor
+            Material.background: Themer.mainColor
             Material.foreground: "white"
             onClicked: saveUser()
         }

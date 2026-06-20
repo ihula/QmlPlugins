@@ -14,7 +14,7 @@ Window {
     height: 864
     title: qsTr("AppName")
     flags: Qt.Window | Qt.FramelessWindowHint
-    color: Themer.theme.backColor
+    color: Themer.backColor
     opacity: 0
     property string userName: ""
     signal showing
@@ -54,7 +54,7 @@ Window {
 
     Rectangle {
         anchors.fill: parent
-        color: Themer.theme.workBackColor
+        color: Themer.workBackColor
         border.width: 1
         border.color: "#888888"
 
@@ -90,7 +90,7 @@ Window {
             anchors.top: parent.top
             anchors.margins: 1
             width: 180
-            gradient: Themer.theme.viewGradient
+            gradient: Themer.viewGradient
 
             Rectangle {
                 width: 1
@@ -123,7 +123,7 @@ Window {
                     Label {
                         id: txtAppName
                         font.pixelSize: 20
-                        color: Themer.theme.buttonBackground
+                        color: Themer.buttonBackground
                         text: qsTr("CompanyAbbrName")
                         anchors.verticalCenter: parent.verticalCenter
                     }
@@ -350,13 +350,10 @@ Window {
                 dlg[key] = params[key];
             }
         }
-        dlg.x = (mainForm.width - dlg.width) / 2;
-        dlg.y = (mainForm.height - dlg.height) / 2;
         dlg.open();
         dlg.onClosed.connect(() => {
             dlg.destroy();
         });
-        dlg.onClosed.connect(onLogined);
     }
 
     function onLogined() {
@@ -364,11 +361,8 @@ Window {
     }
 
     function openDialogPrompt(text, callbackOnOK = null, title = "MessageBox.Confirm") {
-        var msgBox = Qt.createComponent("../HulaUI/HulaMessageBox.qml").createObject(mainForm);
-        msgBox.z = 100000;
-        msgBox.x = (mainForm.width - msgBox.width) / 2;
-        msgBox.y = (mainForm.height - msgBox.height) / 2;
-        msgBox.formTitle = title;
+        var msgBox = Qt.createComponent("../HulaUI/HulaDialog.qml").createObject(mainForm);
+        msgBox.title = title;
         msgBox.messageText = text;
         msgBox.buttonOkText = "MessageBox.Ok";
         msgBox.callbackOnOK = callbackOnOK;
@@ -377,11 +371,8 @@ Window {
     }
 
     function openDialogConfirm(text, callbackOnOK = null, callbackOnCancel = null, title = "MessageBox.Confirm") {
-        var msgBox = Qt.createComponent("../HulaUI/HulaMessageBox.qml").createObject(mainForm);
-        msgBox.z = 100000;
-        msgBox.x = (mainForm.width - msgBox.width) / 2;
-        msgBox.y = (mainForm.height - msgBox.height) / 2;
-        msgBox.formTitle = title;
+        var msgBox = Qt.createComponent("../HulaUI/HulaDialog.qml").createObject(mainForm);
+        msgBox.title = title;
         msgBox.messageText = text;
         msgBox.buttonOkText = "MessageBox.Ok";
         msgBox.callbackOnOK = callbackOnOK;
