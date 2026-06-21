@@ -31,14 +31,8 @@ int main(int argc, char *argv[])
     QtMsgType level = static_cast<QtMsgType>(Configer::instance()->logLevel());
     HulaLogger::instance()->setLogLevel(level);
 
-#if (DEPLOY_MODE)
-    Utils::syncDir("../resources/Images", "./Images");
-    Utils::syncDir("../resources/Languages", "./Languages");
-    Utils::syncDir("../resources/Splash", "./Splash");
-    Utils::syncDir("../resources/wallpaper", "./wallpaper");
-    Utils::syncDir("../resources/Theme", "./Theme");
-    Utils::syncFile("../resources/anydata.db", "./anydata.db");
-    Utils::syncFile("../resources/Config.ini", "./Config.ini");
+#if (!DEPLOY_MODE)
+    // Utils::syncDir("./", "../resources");
 #endif
     const QString SERVER_NAME = "com.hula.QmlPlugins";
     SingleAppWatcher appWatcher(SERVER_NAME);

@@ -38,6 +38,13 @@ class Utils : public QObject
     Q_INVOKABLE static QStringList getDirFiles(const QString &path, const QStringList &filter);
 
     /**
+     *@brief 计算文件MD5哈希值
+     *@param[in] filePath:文件路径
+     *@return QString:文件的MD5哈希值，失败返回空字符串
+     */
+    Q_INVOKABLE static QString getFileHash(const QString &filePath);
+
+    /**
      *@brief 复制目录
      *@param[in] sourceDir:源目录
      *@param[in] toDir:目标目录
@@ -62,13 +69,12 @@ class Utils : public QObject
     static QDateTime getDirLatestTime(const QString &dirPath);
 
     /**
-     *@brief 同步两个目录（将最新目录同步到另一个目录）
+     *@brief 同步两个目录
      *@param[in] dir1 目录1
      *@param[in] dir2 目录2
-     *@param[in] deleteOrphaned 是否删除目标目录中在源目录不存在的孤立文件
      *@return bool 同步是否成功
      */
-    static bool syncDir(const QString &dir1, const QString &dir2, bool deleteOrphaned = true);
+    static bool syncDir(const QString &dir1, const QString &dir2);
 
     /**
      *@brief 同步单个文件
