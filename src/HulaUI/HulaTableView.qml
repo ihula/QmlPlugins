@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls.Fusion
 import Qt.labs.qmlmodels
-import QmlPlugins
 
 Rectangle {
     id: control

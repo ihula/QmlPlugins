@@ -10,7 +10,7 @@ HulaDialog {
     id: root
     width: 480
     height: 520
-    formTitle: editUserData ? qsTr("User.Edit") : qsTr("User.Add")
+    title: editUserData ? qsTr("User.Edit") : qsTr("User.Add")
 
     // 是否为编辑模式
     property bool isEdit: editUserData !== null
@@ -32,7 +32,7 @@ HulaDialog {
 
     GridLayout {
         id: editBar
-        anchors.top: titleBar.bottom
+        anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.margins: 16

@@ -109,9 +109,6 @@ HulaDialog {
             useCheckBox: false
             columnsWidth: [0, 100, 420, 100, 200]
             headerTitles: ["Id", "MessageCenter.ErrorNum", "MessageCenter.ErrorInfo", "MessageCenter.UserName", "MessageCenter.LogTime"]
-            Component.onCompleted: {
-                console.log(1, JSON.stringify(Themer.viewGradient));
-            }
 
             model: TableModel {
                 TableModelColumn {

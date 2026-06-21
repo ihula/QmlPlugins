@@ -50,12 +50,12 @@ Rectangle {
     //横项表头
     Item {
         id: horHeader
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.leftMargin: parent.border.width
-        anchors.rightMargin: parent.border.width
-        anchors.topMargin: parent.border.width
+        anchors {
+            left: view.left
+            right: view.right
+            top: parent.top
+            topMargin: parent.border.width
+        }
         height: control.horHeaderHeight
         z: 2
         //暂存鼠标拖动的位置
@@ -63,6 +63,7 @@ Rectangle {
         Row {
             id: horHeaderRow
             anchors.fill: parent
+            leftPadding: -view.contentX
             clip: true
             spacing: 0
 

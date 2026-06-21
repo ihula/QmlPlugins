@@ -18,24 +18,6 @@ Item {
     property int totalPages: 1
     property var selectedIds: []
 
-    // 列宽属性（可调整）
-    property int col0Width: 0
-    property int col1Width: tableview.columnsWidth[1]
-    property int col2Width: 120
-    property int col3Width: 0
-    property int col4Width: 120
-    property int col5Width: 120
-    property int col6Width: 120
-    property int col7Width: 110
-    property QtObject myData: QtObject {
-        property int col0: 0
-        property int col1: 200
-        property int col2: 300
-    }
-
-    property var headerTitles: ["", "User.Account", "User.Name", "User.Type", "User.Dept", "User.Phone", "User.Email"]
-    property var columnsWidth: [40, 120, 100, 80, 120, 130, 180]
-
     function loadData() {
         tableview.model.clear();
         selectedIds = [];
@@ -307,7 +289,7 @@ Item {
     }
 
     HulaTableHeader {
-        id: control
+        id: tableheader
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: searchBar.bottom
@@ -322,11 +304,7 @@ Item {
 
         TableView {
             id: tableview
-
-            // property bool firstLoaded: false
             property var headerTitles: ["Id", "User.Account", "User.Name", "Type", "User.Type", "User.Contact", "User.Dept", "Password"]
-            property var columnsWidth: [col0Width, col1Width, col2Width, col3Width, col4Width, col5Width, col6Width, col7Width]
-
             property int col0: 0
             property int col1: 200
             property int col2: 200
@@ -342,36 +320,28 @@ Item {
                 tableview.selectionModel.setCurrentIndex(newIndex, ItemSelectionModel.Select | ItemSelectionModel.Rows);
             }
 
-            // onRowsChanged: {
-            //     if (!firstLoaded && (tableview.rows > 0)) {
-            //         firstLoaded = true;
-            //         tableview.selectRow(0);
-            //     }
-            // }
-
             anchors.fill: parent
-            //anchors.rightMargin: control.border.width
-            anchors.leftMargin: control.border.width
-            anchors.topMargin: control.horHeaderHeight + control.border.width
+            //anchors.rightMargin: tableheader.border.width
+            anchors.leftMargin: tableheader.border.width
+            anchors.topMargin: tableheader.horHeaderHeight + tableheader.border.width
             // 多1个高度,防止最后一行边框与外边框相连
-            //anchors.bottomMargin: control.border.width * 2
+            //anchors.bottomMargin: tableheader.border.width * 2
             clip: true
             boundsBehavior: Flickable.StopAtBounds
             columnSpacing: 0
             rowSpacing: 0
-            selectionMode: TableView.SingleSelection // 或 ExtendedSelection
+            selectionMode: TableView.SingleSelection
             selectionBehavior: TableView.SelectRows
-            ScrollBar.vertical: ScrollBar {}
-
-            ScrollBar.horizontal: ScrollBar {}
+            ScrollBar.vertical: CustomScrollBar {}
+            ScrollBar.horizontal: CustomScrollBar {}
 
             rowHeightProvider: function (row) {
-                return control.rowHeight;
+                return tableheader.rowHeight;
             }
             //此属性可以保存一个函数，该函数返回模型中每个列的列宽
             columnWidthProvider: function (column) {
-                if ((column >= 0) && (column < tableview.columnsWidth.length)) {
-                    var key = "col" + String(column);
+                var key = "col" + String(column);
+                if (tableview[key] !== undefined) {
                     return tableview[key];
                 } else {
                     return 60;
@@ -417,12 +387,13 @@ Item {
                 }
                 Text {
                     id: txt
+                    property string content: (typeof display !== "undefined") ? display : ""
                     anchors.fill: parent
                     anchors.margins: 2
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     //获取单元格对应的值
-                    text: (typeof display !== "undefined") ? display : ""
+                    text: content
                     elide: Text.ElideRight
                 }
 

@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Controls.Fusion
 import Qt.labs.qmlmodels
 import QmlPlugins
 import "../HulaUI"
@@ -32,9 +33,12 @@ Rectangle {
             boundsBehavior: Flickable.StopAtBounds
             columnSpacing: 0
             rowSpacing: 0
-            ScrollBar.vertical: ScrollBar {}
-
-            ScrollBar.horizontal: ScrollBar {}
+            ScrollBar.vertical: ScrollBar {
+                active: true
+            }
+            ScrollBar.horizontal: ScrollBar {
+                active: true
+            }
 
             property var headerTitles: ["Id", "Home.TestId", "Home.Name", "Home.Sex", "Home.Age", "Home.MRN"]
             property var columnsWidth: [100, 100, 100, 100, 100, 100, 100]
