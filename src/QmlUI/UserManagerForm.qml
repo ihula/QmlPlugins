@@ -47,14 +47,9 @@ Item {
         var start = (currentPage - 1) * pageSize;
         var end = Math.min(start + pageSize, totalCount);
 
-        var adminText = qsTr("User.Admin");
-        var normalText = qsTr("User.Normal");
-
         for (var j = start; j < end && j < filteredUsers.length; j++) {
             var u = filteredUsers[j];
-            u[DbFields.userInfo_Type] = u[DbFields.userInfo_Type] || 0;
-            u[DbFields.userInfo_Type + "Text"] = (u[DbFields.userInfo_Type] === 1) ? adminText : normalText;
-            tableview.model.appendRow(u);
+            tableview.model.appendRow(filteredUsers[j]);
         }
     }
 
@@ -73,9 +68,7 @@ Item {
     function openUserDialog(userData) {
         var component = Qt.createComponent("UserEditDialog.qml");
         if (component.status === Component.Ready) {
-            var dlg = component.createObject(mainForm);
-            dlg.x = (mainForm.width - dlg.width) / 2;
-            dlg.y = (mainForm.height - dlg.height) / 2;
+            var dlg = component.createObject(Window.window);
             dlg.isAdmin = true;
             if (userData) {
                 dlg.editUserData = userData;
@@ -86,6 +79,7 @@ Item {
             dlg.open();
         } else if (component.status === Component.Error) {
             console.error("加载 UserEditDialog 失败:", component.errorString());
+            snackMessage("加载 UserEditDialog 失败:", component.errorString());
         }
     }
 
@@ -135,14 +129,12 @@ Item {
     Settings {
         location: "file:" + APP_PATH + "/config1.ini"
         category: "UserManager"
-        property alias savedCol0Width: tableview.col0
-        property alias savedCol1Width: tableview.col1
-        property alias savedCol2Width: tableview.col2
-        property alias savedCol3Width: tableview.col3
-        property alias savedCol4Width: tableview.col4
-        property alias savedCol5Width: tableview.col5
-        property alias savedCol6Width: tableview.col6
-        property alias savedCol7Width: tableview.col7
+        property alias column0Width: tableview.column0Width
+        property alias column1Width: tableview.column1Width
+        property alias column2Width: tableview.column2Width
+        property alias column3Width: tableview.column3Width
+        property alias column4Width: tableview.column4Width
+        property alias column5Width: tableview.column5Width
     }
 
     Rectangle {
@@ -202,7 +194,7 @@ Item {
                 width: Themer.buttonWidth
                 implicitHeight: Themer.buttonHeight
                 font.pixelSize: Themer.buttonFontSize
-                Material.background: "white" //Themer.buttonColor
+                Material.background: "white"
                 Material.foreground: "black"
                 text: qsTr("User.Search")
                 radius: 4
@@ -304,16 +296,13 @@ Item {
 
         TableView {
             id: tableview
-            property var headerTitles: ["Id", "User.Account", "User.Name", "Type", "User.Type", "User.Contact", "User.Dept", "Password"]
-            property int col0: 0
-            property int col1: 200
-            property int col2: 200
-            property int col3: 200
-            property int col4: 200
-            property int col5: 200
-            property int col6: 200
-            property int col7: 200
-            property int col8: 200
+            property var headerTitles: ["Id", "User.Account", "User.Name", "User.Type", "User.Contact", "User.Dept"]
+            property int column0Width: 0
+            property int column1Width: 200
+            property int column2Width: 200
+            property int column3Width: 200
+            property int column4Width: 200
+            property int column5Width: 200
 
             function selectRow(row) {
                 var newIndex = tableview.index(row, 0);
@@ -332,15 +321,20 @@ Item {
             rowSpacing: 0
             selectionMode: TableView.SingleSelection
             selectionBehavior: TableView.SelectRows
-            ScrollBar.vertical: CustomScrollBar {}
-            ScrollBar.horizontal: CustomScrollBar {}
+
+            ScrollBar.vertical: CustomScrollBar {
+                visible: tableview.contentHeight > tableview.height
+            }
+            ScrollBar.horizontal: CustomScrollBar {
+                visible: tableview.contentWidth > tableview.width
+            }
 
             rowHeightProvider: function (row) {
                 return tableheader.rowHeight;
             }
             //此属性可以保存一个函数，该函数返回模型中每个列的列宽
             columnWidthProvider: function (column) {
-                var key = "col" + String(column);
+                var key = "column" + String(column) + "Width";
                 if (tableview[key] !== undefined) {
                     return tableview[key];
                 } else {
@@ -358,19 +352,13 @@ Item {
                     display: DbFields.userInfo_Name
                 }
                 TableModelColumn {
-                    display: DbFields.userInfo_Type
-                }
-                TableModelColumn {
-                    display: DbFields.userInfo_Type + "Text"
+                    display: DbFields.userInfo_Status
                 }
                 TableModelColumn {
                     display: DbFields.userInfo_Contact
                 }
                 TableModelColumn {
                     display: DbFields.userInfo_Dept
-                }
-                TableModelColumn {
-                    display: DbFields.userInfo_Password
                 }
             }
 
@@ -387,13 +375,13 @@ Item {
                 }
                 Text {
                     id: txt
-                    property string content: (typeof display !== "undefined") ? display : ""
+                    property string content: display || ""
                     anchors.fill: parent
                     anchors.margins: 2
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     //获取单元格对应的值
-                    text: content
+                    text: (column !== 3) ? content : (content === 0) ? qsTr("User.Normal") : qsTr("User.Admin")
                     elide: Text.ElideRight
                 }
 

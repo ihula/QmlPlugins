@@ -8,40 +8,53 @@ import QmlPlugins
 Window {
     id: root
     property int formShowMode: Configer.loginFormShowMode()
-    title: qsTr("Login.Title")
-    flags: Qt.Window | Qt.FramelessWindowHint
-    width: 1568
-    height: 864
-    opacity: 0
     property bool reLogin: false
     property bool unfoundUserId: false
+
     signal showing
     signal closeing
+    signal closed
 
     function showForm() {
-        btnLogin.enabled = false;
-        if (root.formShowMode === 1) {
-            root.maximumWidth = Screen.desktopAvailableWidth;
-            root.maximumHeight = Screen.desktopAvailableHeight;
-        }
+        fadeInAni.start();
         if (formShowMode === 0) {
-            root.x = (Screen.desktopAvailableWidth - root.width) / 2;
-            root.y = (Screen.desktopAvailableHeight - root.height) / 2;
+            root.x = (Screen.width - root.width) / 2;
+            root.y = (Screen.height - root.height) / 2;
             root.show();
         } else if (formShowMode === 1) {
+            root.maximumWidth = Screen.desktopAvailableWidth;
+            root.maximumHeight = Screen.desktopAvailableHeight;
             root.showMaximized();
         } else {
             root.showFullScreen();
         }
-        fadeInAni.start();
     }
 
     function loadedMainForm() {
         btnLogin.enabled = true;
     }
 
+    title: qsTr("Login.Title")
+    flags: Qt.Window | Qt.FramelessWindowHint
+    width: 1568
+    height: 864
+    opacity: 0
+
+    // 拦截关闭请求
+    onClosing: close => {
+        if (root.opacity > 0) {
+            // 阻止窗口立即关闭
+            close.accepted = false;
+            // 启动退出动画
+            fadeOutAni.start();
+        } else {
+            closed();
+        }
+    }
+
     onVisibleChanged: {
         if (visible) {
+            showForm();
             edtUserId.text = "";
             edtUserName.text = "";
             edtUserPwd.text = "";
@@ -114,6 +127,7 @@ Window {
                 }
             }
         }
+
         Rectangle {
             anchors.left: barLeft.right
             anchors.leftMargin: -24
@@ -305,6 +319,7 @@ Window {
                     }
                     RoundButton {
                         id: btnLogin
+                        enabled: false
                         height: parent.height
                         width: parent.width / 5 * 3 - 12
                         Material.background: "#0075EF"
@@ -323,11 +338,9 @@ Window {
                                 return;
                             }
 
-                            if (!reLogin) {
-                                closeing();
-                            } else {
-                                root.close();
-                            }
+                            if (!reLogin)
+                                root.closeing();
+                            root.close();
                         }
                     }
                 }
@@ -335,6 +348,7 @@ Window {
         }
     }
 
+    // 进入动画
     PropertyAnimation {
         id: fadeInAni
         target: root
@@ -345,6 +359,7 @@ Window {
         easing.type: Easing.InOutQuad
     }
 
+    // 退出动画
     PropertyAnimation {
         id: fadeOutAni
         target: root
@@ -356,9 +371,5 @@ Window {
         onFinished: {
             root.close();
         }
-    }
-
-    function closeWithAnimation() {
-        fadeOutAni.start();
     }
 }

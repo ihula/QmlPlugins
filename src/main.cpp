@@ -21,10 +21,6 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
-    // 必须设置这两项，否则 Settings 无法确定存储路径
-    app.setOrganizationName("Hula");
-    app.setApplicationName("CE");
-
     // 先初始化日志系统
     HulaLogger::instance()->initialize(QtMsgType::QtDebugMsg); // 使用默认级别
     // 然后再初始化其他模块
@@ -51,6 +47,16 @@ int main(int argc, char *argv[])
     app.setFont(font);
 
     QQmlApplicationEngine engine;
+#ifdef Q_OS_MACOS
+    engine.rootContext()->setContextProperty("OS_TYPE", "macos");
+#elif defined(Q_OS_WIN) // 修正：使用 Q_OS_WIN 代替 Q_OS_WIN64
+    engine.rootContext()->setContextProperty("OS_TYPE", "windows");
+#elif defined(Q_OS_LINUX)
+    engine.rootContext()->setContextProperty("OS_TYPE", "linux");
+#else
+    engine.rootContext()->setContextProperty("OS_TYPE", "unknown");
+#endif
+
     engine.rootContext()->setContextProperty("APP_PATH", app.applicationDirPath());
     engine.rootContext()->setContextProperty("CUSTOM_PATH", app.applicationDirPath() + "/Custom/");
 

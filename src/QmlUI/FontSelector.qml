@@ -11,7 +11,7 @@ HulaDialog {
     anchors.centerIn: parent
     width: 520
     height: 430
-    formTitle: qsTr("MessageCenter.Title")
+    title: qsTr("MessageCenter.Title")
     property font selectedFont: null
     signal selected(font font)
 
@@ -23,7 +23,7 @@ HulaDialog {
     }
 
     ColumnLayout {
-        anchors.top: titleBar.bottom
+        anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom

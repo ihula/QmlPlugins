@@ -152,8 +152,8 @@ class Configer : public QObject
     Q_INVOKABLE void saveTheme(const QVariantMap &datas, const QString &themeName);
 
     /** @brief 报警对话框自动关闭时间 */
-    Q_INVOKABLE int warnDialogCloseTime();
-    Q_INVOKABLE void setWarnDialogCloseTime(int sec);
+    Q_INVOKABLE int dialogAutoCloseTime();
+    Q_INVOKABLE void setDialogAutoCloseTime(int sec);
 
     /** @brief 是否启用Splash界面 */
     Q_INVOKABLE bool enableSplash();

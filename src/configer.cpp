@@ -201,14 +201,14 @@ void Configer::saveTheme(const QVariantMap &datas, const QString &themeName)
     settings.endGroup();
 }
 
-int Configer::warnDialogCloseTime()
+int Configer::dialogAutoCloseTime()
 {
-    return readValue("WarnDialogCloseTime").toInt();
+    return readValue("DialogAutoCloseTime").toInt();
 }
 
-void Configer::setWarnDialogCloseTime(int sec)
+void Configer::setDialogAutoCloseTime(int sec)
 {
-    writeValue("WarnDialogCloseTime", sec);
+    writeValue("DialogAutoCloseTime", sec);
 }
 
 bool Configer::enableSplash()

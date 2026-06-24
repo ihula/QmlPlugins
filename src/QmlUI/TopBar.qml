@@ -11,34 +11,11 @@ Rectangle {
     id: titleBar
     height: 56
     color: "#ffffffff"
-    clip: true
-    state: "Released"
     property bool mainFormMixed: false
     property color pressedColor: "#2e6b89"
     property color releasedColor: "#12687C"
     property alias appName: txtAppName.text
     gradient: Themer.titleBarGradient
-
-    // move windows
-    MouseArea {
-        //此处是为了增加了一点颜色动画
-        anchors.fill: parent
-        acceptedButtons: Qt.LeftButton
-        property point clickPos: "0,0"
-        onReleased: titleBar.state = "Released"
-        onPressed: function (mouse) {
-            titleBar.state = "Pressed";
-            clickPos = Qt.point(mouse.x, mouse.y);
-        }
-        onPositionChanged: function (mouse) {
-            var offset = Qt.point(mouse.x - clickPos.x, mouse.y - clickPos.y);
-            mainForm.x = mainForm.x + offset.x;
-            mainForm.y = mainForm.y + offset.y;
-        }
-        onDoubleClicked: function (mouse) {
-            restore();
-        }
-    }
 
     Rectangle {
         height: 1
@@ -105,7 +82,7 @@ Rectangle {
             var funcPowerOff = function () {
                 Qt.exit(100);
             };
-            mainForm.openDialogConfirm("Topbar.ConfirmPowerOff", funcPowerOff);
+            Window.window.openDialogConfirm("Topbar.ConfirmPowerOff", funcPowerOff);
         }
     }
 
@@ -128,7 +105,7 @@ Rectangle {
             var funcQuit = function () {
                 Qt.quit();
             };
-            mainForm.openDialogConfirm("Topbar.ConfirmQuit", funcQuit);
+            Window.window.openDialogConfirm("Topbar.ConfirmQuit", funcQuit);
         }
     }
 
@@ -168,7 +145,7 @@ Rectangle {
             verticalCenter: parent.verticalCenter
         }
         onClicked: {
-            mainForm.showMinimized();
+            Window.window.showMinimized();
         }
     }
 
@@ -190,7 +167,7 @@ Rectangle {
             text: qsTr("Topbar.Preferences")
         }
 
-        onClicked: mainForm.openDialog("Preferences.qml")
+        onClicked: Window.window.openDialog("Preferences.qml")
     }
 
     RoundButton {
@@ -219,13 +196,13 @@ Rectangle {
 
         onClicked: {
             stopBreath();
-            mainForm.openDialog("MessageCenterForm.qml");
+            Window.window.openDialog("MessageCenterForm.qml");
         }
     }
 
     RoundButton {
         id: btnUser
-        property string caption: (mainForm.userName !== "") ? mainForm.userName : qsTr("Topbar.Unlogin")
+        property string caption: (Window.window.userName !== "") ? Window.window.userName : qsTr("Topbar.Unlogin")
         anchors.right: btnInfo.visible ? btnInfo.left : btnSetting.left
         anchors.verticalCenter: parent.verticalCenter
         display: AbstractButton.TextBesideIcon
@@ -252,7 +229,7 @@ Rectangle {
             MenuItem {
                 text: qsTr("Topbar.Relogin")
                 onTriggered: {
-                    mainForm.openLogin({
+                    Window.window.openLogin({
                         "reLogin": true
                     });
                 }
@@ -261,67 +238,21 @@ Rectangle {
             MenuItem {
                 text: qsTr("User.Title")
                 onTriggered: {
-                    mainForm.openDialog("UserInfoForm.qml");
+                    Window.window.openDialog("UserInfoForm.qml");
                 }
             }
         }
-    }
-
-    //标题栏颜色动效
-    states: [
-        State {
-            name: "Pressed"
-            PropertyChanges {
-                target: titleBar
-                opacity: 0.8
-            }
-        },
-        State {
-            name: "Released"
-            PropertyChanges {
-                target: titleBar
-                opacity: 1.0
-            }
-        }
-    ]
-    transitions: [
-        Transition {
-            PropertyAnimation {
-                property: "opacity"
-                to: 1.0
-                duration: 200
-            }
-        },
-        Transition {
-            PropertyAnimation {
-                property: "opacity"
-                to: 0.9
-                duration: 200
-            }
-        }
-    ]
-
-    PropertyAnimation {
-        id: aniOpacity
-        property: "opacity"
-        from: 1
-        to: 0.5
-        duration: 1000
-        easing.type: Easing.InOutQuad
     }
 
     function restore() {
-        if (mainForm.visibility === Window.FullScreen || mainForm.visibility === Window.Maximized) {
-            if (mainForm.formShowMode !== 0)
-                if (!mainFormMixed) {
-                    mainFormMixed = true;
-                    mainForm.showMinimized();
-                }
-            mainForm.showNormal();
-        } else if (mainForm.formShowMode === 2)
-            mainForm.showFullScreen();
-        else
-            mainForm.showMaximized();
+        if ((Window.window.visibility === Window.FullScreen) || (Window.window.visibility === Window.Maximized)) {
+            Window.window.showNormal();
+        } else {
+            if (Window.window.formShowMode === 2)
+                Window.window.showFullScreen();
+            else
+                Window.window.showMaximized();
+        }
     }
 
     SequentialAnimation {
@@ -382,9 +313,11 @@ Rectangle {
             startBreath();
             var msgBox = openDialogPrompt(msg.text, null, "Error");
             msgBox.autoClose = true;
+            msgBox.buttonCancelText = "";
         } else if (msg.promptType === Enums.PromptType.Confirmation) {
             var confirmBox = openDialogPrompt(msg.text, null, "Information");
             confirmBox.autoClose = true;
+            msgBox.buttonCancelText = "";
         } else if (msg.promptType === Enums.PromptType.Log) {
             startBreath();
         }
@@ -392,9 +325,43 @@ Rectangle {
 
     function appendLeftItem(item) {
         item.parent = leftBar;
+        item.visible = true;
     }
 
     function removeLeftItem(item) {
-        item.destroy();
+        item.visible = false;
+    }
+
+    // 颜色加深遮罩层（默认完全透明）
+    Rectangle {
+        id: darkenOverlay
+        anchors.fill: parent
+        color: "black"     // 使用黑色遮罩来实现颜色加深
+        opacity: 0.0       // 默认不加深
+        radius: titleBar.radius // 保持与底层相同的圆角
+    }
+
+    TapHandler {
+        id: tapHandler
+    }
+
+    // 状态机：按下时让遮罩层显现（颜色加深）
+    states: [
+        State {
+            name: "pressedState"
+            when: tapHandler.pressed
+            PropertyChanges {
+                target: darkenOverlay // 注意：这里 target 改为了遮罩层
+                opacity: 0.2          // 20% 的黑色遮罩，实现自然的加深效果
+            }
+        }
+    ]
+
+    // 过渡动画：平滑切换加深效果
+    transitions: Transition {
+        NumberAnimation {
+            properties: "opacity"
+            duration: 200
+        }
     }
 }

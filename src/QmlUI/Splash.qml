@@ -7,17 +7,10 @@ import QmlPlugins
 Window {
     id: root
     property int formShowMode: Configer.splashFormShowMode()
-    flags: Qt.SplashScreen
-    width: 1568
-    height: 864
     property var imageList: []
+
     signal showing
     signal closeing
-
-    onVisibleChanged: {
-        if (visible)
-            showing();
-    }
 
     function loadedMainForm() {
         ani.pause();
@@ -26,19 +19,27 @@ Window {
     }
 
     function showForm() {
-        if (root.formShowMode === 1) {
-            root.maximumWidth = Screen.desktopAvailableWidth;
-            root.maximumHeight = Screen.desktopAvailableHeight;
-        }
-        ani.start();
         if (formShowMode === 0) {
-            root.x = (Screen.desktopAvailableWidth - root.width) / 2;
-            root.y = (Screen.desktopAvailableHeight - root.height) / 2;
+            root.x = (Screen.width - root.width) / 2;
+            root.y = (Screen.height - root.height) / 2;
             root.show();
         } else if (formShowMode === 1) {
+            root.maximumWidth = Screen.desktopAvailableWidth;
+            root.maximumHeight = Screen.desktopAvailableHeight;
             root.showMaximized();
         } else {
             root.showFullScreen();
+        }
+    }
+
+    flags: Qt.SplashScreen
+    width: 1568
+    height: 864
+
+    onVisibleChanged: {
+        if (visible) {
+            showForm();
+            showing();
         }
     }
 
@@ -135,6 +136,7 @@ Window {
         easing.type: Easing.Linear
         onFinished: {
             closeing();
+            fadeOutAni.start();
         }
     }
 
@@ -149,10 +151,5 @@ Window {
         onFinished: {
             root.close();
         }
-    }
-
-    function closeWithAnimation() {
-        ani.stop();
-        fadeOutAni.start();
     }
 }

@@ -11,6 +11,9 @@ Dialog {
 
     // 1. 属性声明 (Properties)
     property var defaultButton: null
+    property alias titleText: titleBar
+    property alias buttonOk: btnOk
+    property alias buttonCancel: btnCancel
     property alias titleFontSize: titleBar.font.pixelSize
     property alias textPixelSize: lblText.font.pixelSize
     property string messageText: ""
@@ -66,9 +69,8 @@ Dialog {
         hideForm();
         if (autoDestroy) {
             if (parent && parent instanceof Loader) {
-                parent.active = false;
+                parent.source = "";
             }
-            destroy();
         }
     }
 
@@ -135,23 +137,24 @@ Dialog {
         font.pixelSize: 18
         horizontalAlignment: (lineCount > 1) ? Text.AlignLeft : Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        height: Math.max(50, implicitHeight)
+        height: Math.max(60, implicitHeight)
     }
 
     footer: Row {
         id: buttonBar
         layoutDirection: Qt.RightToLeft
+        rightPadding: 16
         height: 54
         spacing: 0
         RoundButton {
             id: btnCancel
             radius: 4
-            flat: true
             font.pixelSize: 18
-            Material.foreground: "#535353"
+            Material.background: "white"
+            Material.foreground: "black"
             text: qsTr(buttonCancelText)
             height: 48
-            width: 84
+            width: 96
             visible: (text !== "")
             onClicked: {
                 if (callbackOnCancel)
@@ -163,15 +166,14 @@ Dialog {
 
         RoundButton {
             id: btnOk
+            property string content: qsTr(buttonOkText)
             radius: 4
-            flat: true
             font.pixelSize: 18
-            Material.foreground: "#535353"
-            Material.background: "#cfcfcf"
-            property string title: qsTr(buttonOkText)
-            text: autoClose ? title + "(" + String(timer.sum) + ")" : title
+            Material.background: "white"
+            Material.foreground: "black"
+            text: autoClose ? content + "(" + String(timer.sum) + ")" : content
             height: 48
-            width: 84
+            width: 96
             visible: (text !== "")
             onClicked: {
                 if (callbackOnOK)
@@ -192,13 +194,13 @@ Dialog {
         onTriggered: {
             if (root.clicked) {
                 timer.stop();
-                btnOk.text = btnOk.title;
+                btnOk.text = btnOk.content;
                 timer.repeat = false;
                 return;
             }
 
             sum--;
-            btnOk.text = btnOk.title + "(" + String(sum) + ")";
+            btnOk.text = btnOk.content + "(" + String(sum) + ")";
             if (sum == 0) {
                 btnOk.clicked();
             }

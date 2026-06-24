@@ -78,7 +78,7 @@ Rectangle {
         radius: 8
         anchors.fill: parent
         anchors.margins: 0
-        color: Themer.workFormColor // Qt.alpha(Themer.workFormColor, mainForm.alpha)
+        color: Themer.workFormColor // Qt.alpha(Themer.workFormColor, Window.window.alpha)
         border.width: 1
         border.color: Themer.lineColor
 

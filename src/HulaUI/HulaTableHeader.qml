@@ -72,7 +72,8 @@ Rectangle {
 
                 Rectangle {
                     id: horHeaderItem
-                    width: view["col" + String(index)]
+                    property string widthKey: "column" + String(index) + "Width"
+                    width: view[widthKey] || 0
                     height: control.horHeaderHeight
                     color: headerColor
                     gradient: headerUseGradient ? headerGradient : null
@@ -112,8 +113,7 @@ Rectangle {
                                 horHeaderItem.width = 10;
                             }
                             horHeader.lastX = mouseX;
-                            var key = "col" + String(index);
-                            view[key] = (horHeaderItem.width - view.columnSpacing);
+                            view[horHeaderItem.widthKey] = (horHeaderItem.width - view.columnSpacing);
                             //刷新布局，这样宽度才会改变
                             horHeaderRow.forceLayout();
                             view.forceLayout();

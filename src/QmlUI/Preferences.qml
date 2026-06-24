@@ -70,44 +70,43 @@ HulaDialog {
         ckbLiveWallPaper.checked = Configer.liveWallPaper();
 
         cmbReport.currentIndex = -1;
-        //cmbReport.model = mainForm.getReportNames()
 
         var fontName = Configer.fontName();
         if (fontName !== "")
             edtFont.text = fontName;
     }
 
-    // FontDialog {
+    FontDialog {
+        id: fontDialog
+        title: qsTr("Preferences.SelectFont")
+        currentFont: edtFont.font
+        onAccepted: {
+            edtFont.font.family = currentFont.family;
+            edtFont.text = currentFont.family;
+        }
+    }
+
+    // Loader {
     //     id: fontDialog
-    //     title: qsTr("Preferences.SelectFont")
-    //     currentFont: edtFont.font
-    //     onAccepted: {
-    //         edtFont.font.family = currentFont.family
-    //         edtFont.text = currentFont.family
+    //     anchors.fill: parent
+    //     focus: true
+    //     active: false
+    //     source: "FontSelector.qml"
+    //     onLoaded: {
+    //         item.open();
     //     }
     // }
 
-    Loader {
-        id: fontDialog
-        anchors.fill: parent
-        focus: true
-        active: false
-        source: "FontSelector.qml"
-        onLoaded: {
-            item.open();
-        }
-    }
-
-    Connections {
-        target: fontDialog.item
-        function onSelected(font) {
-            edtFont.text = font.family;
-            edtFont.font.pixelSize = font.pixelSize;
-            console.log(font.family, font.pixelSize);
-        //Configer.setFontName(font.family)
-        //Configer.setFontSize(font.pixelSize)
-        }
-    }
+    // Connections {
+    //     target: fontDialog.item
+    //     function onSelected(font) {
+    //         edtFont.text = font.family;
+    //         edtFont.font.pixelSize = font.pixelSize;
+    //         console.log(font.family, font.pixelSize);
+    //     //Configer.setFontName(font.family)
+    //     //Configer.setFontSize(font.pixelSize)
+    //     }
+    // }
 
     RowLayout {
         id: barCamera
@@ -201,7 +200,8 @@ HulaDialog {
             MouseArea {
                 anchors.fill: parent
                 onDoubleClicked: {
-                    fontDialog.active = true;
+                    fontDialog.open();
+                    //fontDialog.active = true;
                 }
             }
         }

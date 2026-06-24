@@ -131,9 +131,9 @@ Q_ENUM_NS(DeviceStatus)
 Q_ENUM_NS(StatusCode)
 } // namespace Enums
 
-using Enums::StatusCode;
-using Enums::PromptType;
 using Enums::DeviceStatus;
+using Enums::PromptType;
+using Enums::StatusCode;
 
 Q_DECLARE_METATYPE(Enums::PromptType)
 Q_DECLARE_METATYPE(Enums::DeviceStatus)
@@ -145,16 +145,22 @@ Q_DECLARE_METATYPE(Enums::StatusCode)
 struct MessageInfo
 {
     Q_GADGET
-    Q_PROPERTY(QString text     MEMBER text)
-    Q_PROPERTY(int statusCode   READ getStatusCode)
-    Q_PROPERTY(int promptType   READ getPromptType)
-public:
-    QString text;                      ///< 信息
-    Enums::StatusCode statusCode;      ///< 状态码
-    Enums::PromptType promptType;      ///< 提示类型
+    Q_PROPERTY(QString text MEMBER text)
+    Q_PROPERTY(int statusCode READ getStatusCode)
+    Q_PROPERTY(int promptType READ getPromptType)
+  public:
+    QString text;                 ///< 信息
+    Enums::StatusCode statusCode; ///< 状态码
+    Enums::PromptType promptType; ///< 提示类型
 
-    int getStatusCode() const { return static_cast<int>(statusCode); }
-    int getPromptType() const { return static_cast<int>(promptType); }
+    int getStatusCode() const
+    {
+        return static_cast<int>(statusCode);
+    }
+    int getPromptType() const
+    {
+        return static_cast<int>(promptType);
+    }
 
     /**
      * @brief 构造函数

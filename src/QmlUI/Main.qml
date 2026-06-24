@@ -21,30 +21,33 @@ QtObject {
 
             item.closeing.connect(function () {
                 if (useLogin)
-                    loginLoader.item.showForm();
+                    loginLoader.item.show();
                 else
-                    mainLoader.item.showForm();
-
-                item.closeWithAnimation();
+                    mainLoader.item.show();
             });
 
-            item.showForm();
+            item.show();
         }
     }
 
     property Loader loginLoader: Loader {
+        asynchronous: useSplash
         source: "./Login.qml"
-        active: useLogin
-        visible: false
+        active: (!useSplash && useLogin)
         onLoaded: {
             item.showing.connect(function () {
                 mainLoader.active = true;
             });
 
             item.closeing.connect(function () {
-                mainLoader.item.showForm();
-                item.closeWithAnimation();
+                mainLoader.item.show();
             });
+
+            if (mainLoader.status === Loader.Ready)
+                loginLoader.item.loadedMainForm();
+
+            if (!useSplash)
+                item.show();
         }
     }
 
@@ -53,14 +56,19 @@ QtObject {
         source: "./MainForm.qml"
         active: ((!useSplash) && (!useLogin))
         onLoaded: {
+            item.showed.connect(function () {
+                splashLoader.source = "";
+                loginLoader.source = "";
+            });
+
             if (useSplash)
                 splashLoader.item.loadedMainForm();
 
-            if (useLogin)
+            if (useLogin && (loginLoader.status === Loader.Ready))
                 loginLoader.item.loadedMainForm();
 
             if ((!useSplash) && (!useLogin))
-                item.showForm();
+                item.show();
         }
     }
 }

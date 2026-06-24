@@ -10,22 +10,26 @@ Window {
     id: mainForm
     property int formShowMode: Configer.mainFormShowMode()
     property double alpha: Configer.useWallPaper() ? (0xb0 / 255) : 1
+    property string userName: ""
+
+    signal showing
+    signal closeing
+    signal showed
+
     width: 1568
     height: 864
     title: qsTr("AppName")
     flags: Qt.Window | Qt.FramelessWindowHint
-    color: Themer.backColor
     opacity: 0
-    property string userName: ""
-    signal showing
-    signal closeing
+    // 窗口背景,防止 startSystemMove 时窗体有残影
+    color: "transparent"
 
     function showForm() {
         leftRepeater.itemAt(0).clicked();
         leftRepeater.itemAt(0).checked = true;
         if (mainForm.formShowMode === 0) {
-            mainForm.x = (Screen.desktopAvailableWidth - mainForm.width) / 2;
-            mainForm.y = (Screen.desktopAvailableHeight - mainForm.height) / 2;
+            mainForm.x = (Screen.width - mainForm.width) / 2;
+            mainForm.y = (Screen.height - mainForm.height) / 2;
             mainForm.showNormal();
         } else if (mainForm.formShowMode === 1) {
             mainForm.showMaximized();
@@ -38,6 +42,7 @@ Window {
 
     onVisibleChanged: {
         if (visible) {
+            showForm();
             showing();
         }
     }
@@ -46,10 +51,15 @@ Window {
         id: userInfo
     }
 
-    ResizeBorder {
-        enabled: visible
+    Loader {
         anchors.fill: parent
-        control: mainForm
+        active: true
+        source: (OS_TYPE !== "macos") ? "../HulaUI/ItemResizer.qml" : "../HulaUI/ResizeBorder.qml"
+        onLoaded: {
+            item.control = mainForm;
+            item.titlebar = topBar;
+            item.isFullscreen = (formShowMode === 2);
+        }
     }
 
     Rectangle {
@@ -63,7 +73,7 @@ Window {
             anchors.right: parent.right
             anchors.top: leftArea.top
             anchors.bottom: leftArea.bottom
-            anchors.margins: 1
+            anchors.rightMargin: 1
 
             TopBar {
                 id: topBar
@@ -71,7 +81,7 @@ Window {
                 anchors.right: parent.right
                 anchors.top: parent.top
                 width: parent.width
-                appName: mainForm.title
+                appName: Window.window.title
                 height: 54
             }
 
@@ -223,7 +233,7 @@ Window {
 
     Loader {
         id: loader1
-        active: false
+        active: true
         source: "Home.qml"
     }
 
@@ -336,24 +346,27 @@ Window {
                 dlg[key] = params[key];
             }
         }
-        dlg.showForm();
-        dlg.onClosed.connect(() => {
-            dlg.destroy();
-        });
+        dlg.show();
         dlg.onClosed.connect(onLogined);
     }
 
     function openDialog(qml, params = ({})) {
-        var dlg = Qt.createComponent(qml).createObject(mainForm);
-        for (var key in params) {
-            if (hasProperty(dlg, key)) {
-                dlg[key] = params[key];
+        var component = Qt.createComponent(qml);
+        if (component.status === Component.Ready) {
+            var dlg = component.createObject(mainForm);
+            for (var key in params) {
+                if (hasProperty(dlg, key)) {
+                    dlg[key] = params[key];
+                }
             }
+            dlg.open();
+            dlg.onClosed.connect(() => {
+                dlg.destroy();
+            });
+        } else if (component.status === Component.Error) {
+            console.error("加载 UserEditDialog 失败:", component.errorString());
+            snackMessage("加载 UserEditDialog 失败:", component.errorString());
         }
-        dlg.open();
-        dlg.onClosed.connect(() => {
-            dlg.destroy();
-        });
     }
 
     function onLogined() {
@@ -361,25 +374,39 @@ Window {
     }
 
     function openDialogPrompt(text, callbackOnOK = null, title = "MessageBox.Confirm") {
-        var msgBox = Qt.createComponent("../HulaUI/HulaDialog.qml").createObject(mainForm);
-        msgBox.title = title;
-        msgBox.messageText = text;
-        msgBox.buttonOkText = "MessageBox.Ok";
-        msgBox.callbackOnOK = callbackOnOK;
-        msgBox.open();
-        return msgBox;
+        var component = Qt.createComponent("../HulaUI/HulaDialog.qml");
+        if (component.status === Component.Ready) {
+            var msgBox = component.createObject(mainForm);
+            msgBox.title = title;
+            msgBox.messageText = text;
+            msgBox.buttonOkText = "MessageBox.Ok";
+            msgBox.callbackOnOK = callbackOnOK;
+            msgBox.open();
+            return msgBox;
+        } else if (component.status === Component.Error) {
+            console.error("加载 UserEditDialog 失败:", component.errorString());
+            snackMessage("加载 UserEditDialog 失败:", component.errorString());
+        }
+        return null;
     }
 
     function openDialogConfirm(text, callbackOnOK = null, callbackOnCancel = null, title = "MessageBox.Confirm") {
-        var msgBox = Qt.createComponent("../HulaUI/HulaDialog.qml").createObject(mainForm);
-        msgBox.title = title;
-        msgBox.messageText = text;
-        msgBox.buttonOkText = "MessageBox.Ok";
-        msgBox.callbackOnOK = callbackOnOK;
-        msgBox.buttonCancelText = "MessageBox.Cancel";
-        msgBox.callbackOnCancel = callbackOnCancel;
-        msgBox.open();
-        return msgBox;
+        var component = Qt.createComponent("../HulaUI/HulaDialog.qml");
+        if (component.status === Component.Ready) {
+            var msgBox = component.createObject(mainForm);
+            msgBox.title = title;
+            msgBox.messageText = text;
+            msgBox.buttonOkText = "MessageBox.Ok";
+            msgBox.callbackOnOK = callbackOnOK;
+            msgBox.buttonCancelText = "MessageBox.Cancel";
+            msgBox.callbackOnCancel = callbackOnCancel;
+            msgBox.open();
+            return msgBox;
+        } else if (component.status === Component.Error) {
+            console.error("加载 UserEditDialog 失败:", component.errorString());
+            snackMessage("加载 UserEditDialog 失败:", component.errorString());
+        }
+        return null;
     }
 
     function appendTopbarLeftItem(item) {
@@ -471,5 +498,6 @@ Window {
         to: 1
         duration: 500
         easing.type: Easing.InOutQuad
+        onFinished: mainForm.showed()
     }
 }

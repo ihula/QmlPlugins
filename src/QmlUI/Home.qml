@@ -13,22 +13,18 @@ Item {
     property int patientId: 0
     property var tab: null
     property bool isVisible: visible
+    property string model: "value"
+    property bool canAccessed: false
 
     // loader加载组件时,组件不执行onVisibleChanged事件,通过此方法桥接
     onIsVisibleChanged: {
         if (visible) {
-            if (tab === null) {
-                tab = compTab.createObject();
-                mainForm.appendTopbarLeftItem(tab);
-            }
+            Window.window.appendTopbarLeftItem(tabbar);
 
             init();
             return;
         }
-        if (tab !== null) {
-            mainForm.removeTopbarLeftItem(tab);
-            tab = null;
-        }
+        Window.window.removeTopbarLeftItem(tabbar);
 
         if (autoDestroy) {
             if (parent && parent instanceof Loader) {
@@ -44,36 +40,27 @@ Item {
         clearEditor();
         unifyEditorLabelWidth();
     }
-    Dialog {
-        id: dlg
-        width: 400
-        height: 240
-        //default property alias content: dlg.data
-        background: Rectangle {
-            anchors.fill: parent
-            color: "white"
-            radius: 8
-        }
-        contentItem: Rectangle {
-            anchors.fill: parent
-            anchors.margins: 8
-            //content {}
+
+    Action {
+        id: saveAction
+        text: "保存"
+        onTriggered: {
+            root.canAccessed = true;
+            console.log(root.model + " 保存成功！");
         }
     }
 
-    Component {
-        id: compTab
-        TabBar {
-            property int preIndex: 0
-            font.pixelSize: 18
-            TabButton {
-                text: "图表显示"
-                onClicked: console.log("clicked 1")
-            }
-            TabButton {
-                text: "表格显示"
-                onClicked: console.log("clicked 2")
-            }
+    TabBar {
+        id: tabbar
+        property int preIndex: 0
+        font.pixelSize: 18
+        TabButton {
+            text: "图表显示"
+            onClicked: console.log("clicked 1")
+        }
+        TabButton {
+            text: "表格显示"
+            onClicked: console.log("clicked 2")
         }
     }
 
@@ -149,8 +136,8 @@ Item {
         ListView {
             id: listview
             clip: true
-            property color itemColor: Qt.alpha("#F4F4F4", mainForm.alpha)
-            property color highColor: Qt.alpha(Themer.hoveredColor, mainForm.alpha)
+            property color itemColor: Qt.alpha("#F4F4F4", Window.window.alpha)
+            property color highColor: Qt.alpha(Themer.hoveredColor, Window.window.alpha)
             property bool selectAll: chkAll.checked
             property bool selectMulti: chkMulti.checked
             property int spaceing: 2
@@ -302,7 +289,7 @@ Item {
         anchors.leftMargin: 8
         anchors.rightMargin: (itemHint.width === 0) ? 0 : 8
         anchors.topMargin: 0
-        color: Qt.alpha(Themer.workFormColor, mainForm.alpha)
+        color: Qt.alpha(Themer.workFormColor, Window.window.alpha)
         clip: true
 
         Label {
@@ -335,16 +322,11 @@ Item {
                 width: 106
                 height: 46
                 onClicked: {
-                    dlg.open();
-                    // root.patientData["ReportNo"] = reportSelect.reportNo;
-                    // if (savePatientInfo() !== 0) {
-                    //     return;
-                    // } else {
-                    //     root.patientId = 0;
-                    //     root.patientData = {};
-                    //     clearEditor();
-                    // }
+                    if (!root.canAccessed)
+                        return;
+                    console.log("clicked");
                 }
+                action: saveAction
             }
 
             RoundButton {
@@ -955,11 +937,6 @@ Item {
         // reportSelect.open()
         return 0;
     }
-
-    // ReportSelect {
-    //     id: reportSelect
-    //     autoDestroy: false
-    // }
 
     function unifyEditorLabelWidth() {
         var rowWidth = 0;

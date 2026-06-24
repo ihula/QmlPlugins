@@ -48,6 +48,7 @@ qt_add_executable(${APP_NAME}
     src/datadict.cpp
     src/patients.h
     src/patients.cpp
+#    src/idgenerator.h
     src/utils.h
     src/utils.cpp
 )
