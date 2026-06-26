@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Window
 import QtQuick.Controls.Material
 import QtQuick.Shapes
-import QmlPlugins
+import HulaPlugins
 
 Window {
     id: root

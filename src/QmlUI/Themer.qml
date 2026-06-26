@@ -1,7 +1,7 @@
 pragma Singleton
 
 import QtQuick
-import QmlPlugins
+import HulaPlugins
 
 QtObject {
     id: themer
@@ -36,6 +36,9 @@ QtObject {
     property color barColor: "#1296db"
     property color leftTitleColor: "white"
     property color warnColor: "#f67b3e"
+    property color loginLeftBackColor: "#1B6CB5"
+    property color fontDarkColor: "#535353"
+    property color fontLightColor: "#ffffff"
 
     property int editorFontSize: 18
     property int editorHeight: 36

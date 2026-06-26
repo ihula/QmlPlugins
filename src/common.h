@@ -13,8 +13,8 @@
 **   2022.9.25 - 初始版本，定义全局错误码枚举
 **   2022.xx.xx - 分离成功状态，添加错误类型枚举和错误信息结构体
 ****************************************************************************/
-#ifndef ERRORS_H
-#define ERRORS_H
+#ifndef COMMON_H
+#define COMMON_H
 
 #include <QObject>
 #include <QString>
@@ -145,27 +145,20 @@ Q_DECLARE_METATYPE(Enums::StatusCode)
 struct MessageInfo
 {
     Q_GADGET
+    // QML_ELEMENT
+    // QML_VALUE_TYPE(messageInfo)
     Q_PROPERTY(QString text MEMBER text)
-    Q_PROPERTY(int statusCode READ getStatusCode)
-    Q_PROPERTY(int promptType READ getPromptType)
+    Q_PROPERTY(Enums::StatusCode statusCode MEMBER statusCode)
+    Q_PROPERTY(Enums::PromptType promptType MEMBER promptType)
   public:
     QString text;                 ///< 信息
     Enums::StatusCode statusCode; ///< 状态码
     Enums::PromptType promptType; ///< 提示类型
 
-    int getStatusCode() const
-    {
-        return static_cast<int>(statusCode);
-    }
-    int getPromptType() const
-    {
-        return static_cast<int>(promptType);
-    }
-
     /**
      * @brief 构造函数
      */
-    MessageInfo() : text(""), statusCode(Enums::StatusCode::UnknownError), promptType(Enums::PromptType::Error)
+    Q_INVOKABLE MessageInfo() : text(""), statusCode(Enums::StatusCode::UnknownError), promptType(Enums::PromptType::Error)
     {
     }
 
@@ -175,14 +168,14 @@ struct MessageInfo
      * @param s 状态码
      * @param msg 信息
      */
-    MessageInfo(const QString &msg, Enums::StatusCode s, Enums::PromptType t = Enums::PromptType::Error) : text(msg), statusCode(s), promptType(t)
+    Q_INVOKABLE MessageInfo(const QString &msg, Enums::StatusCode s, Enums::PromptType t = Enums::PromptType::Error) : text(msg), statusCode(s), promptType(t)
     {
     }
 
     /**
      * @brief 判断是否为错误（非成功状态）
      */
-    bool isError() const
+    Q_INVOKABLE bool isError() const
     {
         return statusCode != StatusCode::Success;
     }
@@ -190,4 +183,4 @@ struct MessageInfo
 
 Q_DECLARE_METATYPE(MessageInfo)
 
-#endif // ERRORS_H
+#endif // COMMON_H

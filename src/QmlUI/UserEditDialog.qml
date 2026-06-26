@@ -3,8 +3,8 @@ import QtQuick.Controls
 import QtQuick.Controls.Material
 import Qt.labs.qmlmodels
 import QtQuick.Layouts
-import "../HulaUI"
-import QmlPlugins
+import "../Components"
+import HulaPlugins
 
 HulaDialog {
     id: root

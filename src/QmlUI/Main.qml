@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
-import QmlPlugins
+import HulaPlugins
 
 QtObject {
     id: main

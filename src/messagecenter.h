@@ -17,18 +17,18 @@
 #include "common.h"
 #include "configer.h"
 #include "singleton.h"
-#include <QObject>
 #include <QMutex>
+#include <QObject>
 
 class MessageCenter : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
     QML_SINGLETON
-private:
+  private:
     explicit MessageCenter(QObject *parent = nullptr);
 
-public:
+  public:
     SINGLETON(MessageCenter)
 
     static MessageCenter *create(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
@@ -38,38 +38,37 @@ public:
         return instance();
     }
 
-    Q_INVOKABLE QList<QVariantMap> getDatas(const QString& date = QString());
+    Q_INVOKABLE QList<QVariantMap> getDatas(const QString &date = QString());
     Q_INVOKABLE int deleteData(quint64 id);
     Q_INVOKABLE int deleteAllData();
     Q_INVOKABLE bool hasNewInfo();
-    Q_INVOKABLE void appendData(const QVariantMap& data);
+    Q_INVOKABLE void appendData(const QVariantMap &data);
 
-    template <typename SenderType> 
-    static void connectRecv(SenderType *sender, Qt::ConnectionType type = Qt::AutoConnection)
+    template <typename SenderType> static void connectRecv(SenderType *sender, Qt::ConnectionType type = Qt::AutoConnection)
     {
         if (!sender)
             return;
         connect(sender, &SenderType::messageEmitted, MessageCenter::instance(), &MessageCenter::handleMessage, type);
     }
 
-    template <typename SenderType> 
-    static void disconnectRecv(SenderType *sender)
+    template <typename SenderType> static void disconnectRecv(SenderType *sender)
     {
         if (!sender)
             return;
         disconnect(sender, &SenderType::messageEmitted, MessageCenter::instance(), &MessageCenter::handleMessage);
     }
 
-public slots:
+  public slots:
     Q_INVOKABLE void handleMessage(const MessageInfo &msg);
+    Q_INVOKABLE void handleQmlMessage(const QVariantMap &msg);
 
-signals:
+  signals:
     void messageEmitted(MessageInfo msg);
 
-private:
+  private:
     QString getErrorInfoDir() const;
-    QString getCurrentFileName(const QString& date) const;
-    int generateNextId(const QString& fileName);
+    QString getCurrentFileName(const QString &date) const;
+    int generateNextId(const QString &fileName);
 
     bool m_hasNewInfo = false;
     QString m_currentDate;

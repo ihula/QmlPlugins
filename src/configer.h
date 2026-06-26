@@ -116,10 +116,11 @@ class Configer : public QObject
     }
 
     ~Configer();
+    Q_PROPERTY(QString userName READ userName WRITE setUserName)
 
     /** @brief 用户名 */
-    Q_INVOKABLE QString userName();
-    Q_INVOKABLE void setUserName(const QString &userName);
+    QString userName();
+    void setUserName(const QString &userName);
 
     /** @brief 用户账号 */
     Q_INVOKABLE QString userAccount();

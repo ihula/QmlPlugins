@@ -3,8 +3,9 @@ import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Layouts
 import Qt.labs.qmlmodels
-import QmlPlugins
-import "../HulaUI"
+import QtQuick.Effects
+import HulaPlugins 1.0
+import "../Components"
 
 Window {
     id: mainForm
@@ -54,7 +55,7 @@ Window {
     Loader {
         anchors.fill: parent
         active: true
-        source: (OS_TYPE !== "macos") ? "../HulaUI/ItemResizer.qml" : "../HulaUI/ResizeBorder.qml"
+        source: (OS_TYPE !== "macos") ? "../Components/ItemResizer.qml" : "../Components/ResizeBorder.qml"
         onLoaded: {
             item.control = mainForm;
             item.titlebar = topBar;
@@ -67,6 +68,7 @@ Window {
         color: Themer.workBackColor
         border.width: 1
         border.color: "#888888"
+        layer.enabled: true
 
         Item {
             anchors.left: leftArea.right
@@ -125,15 +127,20 @@ Window {
                         smooth: true
                         fillMode: Image.PreserveAspectFit
                         source: "file:" + "Images/logo.svg"
-                        //width: 36
                         height: txtAppName.height
                         anchors.verticalCenter: parent.verticalCenter
+                        // layer.enabled: true
+                        // layer.effect: MultiEffect {
+                        //     colorization: 1.0       // 着色强度 (0.0 - 1.0)
+                        //     colorizationColor: "#00A5FF" // 目标颜色
+                        // }
                     }
 
                     Label {
                         id: txtAppName
                         font.pixelSize: 20
-                        color: Themer.buttonBackground
+                        font.weight: Font.Medium
+                        color: Themer.fontLightColor
                         text: qsTr("CompanyAbbrName")
                         anchors.verticalCenter: parent.verticalCenter
                     }
@@ -147,10 +154,10 @@ Window {
                 Repeater {
                     id: leftRepeater
                     property int currentIndex: -1
-                    property var iconList: ["Images/test.svg", "Images/search.svg", "Images/statistic.svg", "Images/setting.svg", "Images/user.svg"]
-                    property var pages: [loader1, loader2, loader3, loader4, loader5]
-                    model: ["MainForm.Testing", "MainForm.Search", "MainForm.Statistics", "MainForm.Setting", "User"]
-                    RoundButton {
+                    property var iconList: ["Images/console.svg", "Images/test.svg", "Images/search.svg", "Images/statistic.svg", "Images/setting.svg", "Images/user.svg"]
+                    property var pages: [loaderConsole, loaderSpecimen, loaderSearch, loaderStatistics, loaderSetting, loaderUser]
+                    model: ["MainForm.Console", "MainForm.Specimen", "MainForm.Search", "MainForm.Statistics", "MainForm.Setting", "User"]
+                    delegate: RoundButton {
                         id: btnTest
                         ButtonGroup.group: btnWorkGroups
                         anchors.left: parent.left
@@ -167,6 +174,8 @@ Window {
                         height: 54
                         hoverEnabled: true
                         checkable: true
+                        rightPadding: 60
+
                         background: Rectangle {
                             anchors.fill: parent
                             color: parent.checked ? "#30ffffff" : (parent.hovered ? "#10000000" : "transparent")
@@ -179,7 +188,7 @@ Window {
 
                             leftRepeater.currentIndex = index;
                             leftRepeater.pages[index].active = true;
-                            router.replace(leftRepeater.pages[index], StackView.PopTransition);
+                            router.replace(leftRepeater.pages[index]);
                         }
                     }
                 }
@@ -198,6 +207,7 @@ Window {
                     icon.height: 36
                     icon.width: 36
                     flat: true
+                    rightPadding: 60
                     hoverEnabled: true
                     background: Rectangle {
                         anchors.fill: parent
@@ -232,31 +242,37 @@ Window {
     }
 
     Loader {
-        id: loader1
-        active: true
-        source: "Home.qml"
+        id: loaderConsole
+        active: false
+        source: "Console.qml"
     }
 
     Loader {
-        id: loader2
+        id: loaderSpecimen
+        active: false
+        source: "Specimen.qml"
+    }
+
+    Loader {
+        id: loaderSearch
         active: false
         source: "Search.qml"
     }
 
     Loader {
-        id: loader3
+        id: loaderStatistics
         active: false
-        source: "Page2.qml" //"Page2.qml" //"Statistic.qml"
+        source: "Page2.qml" //"Statistic.qml"
     }
 
     Loader {
-        id: loader4
+        id: loaderSetting
         active: false
         source: "Setting.qml"
     }
 
     Loader {
-        id: loader5
+        id: loaderUser
         active: false
         source: "UserManagerForm.qml"
     }
@@ -341,13 +357,22 @@ Window {
 
     function openLogin(params = ({})) {
         var dlg = Qt.createComponent("Login.qml").createObject(mainForm);
-        for (var key in params) {
-            if (hasProperty(dlg, key)) {
-                dlg[key] = params[key];
+        if (dlg) {
+            for (var key in params) {
+                if (hasProperty(dlg, key)) {
+                    dlg[key] = params[key];
+                }
             }
+            dlg.show();
+            dlg.onClosed.connect(onLogined);
+        } else {
+            let msg = {};
+            msg["text"] = "Failed to create Login object";
+            msg["statusCode"] = Enums.StatusCode.NotImplemented;
+            msg["promptType"] = Enums.PromptType.Error;
+            MessageCenter.handleQmlMessage(msg);
+            console.log("Failed to create Login object");
         }
-        dlg.show();
-        dlg.onClosed.connect(onLogined);
     }
 
     function openDialog(qml, params = ({})) {
@@ -364,49 +389,57 @@ Window {
                 dlg.destroy();
             });
         } else if (component.status === Component.Error) {
-            console.error("加载 UserEditDialog 失败:", component.errorString());
-            snackMessage("加载 UserEditDialog 失败:", component.errorString());
+            console.error("加载 Qml 失败:", component.errorString());
+            let msg = {};
+            msg["text"] = "加载 Qml 失败:" + component.errorString();
+            msg["statusCode"] = Enums.StatusCode.NotImplemented;
+            msg["promptType"] = Enums.PromptType.Error;
+            MessageCenter.handleQmlMessage(msg);
         }
     }
 
     function onLogined() {
-        mainForm.userName = Configer.userName();
+        mainForm.userName = Configer.userName;
     }
 
-    function openDialogPrompt(text, callbackOnOK = null, title = "MessageBox.Confirm") {
-        var component = Qt.createComponent("../HulaUI/HulaDialog.qml");
-        if (component.status === Component.Ready) {
-            var msgBox = component.createObject(mainForm);
+    function openDialogPrompt(text, callbackOnOk = null, title = "MessageBox.Confirm") {
+        var msgBox = hulaDialogComp.createObject(mainForm);
+        if (msgBox) {
             msgBox.title = title;
             msgBox.messageText = text;
             msgBox.buttonOkText = "MessageBox.Ok";
-            msgBox.callbackOnOK = callbackOnOK;
+            msgBox.callbackOnOk = callbackOnOk;
             msgBox.open();
             return msgBox;
-        } else if (component.status === Component.Error) {
-            console.error("加载 UserEditDialog 失败:", component.errorString());
-            snackMessage("加载 UserEditDialog 失败:", component.errorString());
+        } else {
+            let msg = {};
+            msg["text"] = "Failed to create HulaDialog object";
+            msg["statusCode"] = Enums.StatusCode.NotImplemented;
+            msg["promptType"] = Enums.PromptType.Error;
+            MessageCenter.handleQmlMessage(msg);
+            console.log("Failed to create HulaDialog object");
         }
-        return null;
     }
 
-    function openDialogConfirm(text, callbackOnOK = null, callbackOnCancel = null, title = "MessageBox.Confirm") {
-        var component = Qt.createComponent("../HulaUI/HulaDialog.qml");
-        if (component.status === Component.Ready) {
-            var msgBox = component.createObject(mainForm);
+    function openDialogConfirm(text, callbackOnOk = null, callbackOnCancel = null, title = "MessageBox.Confirm") {
+        var msgBox = hulaDialogComp.createObject(mainForm);
+        if (msgBox) {
             msgBox.title = title;
             msgBox.messageText = text;
             msgBox.buttonOkText = "MessageBox.Ok";
-            msgBox.callbackOnOK = callbackOnOK;
+            msgBox.callbackOnOk = callbackOnOk;
             msgBox.buttonCancelText = "MessageBox.Cancel";
             msgBox.callbackOnCancel = callbackOnCancel;
             msgBox.open();
             return msgBox;
-        } else if (component.status === Component.Error) {
-            console.error("加载 UserEditDialog 失败:", component.errorString());
-            snackMessage("加载 UserEditDialog 失败:", component.errorString());
+        } else {
+            let msg = {};
+            msg["text"] = "Failed to create HulaDialog object";
+            msg["statusCode"] = Enums.StatusCode.NotImplemented;
+            msg["promptType"] = Enums.PromptType.Error;
+            MessageCenter.handleQmlMessage(msg);
+            console.log("Failed to create HulaDialog object");
         }
-        return null;
     }
 
     function appendTopbarLeftItem(item) {
@@ -422,17 +455,27 @@ Window {
     }
 
     function snackMessage(text) {
-        var comp = Qt.createComponent("../HulaUI/HulaSnackbar.qml");
-        if (comp.status === Component.Ready) {
-            var obj = comp.createObject(mainForm);
-            if (obj) {
-                obj.openText(text);
-            } else {
-                console.log("Failed to create HulaSnackbar object");
-            }
-        } else if (comp.status === Component.Error) {
-            console.log("HulaSnackbar component error:", comp.errorString());
+        var obj = snackbarComp.createObject(mainForm);
+        if (obj) {
+            obj.openText(text);
+        } else {
+            let msg = {};
+            msg["text"] = "Failed to create HulaDialog object";
+            msg["statusCode"] = Enums.StatusCode.NotImplemented;
+            msg["promptType"] = Enums.PromptType.Error;
+            MessageCenter.handleQmlMessage(msg);
+            console.log("Failed to create HulaSnackbar object");
         }
+    }
+
+    Component {
+        id: hulaDialogComp
+        HulaDialog {}
+    }
+
+    Component {
+        id: snackbarComp
+        HulaSnackbar {}
     }
 
     Timer {

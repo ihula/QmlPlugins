@@ -3,16 +3,15 @@ import QtQuick.Controls.Material
 import QtQuick.Controls.Fusion as Fusion
 import Qt.labs.qmlmodels
 import QtQuick.Layouts
-import "../HulaUI"
-import DataDict 1.0
-import QmlUI 1.0
+import "../Components"
+import HulaPlugins
 
 HulaDialog {
     id: root
     width: 360
     height: 460
     property int dictType: 0
-    formTitle: qsTr("DataDict.Title")
+    title: qsTr("DataDict.Title")
     signal selected(int dictType, string text)
 
     onShowForm: {

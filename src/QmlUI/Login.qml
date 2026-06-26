@@ -2,8 +2,8 @@
 import QtQuick.Window
 import QtQuick.Controls.Material
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
-import QmlPlugins
+import QtQuick.Effects
+import HulaPlugins
 
 Window {
     id: root
@@ -81,22 +81,17 @@ Window {
 
     Rectangle {
         implicitWidth: 1024
-        implicitHeight: 680
+        implicitHeight: 540
         anchors.centerIn: parent
-        radius: 24
-        RectangularGlow {
-            id: effect
-            anchors.fill: rectBack
-            glowRadius: 20
-            spread: 0
-            color: "#80000000"
-        }
-
-        Rectangle {
-            id: rectBack
-            color: "white"
-            anchors.fill: parent
-            radius: 24
+        radius: 12
+        layer.enabled: true
+        layer.effect: MultiEffect {
+            shadowEnabled: true
+            shadowBlur: 1.0 // 阴影模糊度
+            shadowHorizontalOffset: 0   // 水平偏移（0 表示居中）
+            shadowVerticalOffset: 0     // 垂直偏移（4px，产生悬浮感）
+            shadowColor: "#40000000"    // 阴影颜色（带透明度的黑色）
+            shadowScale: (parent.width + 16) / parent.width
         }
         Rectangle {
             id: barLeft
@@ -105,56 +100,69 @@ Window {
             anchors.bottom: parent.bottom
             width: 664
             clip: true
-            color: "transparent"
-            radius: 24
-            Image {
-                id: leftImg
-                clip: true
-                anchors.fill: parent
-                source: "file:Splash/1.jpg"
-                layer.enabled: true
-                layer.effect: OpacityMask {
-                    maskSource: Item {
-                        height: leftImg.height
-                        width: leftImg.width
-                        Rectangle {
-                            anchors.centerIn: parent
-                            height: leftImg.height
-                            width: leftImg.width
-                            radius: 24
-                        }
-                    }
+            color: Themer.loginLeftBackColor
+            radius: 12
+            topRightRadius: 0
+            bottomRightRadius: 0
+            Column {
+                spacing: 16
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                Image {
+                    id: imgLogo
+                    height: 128
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    fillMode: Image.PreserveAspectFit
+                    source: "file:Images/logo.svg"
+                    smooth: true
+                }
+                Label {
+                    font.pixelSize: 18
+                    text: qsTr("Vision")
+                    color: barLeft.color.hslLightness < 0.5 ? "white" : "black"
                 }
             }
         }
 
         Rectangle {
             anchors.left: barLeft.right
-            anchors.leftMargin: -24
+            anchors.leftMargin: 32
             anchors.right: parent.right
-            anchors.rightMargin: 24
+            anchors.rightMargin: 12
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             Label {
                 id: lblTitle
                 anchors.top: parent.top
-                anchors.topMargin: 130
-                anchors.horizontalCenterOffset: 12
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.topMargin: 100
+                //anchors.horizontalCenterOffset: 12
+                //anchors.horizontalCenter: parent.horizontalCenter
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignLeft
-                font.pixelSize: 22
-                font.bold: true
+                font.pixelSize: 18
+                font.weight: 500
                 text: qsTr("AppName")
             }
-            Item {
+            Label {
+                id: lblCompanyAbbrName
                 anchors.top: lblTitle.bottom
-                anchors.topMargin: 110
+                anchors.topMargin: 12
+                //anchors.horizontalCenterOffset: 12
+                //anchors.horizontalCenter: parent.horizontalCenter
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignLeft
+                font.pixelSize: 12
+                font.weight: 300
+                text: qsTr("CompanyAbbrName")
+            }
+            Item {
+                anchors.top: lblCompanyAbbrName.bottom
+                anchors.topMargin: 60
                 anchors.bottom: parent.bottom
-                anchors.bottomMargin: 110
+                anchors.bottomMargin: 64
                 width: 270
-                anchors.horizontalCenterOffset: 12
-                anchors.horizontalCenter: parent.horizontalCenter
+                //anchors.horizontalCenterOffset: 12
+                // anchors.horizontalCenter: parent.horizontalCenter
                 TextField {
                     id: edtUserId
                     anchors.top: parent.top
@@ -233,7 +241,7 @@ Window {
                     }
                     background: Rectangle {
                         anchors.fill: parent
-                        radius: 24
+                        radius: 8
                         color: "#f8f8f8"
                     }
                 }
@@ -247,7 +255,7 @@ Window {
                     height: 48
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-                    leftPadding: imgUserPwd.width + 24
+                    leftPadding: imgPwd.width + 24
                     echoMode: TextInput.Password
                     font.pixelSize: 18
                     placeholderText: qsTr("Login.UserPassword")
@@ -259,21 +267,21 @@ Window {
                     onAccepted: {
                         btnLogin.clicked();
                     }
-                    Image {
-                        id: imgUserPwd
-                        anchors.top: parent.top
-                        anchors.topMargin: 10
-                        anchors.left: parent.left
-                        anchors.leftMargin: 12
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 10
-                        fillMode: Image.PreserveAspectFit
-                        source: "file:Images/password.svg"
-                    }
                     background: Rectangle {
                         anchors.fill: parent
-                        radius: 24
                         color: "#f8f8f8"
+                        radius: 8
+                        Image {
+                            id: imgPwd
+                            anchors.top: parent.top
+                            anchors.topMargin: 12
+                            anchors.bottom: parent.bottom
+                            anchors.bottomMargin: 12
+                            anchors.left: parent.left
+                            anchors.leftMargin: 12
+                            fillMode: Image.PreserveAspectFit
+                            source: "file:Images/password.svg"
+                        }
                     }
                 }
 
@@ -303,11 +311,12 @@ Window {
                         height: parent.height
                         width: parent.width / 5 * 2 - 12
                         Material.foreground: "#707070"
-                        Material.background: "transparent"
+                        //Material.background: "transparent"
                         font.pixelSize: 18
                         Keys.enabled: true
                         Keys.onDownPressed: edtUserName.focus = true
                         Keys.onUpPressed: btnLogin.focus = true
+                        radius: 12
                         text: qsTr("Login.Cancel")
                         onClicked: {
                             if (reLogin) {
@@ -319,7 +328,7 @@ Window {
                     }
                     RoundButton {
                         id: btnLogin
-                        enabled: false
+                        enabled: reLogin ? true : false
                         height: parent.height
                         width: parent.width / 5 * 3 - 12
                         Material.background: "#0075EF"
@@ -330,6 +339,7 @@ Window {
                         Keys.onDownPressed: edtUserId.focus = true
                         Keys.onUpPressed: btnCancel.focus = true
                         Keys.onReturnPressed: btnLogin.clicked()
+                        radius: 12
                         onClicked: {
                             if (unfoundUserId)
                                 return;

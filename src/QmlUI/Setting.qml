@@ -2,8 +2,8 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Layouts
-import "../HulaUI"
-import QmlPlugins
+import "../Components"
+import HulaPlugins
 
 Item {
     id: root

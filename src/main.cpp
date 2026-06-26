@@ -5,9 +5,9 @@
 #include "singleappwatcher.h"
 #include "translater.h"
 #include "utils.h"
+#include <QApplication>
 #include <QDebug>
 #include <QFont>
-#include <QGuiApplication>
 #include <QProcess>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     // 强制 Qt 使用 XCB (X11) 协议，解决 Wayland 下窗口无法移动的问题
     qputenv("QT_QPA_PLATFORM", "xcb");
 
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
 
     // 先初始化日志系统
     HulaLogger::instance()->initialize(QtMsgType::QtDebugMsg); // 使用默认级别
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 #if (!DEPLOY_MODE)
     // Utils::syncDir("./", "../resources");
 #endif
-    const QString SERVER_NAME = "com.hula.QmlPlugins";
+    const QString SERVER_NAME = "com.hula.HulaPlugins";
     SingleAppWatcher appWatcher(SERVER_NAME);
     // 检测单实例,已有实例，直接退出
     if (appWatcher.checkInstance())
@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
         QQuickWindow *window = qobject_cast<QQuickWindow *>(rootObjects.first());
         if (window)
         {
+            window->objectName();
             window->show();
             window->raise();
             window->requestActivate();
@@ -101,7 +102,7 @@ int main(int argc, char *argv[])
     });
 
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, &app, []() { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
-    engine.loadFromModule(APP_URI, "Main");
+    engine.loadFromModule(MODULE_URI, "Main");
 
     return app.exec();
 }

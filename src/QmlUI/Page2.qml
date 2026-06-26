@@ -2,8 +2,8 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Fusion
 import Qt.labs.qmlmodels
-import QmlPlugins
-import "../HulaUI"
+import HulaPlugins
+import "../Components"
 
 Rectangle {
     color: Themer.workFormColor
@@ -40,7 +40,7 @@ Rectangle {
                 active: true
             }
 
-            property var headerTitles: ["Id", "Home.TestId", "Home.Name", "Home.Sex", "Home.Age", "Home.MRN"]
+            property var headerTitles: ["Id", "Specimen.TestId", "Specimen.Name", "Specimen.Sex", "Specimen.Age", "Specimen.MRN"]
             property var columnsWidth: [100, 100, 100, 100, 100, 100, 100]
             property var fieldNames: ["Id", "TestId", "Name", "Sex", "Age", "MRN"]
             rowHeightProvider: function (row) {

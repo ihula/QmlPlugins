@@ -64,11 +64,6 @@ QList<QJsonObject> Patients::findPatients(const QJsonObject &data)
 
 QList<QVariantMap> Patients::searchDatas(const QVariantMap &data)
 {
-    MessageInfo msg;
-    msg.promptType = PromptType::Error;
-    msg.statusCode = StatusCode::AuthenticationFailed;
-    msg.text = "AuthenticationFailed";
-    messageEmitted(msg);
     QVariantMap cond = data;
     cond.insert("TableName", "PatientInfo");
     QList<QVariantMap> datas;
@@ -355,7 +350,7 @@ int Patients::exportXlsx(const QString &fileName, const QList<QJsonObject> &data
     hulaXlsx.open(fileName);
     for (int i = 0; i < fields.size(); i++)
     {
-        QString langKey = "Home." + fields[i];
+        QString langKey = "Specimen." + fields[i];
         QString label = Translater::instance()->trans(langKey);
         if (i < 26)
         {

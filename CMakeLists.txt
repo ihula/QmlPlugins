@@ -20,7 +20,7 @@ else()
 endif()
 
 # 查找 Qt6 组件
-find_package(Qt6 6.7 REQUIRED COMPONENTS Quick Sql QuickControls2)
+find_package(Qt6 6.7 REQUIRED COMPONENTS Quick Sql QuickControls2 Charts Widgets)
 
 # 标准项目设置
 qt_standard_project_setup(REQUIRES 6.7)
@@ -53,6 +53,15 @@ qt_add_executable(${APP_NAME}
     src/utils.cpp
 )
 
+# 使用 CMake 变量来定义 URI，供 CMake 使用
+set(MODULE_URI "HulaPlugins")
+
+# C++ 代码中需要用到这个宏，将其传递给编译器
+target_compile_definitions(${APP_NAME} PRIVATE
+    MODULE_URI="HulaPlugins"
+    DEPLOY_MODE=0
+)
+
 target_include_directories(${APP_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # 设置 QML 单例类型 (仅标记没有 pragma Singleton 的文件)
@@ -69,7 +78,7 @@ set_source_files_properties(
 # 定义 QML 源文件列表
 file(GLOB_RECURSE QML_SOURCES_ABS
     src/QmlUI/*.qml
-    src/HulaUI/*.qml
+    src/Components/*.qml
 )
 
 set(QML_SOURCES "")
@@ -78,11 +87,13 @@ foreach(qml_file ${QML_SOURCES_ABS})
     list(APPEND QML_SOURCES ${rel_path})
 endforeach()
 
+#Components
 # 添加 QML 模块
 qt_add_qml_module(${APP_NAME}
-    URI ${APP_NAME}
+    URI ${MODULE_URI}
     VERSION 1.0
-    QML_FILES ${QML_SOURCES}
+    QML_FILES
+        ${QML_SOURCES}
     SOURCES
         src/common.h
         #src/translater.h src/translater.cpp
@@ -99,6 +110,8 @@ target_link_libraries(${APP_NAME} PRIVATE
     Qt6::Quick
     Qt6::Sql
     Qt6::QuickControls2
+    Qt6::Charts
+    Qt6::Widgets
 )
 
 # 平台适配
@@ -126,11 +139,6 @@ if(APPLE)
         MACOSX_BUNDLE TRUE
     )
 endif()
-
-target_compile_definitions(${APP_NAME} PRIVATE
-    APP_URI="${APP_NAME}"
-    DEPLOY_MODE=0
-)
 
 # 安装目标
 install(TARGETS ${APP_NAME}

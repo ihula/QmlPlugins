@@ -4,8 +4,8 @@ import QtQuick.Controls.Material
 import QtQuick.Layouts
 import Qt.labs.qmlmodels
 import QtQuick.Dialogs
-import "../HulaUI"
-import QmlPlugins
+import "../Components"
+import HulaPlugins
 
 Rectangle {
     id: root
@@ -124,7 +124,7 @@ Rectangle {
                 Layout.preferredHeight: layBaseEditor.lblHeight
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignLeft
-                text: qsTr("Home.TestId")
+                text: qsTr("Specimen.TestId")
                 font.pixelSize: layBaseEditor.lblFontSize
                 Material.foreground: Themer.editorFontColor
             }
@@ -143,7 +143,7 @@ Rectangle {
                 Layout.preferredHeight: layBaseEditor.lblHeight
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignLeft
-                text: qsTr("Home.Name")
+                text: qsTr("Specimen.Name")
                 font.pixelSize: layBaseEditor.lblFontSize
                 Material.foreground: Themer.editorFontColor
             }
@@ -161,7 +161,7 @@ Rectangle {
                 Layout.preferredHeight: layBaseEditor.lblHeight
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignLeft
-                text: qsTr("Home.Sex")
+                text: qsTr("Specimen.Sex")
                 font.pixelSize: layBaseEditor.lblFontSize
                 Material.foreground: Themer.editorFontColor
                 background: createMouse(this, cmbSex)
@@ -188,7 +188,7 @@ Rectangle {
                 Layout.preferredHeight: layBaseEditor.lblHeight
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignLeft
-                text: qsTr("Home.Age")
+                text: qsTr("Specimen.Age")
                 font.pixelSize: layBaseEditor.lblFontSize
                 Material.foreground: Themer.editorFontColor
             }
@@ -213,7 +213,7 @@ Rectangle {
                     height: layBaseEditor.txtHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-                    text: qsTr("Home.AgeY")
+                    text: qsTr("Specimen.AgeY")
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.editorFontColor
                 }
@@ -232,7 +232,7 @@ Rectangle {
                     height: layBaseEditor.txtHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-                    text: qsTr("Home.AgeM")
+                    text: qsTr("Specimen.AgeM")
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.editorFontColor
                 }
@@ -251,7 +251,7 @@ Rectangle {
                     height: layBaseEditor.txtHeight
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-                    text: qsTr("Home.AgeD")
+                    text: qsTr("Specimen.AgeD")
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.editorFontColor
                 }
@@ -262,7 +262,7 @@ Rectangle {
                 Layout.preferredHeight: layBaseEditor.lblHeight
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignLeft
-                text: qsTr("Home.MRN")
+                text: qsTr("Specimen.MRN")
                 font.pixelSize: layBaseEditor.lblFontSize
                 Material.foreground: Themer.editorFontColor
             }
@@ -280,7 +280,7 @@ Rectangle {
                 Layout.preferredHeight: layBaseEditor.lblHeight
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignLeft
-                text: qsTr("Home.Dept")
+                text: qsTr("Specimen.Dept")
                 font.pixelSize: layBaseEditor.lblFontSize
                 Material.foreground: Themer.editorFontColor
                 background: createMouse(this, cmbFromDept)
@@ -308,7 +308,7 @@ Rectangle {
                 Layout.preferredHeight: layBaseEditor.lblHeight
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignLeft
-                text: qsTr("Home.Doctor")
+                text: qsTr("Specimen.Doctor")
                 font.pixelSize: layBaseEditor.lblFontSize
                 Material.foreground: Themer.editorFontColor
                 background: createMouse(this, cmbDoctor)
@@ -336,7 +336,7 @@ Rectangle {
                 Layout.preferredHeight: layBaseEditor.lblHeight
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignLeft
-                text: qsTr("Home.Tester")
+                text: qsTr("Specimen.Tester")
                 font.pixelSize: layBaseEditor.lblFontSize
                 Material.foreground: Themer.editorFontColor
             }
@@ -362,7 +362,7 @@ Rectangle {
                 Layout.preferredHeight: layBaseEditor.lblHeight
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignLeft
-                text: qsTr("Home.SpecimenType")
+                text: qsTr("Specimen.SpecimenType")
                 font.pixelSize: layBaseEditor.lblFontSize
                 Material.foreground: Themer.editorFontColor
                 background: createMouse(this, cmbSpecimenType)

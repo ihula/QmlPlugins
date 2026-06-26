@@ -4,8 +4,8 @@ import QtQuick.Controls.Material
 import Qt.labs.qmlmodels
 import QtQuick.Layouts
 import QtCore
-import "../HulaUI"
-import QmlPlugins
+import "../Components"
+import HulaPlugins
 
 Item {
     id: root

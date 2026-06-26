@@ -3,9 +3,8 @@ import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Layouts
 import QtQuick.Shapes
-import Qt5Compat.GraphicalEffects
-import QmlPlugins
-import "../HulaUI"
+import HulaPlugins
+import "../Components"
 
 Rectangle {
     id: titleBar
@@ -37,9 +36,9 @@ Rectangle {
         anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
         anchors.margins: 12
-        color: "#4F6371"
+        color: Themer.fontDarkColor
         font.pixelSize: 20
-        font.bold: false
+        font.weight: Font.Medium
         text: qsTr("AppName")
     }
 
@@ -216,7 +215,7 @@ Rectangle {
         flat: true
         highlighted: hovered
         hoverEnabled: true
-        icon.color: /*hovered ? Themer.iconHoveredColor :*/ "transparent"
+        icon.color: "transparent"
         background: Item {
             anchors.fill: parent
         }
