@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls.Material
 
-ComboBox {
+HulaComboBox {
     id: root
     property int popupX: 0
     property int popupY: 0

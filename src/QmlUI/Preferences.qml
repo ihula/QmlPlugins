@@ -165,7 +165,7 @@ Item {
                         text: qsTr("Preferences.SelectLangSpec")
                     }
 
-                    ComboBox {
+                    HulaComboBox {
                         id: cmbLang
                         //Layout.fillWidth: true
                         implicitContentWidthPolicy: ComboBox.WidestText
@@ -216,7 +216,7 @@ Item {
                         Layout.fillWidth: true
                         spacing: 10
 
-                        ComboBox {
+                        HulaComboBox {
                             id: cmbReport
                             //Layout.fillWidth: true
                             implicitContentWidthPolicy: ComboBox.WidestText
@@ -268,7 +268,7 @@ Item {
                         text: qsTr("Preferences.FormModeSpec")
                     }
 
-                    ComboBox {
+                    HulaComboBox {
                         id: cmbFormMode
                         //Layout.fillWidth: true
                         // 根据列表中最宽的一项来调整宽度

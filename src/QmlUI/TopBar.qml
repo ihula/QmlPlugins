@@ -49,7 +49,7 @@ Rectangle {
         anchors.bottom: parent.bottom
         anchors.leftMargin: 12
         spacing: 1
-        visible: children.length > 1 ? true : false
+        // visible: children.length > 1 ? true : false
         Rectangle {
             id: line1
             anchors.topMargin: 8
@@ -304,10 +304,12 @@ Rectangle {
     function appendLeftItem(item) {
         item.parent = leftBar;
         item.visible = true;
+        item.anchors.verticalCenter = leftBar.verticalCenter;
+        leftBar.visible = true;
     }
 
     function removeLeftItem(item) {
-        item.visible = false;
+        leftBar.visible = false;
     }
 
     // 颜色加深遮罩层（默认完全透明）

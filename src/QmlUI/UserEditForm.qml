@@ -127,18 +127,13 @@ HulaDialog {
         columns: 2
         rowSpacing: 16
         columnSpacing: 12
-        property int lblWidth: 90
-        property int txtWidth: 280
-        property int lblFontSize: 16
-        property int txtFontSize: 16
 
         // 用户类型
         Label {
-            Layout.preferredHeight: 36
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
             text: qsTr("User.Status")
-            font.pixelSize: parent.lblFontSize
+            font.pixelSize: Themer.editorFontSize
             color: Themer.fontDarkColor
         }
         ComboBox {
@@ -146,9 +141,9 @@ HulaDialog {
             valueRole: "value"
             textRole: "text"
             Layout.fillWidth: true
-            Layout.preferredWidth: parent.txtWidth
-            Layout.preferredHeight: 36
-            font.pixelSize: parent.txtFontSize
+            topInset: 0
+            bottomInset: 0
+            font.pixelSize: Themer.editorFontSize
             currentIndex: -1
             selectTextByMouse: true
             editable: false
@@ -157,19 +152,17 @@ HulaDialog {
 
         // 用户角色
         Label {
-            Layout.preferredHeight: 36
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
             text: qsTr("User.Role")
-            font.pixelSize: parent.lblFontSize
+            font.pixelSize: Themer.editorFontSize
             color: Themer.fontDarkColor
         }
-        ComboBox {
+        HulaComboBox {
             id: cmbRole
             Layout.fillWidth: true
-            Layout.preferredWidth: parent.txtWidth
-            Layout.preferredHeight: 36
-            font.pixelSize: parent.txtFontSize
+            // Layout.preferredHeight: contentHeight + topPadding + bottomPadding
+            font.pixelSize: Themer.editorFontSize
             currentIndex: -1
             selectTextByMouse: true
             editable: false
@@ -185,100 +178,90 @@ HulaDialog {
 
         // 账号
         Label {
-            Layout.preferredHeight: 36
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
             text: qsTr("User.Account")
-            font.pixelSize: parent.lblFontSize
+            font.pixelSize: Themer.editorFontSize
             color: Themer.fontDarkColor
         }
         TextField {
             id: edtAccount
             Layout.fillWidth: true
-            Layout.preferredWidth: parent.txtWidth
-            Layout.preferredHeight: 36
+            // Layout.preferredHeight: contentHeight + topPadding + bottomPadding
             verticalAlignment: Text.AlignVCenter
-            font.pixelSize: parent.txtFontSize
+            font.pixelSize: Themer.editorFontSize
             enabled: !isEdit  // 编辑时不可修改账号
             placeholderText: isEdit ? "" : qsTr("User.AccountTip")
         }
 
         // 密码
         Label {
-            Layout.preferredHeight: 36
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
             text: qsTr("User.CurrentPassword")
-            font.pixelSize: parent.lblFontSize
+            font.pixelSize: Themer.editorFontSize
             color: Themer.fontDarkColor
             visible: isEdit
         }
         TextField {
             id: edtOldPassword
             Layout.fillWidth: true
-            Layout.preferredWidth: parent.txtWidth
-            Layout.preferredHeight: 36
+            // Layout.preferredHeight: contentHeight + topPadding + bottomPadding
             verticalAlignment: Text.AlignVCenter
             echoMode: TextInput.Password
-            font.pixelSize: parent.txtFontSize
+            font.pixelSize: Themer.editorFontSize
             placeholderText: isEdit ? qsTr("User.PasswordEmpty") : "123456"
             visible: isEdit
         }
 
         // 密码
         Label {
-            Layout.preferredHeight: 36
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
             text: isEdit ? qsTr("User.NewPassword") : qsTr("User.Password")
-            font.pixelSize: parent.lblFontSize
+            font.pixelSize: Themer.editorFontSize
             color: Themer.fontDarkColor
         }
         TextField {
             id: edtPassword
             Layout.fillWidth: true
-            Layout.preferredWidth: parent.txtWidth
-            Layout.preferredHeight: 36
+            // Layout.preferredHeight: contentHeight + topPadding + bottomPadding
             verticalAlignment: Text.AlignVCenter
             echoMode: TextInput.Password
-            font.pixelSize: parent.txtFontSize
+            font.pixelSize: Themer.editorFontSize
             placeholderText: isEdit ? qsTr("User.PasswordEmpty") : "123456"
         }
 
         // 姓名
         Label {
-            Layout.preferredHeight: 36
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
             text: qsTr("User.Name")
-            font.pixelSize: parent.lblFontSize
+            font.pixelSize: Themer.editorFontSize
             color: Themer.fontDarkColor
         }
         TextField {
             id: edtName
             Layout.fillWidth: true
-            Layout.preferredWidth: parent.txtWidth
-            Layout.preferredHeight: 36
+            // Layout.preferredHeight: contentHeight + topPadding + bottomPadding
             verticalAlignment: Text.AlignVCenter
-            font.pixelSize: parent.txtFontSize
+            font.pixelSize: Themer.editorFontSize
         }
 
         // 联系方式
         Label {
-            Layout.preferredHeight: 36
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
             text: qsTr("User.Contact")
-            font.pixelSize: parent.lblFontSize
+            font.pixelSize: Themer.editorFontSize
             color: Themer.fontDarkColor
         }
         TextField {
             id: edtContact
             Layout.fillWidth: true
-            Layout.preferredWidth: parent.txtWidth
-            Layout.preferredHeight: 36
+            // Layout.preferredHeight: contentHeight + topPadding + bottomPadding
             verticalAlignment: Text.AlignVCenter
-            font.pixelSize: parent.txtFontSize
+            font.pixelSize: Themer.editorFontSize
         }
     }
 }

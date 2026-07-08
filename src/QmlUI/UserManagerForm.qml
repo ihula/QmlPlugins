@@ -191,7 +191,7 @@ Item {
                 // verticalAlignment: Text.AlignVCenter
             }
 
-            ComboBox {
+            HulaComboBox {
                 id: cmbSearchType
                 valueRole: "value"
                 textRole: "text"
@@ -203,7 +203,7 @@ Item {
                 model: modelStatus
             }
 
-            ComboBox {
+            HulaComboBox {
                 id: cmbSearchRole
                 implicitContentWidthPolicy: ComboBox.WidestText
                 height: Themer.editorHeight
@@ -505,7 +505,7 @@ Item {
                 color: "#535353"
             }
 
-            ComboBox {
+            HulaComboBox {
                 id: cmbPageSize
                 Layout.preferredWidth: 70
                 Layout.preferredHeight: 28

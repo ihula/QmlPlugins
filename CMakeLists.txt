@@ -104,6 +104,12 @@ qt_add_qml_module(${APP_NAME}
         src/utils.h src/utils.cpp
 )
 
+# 将 QtQuickControls2 配置编译进资源（必须落在资源路径 :/qtquickcontrols2.conf 才会生效）
+# qt_add_resources(${APP_NAME} "controls_conf"
+#     PREFIX "/"
+#     FILES qtquickcontrols2.conf
+# )
+
 # 链接 Qt 库
 target_link_libraries(${APP_NAME} PRIVATE
     Qt6::Quick

@@ -162,7 +162,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.topMargin: 4
         width: 320
-        color: Themer.workFormColor
+        color: "black"//Themer.workFormColor
         Label {
             id: lblSpecimenList
             anchors.left: parent.left
@@ -201,8 +201,7 @@ Item {
                 id: chkSelect
                 font.pixelSize: 16
                 text: qsTr("Role.EnableSelect")
-                Material.background: "white"
-                Material.foreground: "#535353"
+                palette.buttonText: "#535353"
                 height: 46
             }
 
@@ -210,8 +209,7 @@ Item {
                 id: chkAll
                 font.pixelSize: 16
                 text: qsTr("Role.SelectAll")
-                Material.background: "white"
-                Material.foreground: "#535353"
+                // Material.foreground: "#535353"
                 height: 46
                 tristate: true
                 checkState: childGroup.checkState

@@ -461,7 +461,7 @@ Item {
                     Material.foreground: Themer.editorFontColor
                     background: createMouse(this, cmbSex)
                 }
-                ComboBox {
+                HulaComboBox {
                     id: cmbSex
                     //property int dictType: DictType.Sex
                     property string fieldName: "Sex"
@@ -532,7 +532,7 @@ Item {
                     Material.foreground: Themer.editorFontColor
                     background: createMouse(this, cmbFromDept)
                 }
-                ComboBox {
+                HulaComboBox {
                     id: cmbFromDept
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
@@ -562,7 +562,7 @@ Item {
                     Material.foreground: Themer.editorFontColor
                     background: createMouse(this, cmbDoctor)
                 }
-                ComboBox {
+                HulaComboBox {
                     id: cmbDoctor
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
@@ -611,7 +611,7 @@ Item {
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.editorFontColor
                 }
-                ComboBox {
+                HulaComboBox {
                     id: cmbTester
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
@@ -639,7 +639,7 @@ Item {
                     font.pixelSize: layBaseEditor.lblFontSize
                     Material.foreground: Themer.editorFontColor
                 }
-                ComboBox {
+                HulaComboBox {
                     id: cmbReviewer
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
@@ -688,7 +688,7 @@ Item {
                     Material.foreground: Themer.editorFontColor
                     background: createMouse(this, cmbSpecimenType)
                 }
-                ComboBox {
+                HulaComboBox {
                     id: cmbSpecimenType
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
@@ -718,7 +718,7 @@ Item {
                     Material.foreground: Themer.editorFontColor
                     background: createMouse(this, cmbSpecimenQuality)
                 }
-                ComboBox {
+                HulaComboBox {
                     id: cmbSpecimenQuality
                     width: layBaseEditor.txtWidth
                     height: layBaseEditor.ctrlHeight
@@ -801,7 +801,7 @@ Item {
                     Material.foreground: Themer.editorFontColor
                     background: createMouse(this, cmbDiagnosis)
                 }
-                ComboBox {
+                HulaComboBox {
                     id: cmbDiagnosis
                     width: layBaseEditor.txtWidth * 3
                     height: layBaseEditor.ctrlHeight

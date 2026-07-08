@@ -166,7 +166,7 @@ Rectangle {
                 Material.foreground: Themer.editorFontColor
                 background: createMouse(this, cmbSex)
             }
-            ComboBox {
+            HulaComboBox {
                 id: cmbSex
                 Layout.preferredWidth: layBaseEditor.txtWidth
                 Layout.preferredHeight: layBaseEditor.txtHeight
@@ -285,7 +285,7 @@ Rectangle {
                 Material.foreground: Themer.editorFontColor
                 background: createMouse(this, cmbFromDept)
             }
-            ComboBox {
+            HulaComboBox {
                 id: cmbFromDept
                 Layout.preferredWidth: layBaseEditor.txtWidth
                 Layout.preferredHeight: layBaseEditor.txtHeight
@@ -313,7 +313,7 @@ Rectangle {
                 Material.foreground: Themer.editorFontColor
                 background: createMouse(this, cmbDoctor)
             }
-            ComboBox {
+            HulaComboBox {
                 id: cmbDoctor
                 Layout.preferredWidth: layBaseEditor.txtWidth
                 Layout.preferredHeight: layBaseEditor.txtHeight
@@ -340,7 +340,7 @@ Rectangle {
                 font.pixelSize: layBaseEditor.lblFontSize
                 Material.foreground: Themer.editorFontColor
             }
-            ComboBox {
+            HulaComboBox {
                 id: cmbTester
                 Layout.preferredWidth: layBaseEditor.txtWidth
                 Layout.preferredHeight: layBaseEditor.txtHeight
@@ -367,7 +367,7 @@ Rectangle {
                 Material.foreground: Themer.editorFontColor
                 background: createMouse(this, cmbSpecimenType)
             }
-            ComboBox {
+            HulaComboBox {
                 id: cmbSpecimenType
                 Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
                 Layout.preferredWidth: layBaseEditor.txtWidth
