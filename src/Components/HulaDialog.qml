@@ -15,7 +15,7 @@ Dialog {
     property alias buttonOk: btnOk
     property alias buttonCancel: btnCancel
     property alias titleFontSize: titleBar.font.pixelSize
-    property alias textPixelSize: lblText.font.pixelSize
+    property int textPixelSize: 18
     property string messageText: ""
     property string animTypes: "scale"
     property int duration: 200
@@ -34,7 +34,7 @@ Dialog {
 
     // 4. 常规对象属性赋值 (Object Properties)
     width: 336
-    height: header.height + footer.height + contentHeight + 10
+    height: header.height + footer.height + contentHeight + topPadding + bottomPadding + 10
     spacing: 0
     topPadding: 0
     modal: Qt.ApplicationModal
@@ -96,8 +96,9 @@ Dialog {
             anchors.left: parent.left
             anchors.leftMargin: 12
             font.pixelSize: 20
-            color: "#555555"
+            color: "#535353"
             text: qsTr(title)
+            font.weight: Font.Medium
             verticalAlignment: Qt.AlignVCenter
         }
 
@@ -115,7 +116,7 @@ Dialog {
             anchors.verticalCenter: parent.verticalCenter
             onClicked: root.close()
         }
-        /*
+
         MouseArea {
             property point clickPoint: "0, 0"
             anchors.fill: parent
@@ -134,17 +135,18 @@ Dialog {
                 root.x = root.x + offset.x;
                 root.y = root.y + offset.y;
             }
-        }*/
+        }
     }
 
+    // 默认内容项：仅用于消息/确认弹窗（openDialogPrompt / openDialogConfirm）。
+    // 需要自定义内容时，在实例里直接覆写 contentItem 即可（不再受 Label 约束）。
     contentItem: Label {
-        id: lblText
         wrapMode: Text.WordWrap
         text: qsTr(messageText)
-        font.pixelSize: 18
+        font.pixelSize: root.textPixelSize
+        color: "#535353"
         horizontalAlignment: (lineCount > 1) ? Text.AlignLeft : Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        height: Math.max(60, implicitHeight)
     }
 
     footer: Row {
@@ -158,7 +160,7 @@ Dialog {
             radius: 4
             font.pixelSize: 18
             Material.background: "white"
-            Material.foreground: "black"
+            Material.foreground: "#535353"
             text: qsTr(buttonCancelText)
             height: 48
             width: 96
@@ -177,16 +179,22 @@ Dialog {
             radius: 4
             font.pixelSize: 18
             Material.background: "white"
-            Material.foreground: "black"
+            Material.foreground: "#535353"
             text: autoClose ? content + "(" + String(timer.sum) + ")" : content
             height: 48
             width: 96
             visible: (text !== "")
             onClicked: {
-                accepted();
-                if (callbackOnOk)
-                    callbackOnOk();
-                root.close();
+                if (callbackOnOk) {
+                    var ret = callbackOnOk();
+                    if ((ret === undefined) || (ret === 0)) {
+                        accepted();
+                        root.close();
+                    }
+                } else {
+                    accepted();
+                    root.close();
+                }
             }
         }
     }

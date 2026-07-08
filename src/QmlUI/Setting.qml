@@ -7,6 +7,7 @@ import HulaPlugins
 
 Item {
     id: root
+    anchors.fill: parent
     property bool autoDestroy: false
     property int userAge: 0
     property bool isVisible: visible
@@ -38,8 +39,8 @@ Item {
         Repeater {
             id: rptButton
             property int currentIndex: -1
-            property var pages: [loader1, loader2, loader3, loader4, loader5]
-            model: ["Setting.DictSetting", "Setting.UserSetting", "Setting.SystemSetting", "Setting.MachineSetting", "Setting.ThemeSetting"]
+            property var pages: [loaderDataDict, loaderRoleManager, loaderUserManager, loaderPreferences, loaderMachine, loaderTheme]
+            model: ["Setting.DataDict", "Setting.RoleManager", "Setting.UserManager", "Setting.SystemSetting", "Setting.MachineSetting", "Setting.ThemeSetting"]
             TabButton {
                 font.pixelSize: 18
                 text: qsTr(modelData)
@@ -78,32 +79,39 @@ Item {
         anchors.bottom: parent.bottom
 
         Loader {
-            id: loader1
+            id: loaderDataDict
+            active: false
+            source: "Page5.qml"
+        }
+
+        Loader {
+            id: loaderRoleManager
+            active: false
+            source: "RoleManagerForm.qml"
+        }
+
+        Loader {
+            id: loaderUserManager
             active: false
             source: "UserManagerForm.qml"
         }
 
         Loader {
-            id: loader2
+            id: loaderPreferences
             active: false
-            source: "UserManagerForm.qml"
-        }
-        Loader {
-            id: loader3
-            active: false
-            source: "Page2.qml" //"Page2.qml" //"Statistic.qml"
+            source: "Preferences.qml"
         }
 
         Loader {
-            id: loader4
+            id: loaderMachine
             active: false
-            source: "Setting.qml"
+            //source: "UserManagerForm.qml"
         }
 
         Loader {
-            id: loader5
+            id: loaderTheme
             active: false
-            source: "UserManagerForm.qml"
+            //source: "UserManagerForm.qml"
         }
     }
 }

@@ -361,7 +361,7 @@ Rectangle {
                         if (popup.visible)
                             model = getUsers();
                     }
-                    model: getUsers()
+                    // model: getUsers()
                 }
 
                 Label {
@@ -838,11 +838,8 @@ Rectangle {
                 if (value !== "")
                     data[child.fieldName] = value;
             }
-            if (typeof child.fieldType !== 'undefined')
-                data[child.fieldName + "-Type"] = child.fieldType;
         }
-        // var datas = patients.findPatients(data);
-        var datas = patients.searchDatas(data);
+        var datas = patients.searchPatients(data);
         viewDatas(datas);
         snackMessage("Search.SearchFinished");
     }

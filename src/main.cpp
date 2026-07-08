@@ -21,6 +21,18 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
+    // 注册 MetaType，确保跨线程信号/槽可以正确传递自定义类型
+    qRegisterMetaType<MessageInfo>("MessageInfo");
+
+#if 0
+    // 启用全局抗锯齿
+    QQuickWindow::setDefaultAlphaBuffer(true);
+    QSurfaceFormat format = QSurfaceFormat::defaultFormat();
+    // 设置8倍多重采样抗锯齿
+    format.setSamples(8);
+    QSurfaceFormat::setDefaultFormat(format);
+#endif
+
     // 先初始化日志系统
     HulaLogger::instance()->initialize(QtMsgType::QtDebugMsg); // 使用默认级别
     // 然后再初始化其他模块
@@ -60,7 +72,18 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("APP_PATH", app.applicationDirPath());
     engine.rootContext()->setContextProperty("CUSTOM_PATH", app.applicationDirPath() + "/Custom/");
 
-    StatusCode dbResult = DbManager::instance()->connect(DB_FILE);
+#ifdef DEPLOY_MODE
+    engine.addImportPath(app.applicationDirPath() + "/qml");
+#else
+    QString buildPath = QCoreApplication::applicationDirPath();
+    int binIdx = buildPath.lastIndexOf("/bin");
+    if (binIdx > 0) {
+        QString projectPath = buildPath.left(binIdx);
+        engine.addImportPath(projectPath + "/build/Desktop_Qt_6_7_3-Debug");
+    }
+#endif
+
+    StatusCode dbResult = DbManager::instance()->connectDb(DB_FILE);
     if (dbResult != StatusCode::Success)
     {
         qCritical() << "Failed to create database connection, error code:" << static_cast<int>(dbResult);
@@ -71,22 +94,6 @@ int main(int argc, char *argv[])
     Translater::instance()->initialize("Languages/", engine.rootContext());
     Translater::instance()->setLanguage(currLang);
     app.setApplicationDisplayName(Translater::instance()->trans("AppName"));
-
-    // 找到主窗口并在收到激活信号时唤起它
-    QObject::connect(&appWatcher, &SingleAppWatcher::activateRequested, [&engine]() {
-        qDebug() << "appwatcher";
-        auto rootObjects = engine.rootObjects();
-        if (rootObjects.isEmpty())
-            return;
-        QQuickWindow *window = qobject_cast<QQuickWindow *>(rootObjects.first());
-        if (window)
-        {
-            window->objectName();
-            window->show();
-            window->raise();
-            window->requestActivate();
-        }
-    });
 
     // 响应QML中的关机命令
     QObject::connect(&engine, &QQmlApplicationEngine::exit, [=](int retCode) {
@@ -103,6 +110,32 @@ int main(int argc, char *argv[])
 
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, &app, []() { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
     engine.loadFromModule(MODULE_URI, "Main");
+
+    // 找到主窗口并在收到激活信号时唤起它
+    QObject::connect(&appWatcher, &SingleAppWatcher::activateRequested, [&engine]() {
+        auto rootObjects = engine.rootObjects();
+        if (rootObjects.length() == 0)
+            return;
+
+        QObject *rootObj = rootObjects.first();
+        QQuickWindow *window = rootObj->findChild<QQuickWindow *>("mainForm");
+        if (window)
+        {
+            Qt::WindowFlags flags = window->flags();
+            window->setFlags(window->flags() | Qt::WindowStaysOnTopHint);
+            if (window->windowState() & Qt::WindowMinimized)
+            {
+                window->showNormal();
+            }
+            window->raise();
+            window->requestActivate();
+            window->setFlags(flags);
+        }
+        else
+        {
+            qDebug() << "未找到名为 mainForm 的窗口！";
+        }
+    });
 
     return app.exec();
 }

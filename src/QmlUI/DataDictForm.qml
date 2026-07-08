@@ -13,6 +13,8 @@ HulaDialog {
     property int dictType: 0
     title: qsTr("DataDict.Title")
     signal selected(int dictType, string text)
+    // 覆写默认 Label；自定义内容由下方子项填充（高度固定 460）
+    contentItem: Item {}
 
     onShowForm: {
         loadDatas()

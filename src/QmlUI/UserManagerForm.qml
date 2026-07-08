@@ -22,7 +22,7 @@ Item {
         tableview.model.clear();
         selectedIds = [];
 
-        var allUsers = userInfo.getDatas();
+        var allUsers = UserInfo.getUsers();
         var filteredUsers = [];
 
         for (var i = 0; i < allUsers.length; i++) {
@@ -33,7 +33,7 @@ Item {
             if (searchName && user["Name"].indexOf(searchName) < 0) {
                 continue;
             }
-            if (searchType >= 0 && user["Type"] !== searchType) {
+            if (searchType >= 0 && user["Status"] !== searchType) {
                 continue;
             }
             filteredUsers.push(user);
@@ -66,9 +66,10 @@ Item {
     }
 
     function openUserDialog(userData) {
-        var component = Qt.createComponent("UserEditDialog.qml");
+        var component = Qt.createComponent("UserEditForm.qml");
         if (component.status === Component.Ready) {
             var dlg = component.createObject(Window.window);
+            dlg.modelStatus = modelStatus;
             dlg.isAdmin = true;
             if (userData) {
                 dlg.editUserData = userData;
@@ -78,8 +79,8 @@ Item {
             });
             dlg.open();
         } else if (component.status === Component.Error) {
-            console.error("加载 UserEditDialog 失败:", component.errorString());
-            snackMessage("加载 UserEditDialog 失败:", component.errorString());
+            console.error("加载 UserEditForm 失败:", component.errorString());
+            snackMessage("加载 UserEditForm 失败:", component.errorString());
         }
     }
 
@@ -92,7 +93,7 @@ Item {
         var funcDelete = function () {
             var failed = [];
             for (var i = 0; i < selectedIds.length; i++) {
-                var ret = userInfo.deleteData(String(selectedIds[i]));
+                var ret = UserInfo.deleteData(String(selectedIds[i]));
                 if (ret !== 0) {
                     failed.push(selectedIds[i]);
                 }
@@ -110,7 +111,7 @@ Item {
 
     function deleteUser(userId) {
         var funcDelete = function () {
-            var ret = userInfo.deleteData(String(userId));
+            var ret = UserInfo.deleteData(String(userId));
             if (ret === 0) {
                 snackMessage("DeleteValid");
                 loadData();
@@ -127,7 +128,8 @@ Item {
 
     // 持久化列宽设置
     Settings {
-        location: "file:" + APP_PATH + "/config1.ini"
+        property string account: UserInfo.userAccount
+        location: "file:" + CUSTOM_PATH + (account ? account + ".ini" : "Custom.ini")
         category: "UserManager"
         property alias column0Width: tableview.column0Width
         property alias column1Width: tableview.column1Width
@@ -135,6 +137,20 @@ Item {
         property alias column3Width: tableview.column3Width
         property alias column4Width: tableview.column4Width
         property alias column5Width: tableview.column5Width
+        property alias column6Width: tableview.column6Width
+        property alias column7Width: tableview.column7Width
+    }
+
+    ListModel {
+        id: modelStatus
+        ListElement {
+            value: 1
+            text: qsTr("User.Enabled")
+        }
+        ListElement {
+            value: 0
+            text: qsTr("User.Disabled")
+        }
     }
 
     Rectangle {
@@ -177,12 +193,31 @@ Item {
 
             ComboBox {
                 id: cmbSearchType
-                width: 160
+                valueRole: "value"
+                textRole: "text"
+                implicitContentWidthPolicy: ComboBox.WidestText
                 height: Themer.editorHeight
                 font.pixelSize: Themer.buttonFontSize
                 anchors.verticalCenter: parent.verticalCenter
                 currentIndex: 0
-                model: [qsTr("User.TypeAll"), qsTr("User.Normal"), qsTr("User.Admin")]
+                model: modelStatus
+            }
+
+            ComboBox {
+                id: cmbSearchRole
+                implicitContentWidthPolicy: ComboBox.WidestText
+                height: Themer.editorHeight
+                font.pixelSize: Themer.buttonFontSize
+                anchors.verticalCenter: parent.verticalCenter
+                currentIndex: 0
+                model: {
+                    var p = [qsTr("User.RoleAll")];
+                    var roles = RoleManager.getRoles();
+                    for (let i = 0; i < roles.length; i++) {
+                        p.push(roles[i][RoleManager.NAME]);
+                    }
+                    return p;
+                }
             }
 
             Item {
@@ -207,46 +242,12 @@ Item {
                 }
             }
 
-            RoundButton {
-                id: btnReset
-                width: Themer.buttonWidth
-                implicitHeight: Themer.buttonHeight
-                font.pixelSize: Themer.buttonFontSize
-                Material.background: "#535353"//Themer.buttonColor
-                Material.foreground: "white"
-                text: qsTr("User.Reset")
-                radius: 4
-                onClicked: {
-                    edtSearchAccount.text = "";
-                    edtSearchName.text = "";
-                    cmbSearchType.currentIndex = 0;
-                    searchAccount = "";
-                    searchName = "";
-                    searchType = -1;
-                    currentPage = 1;
-                    loadData();
-                }
-            }
-
             Rectangle {
                 width: 1
                 border.color: Themer.lineColor
                 implicitHeight: Themer.editorHeight
                 anchors.margins: 16
                 anchors.verticalCenter: parent.verticalCenter
-            }
-
-            RoundButton {
-                id: btnBatchDelete
-                width: Themer.buttonWidth
-                implicitHeight: Themer.buttonHeight
-                font.pixelSize: Themer.buttonFontSize
-                Material.background: Themer.warnColor
-                Material.foreground: "white"
-                text: qsTr("User.Delete")
-                radius: 4
-                //visible: selectedIds.length > 0
-                onClicked: batchDeleteUsers()
             }
 
             RoundButton {
@@ -273,9 +274,24 @@ Item {
                 text: qsTr("User.Edit")
                 radius: 4
                 onClicked: {
+                    if (tableview.currentRow < 0)
+                        return;
                     var data = tableview.model.getRow(tableview.currentRow);
                     openUserDialog(data);
                 }
+            }
+
+            RoundButton {
+                id: btnBatchDelete
+                width: Themer.buttonWidth
+                implicitHeight: Themer.buttonHeight
+                font.pixelSize: Themer.buttonFontSize
+                Material.background: Themer.warnColor
+                Material.foreground: "white"
+                text: qsTr("User.Delete")
+                radius: 4
+                //visible: selectedIds.length > 0
+                onClicked: batchDeleteUsers()
             }
         }
     }
@@ -294,71 +310,44 @@ Item {
         border.color: Qt.alpha(Themer.borderGrayColor, 0.2)
         view: tableview
 
-        TableView {
+        TableViewEx {
             id: tableview
-            property var headerTitles: ["Id", "User.Account", "User.Name", "User.Type", "User.Contact", "User.Dept"]
             property int column0Width: 0
-            property int column1Width: 200
+            property int column1Width: 0
             property int column2Width: 200
             property int column3Width: 200
             property int column4Width: 200
             property int column5Width: 200
+            property int column6Width: 200
+            property int column7Width: 200
 
-            function selectRow(row) {
-                var newIndex = tableview.index(row, 0);
-                tableview.selectionModel.setCurrentIndex(newIndex, ItemSelectionModel.Select | ItemSelectionModel.Rows);
-            }
+            headerTitles: ["Id", "User.Account", "User.Name", "User.Status", "User.RoleName", "User.Contact", "User.LastLogin", "User.CreateTime"]
+            horHeader: tableheader
 
-            anchors.fill: parent
-            //anchors.rightMargin: tableheader.border.width
-            anchors.leftMargin: tableheader.border.width
-            anchors.topMargin: tableheader.horHeaderHeight + tableheader.border.width
-            // 多1个高度,防止最后一行边框与外边框相连
-            //anchors.bottomMargin: tableheader.border.width * 2
-            clip: true
-            boundsBehavior: Flickable.StopAtBounds
-            columnSpacing: 0
-            rowSpacing: 0
-            selectionMode: TableView.SingleSelection
-            selectionBehavior: TableView.SelectRows
-
-            ScrollBar.vertical: CustomScrollBar {
-                visible: tableview.contentHeight > tableview.height
-            }
-            ScrollBar.horizontal: CustomScrollBar {
-                visible: tableview.contentWidth > tableview.width
-            }
-
-            rowHeightProvider: function (row) {
-                return tableheader.rowHeight;
-            }
-            //此属性可以保存一个函数，该函数返回模型中每个列的列宽
-            columnWidthProvider: function (column) {
-                var key = "column" + String(column) + "Width";
-                if (tableview[key] !== undefined) {
-                    return tableview[key];
-                } else {
-                    return 60;
-                }
-            }
             model: TableModel {
                 TableModelColumn {
-                    display: DbFields.userInfo_Id
+                    display: UserInfo.ID
                 }
                 TableModelColumn {
-                    display: DbFields.userInfo_Account
+                    display: UserInfo.ACCOUNT
                 }
                 TableModelColumn {
-                    display: DbFields.userInfo_Name
+                    display: UserInfo.NAME
                 }
                 TableModelColumn {
-                    display: DbFields.userInfo_Status
+                    display: UserInfo.STATUS
                 }
                 TableModelColumn {
-                    display: DbFields.userInfo_Contact
+                    display: UserInfo.ROLENAME
                 }
                 TableModelColumn {
-                    display: DbFields.userInfo_Dept
+                    display: UserInfo.CONTACT
+                }
+                TableModelColumn {
+                    display: UserInfo.LASTLOGIN
+                }
+                TableModelColumn {
+                    display: UserInfo.CREATETIME
                 }
             }
 
@@ -367,35 +356,39 @@ Item {
                 model: tableview.model
             }
 
-            delegate: Rectangle {
-                color: (row === tableview.currentRow) ? "#1E90FF" : (tableview.alternatingRows && row % 2 !== 0) ? Qt.darker("white", 1.1) : "white"
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: tableview.selectRow(row)
+            delegate: DelegateChooser {
+                DelegateChoice {
+                    id: choiceStatus
+                    column: 3
+                    delegate: CellRect {
+                        Text {
+                            id: txt
+                            property int content: display || 0
+                            anchors.fill: parent
+                            anchors.margins: 2
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                            text: {
+                                if (content === 0)
+                                    return qsTr("User.Disabled");
+                                else
+                                    return qsTr("User.Enabled");
+                            }
+                            elide: Text.ElideRight
+                        }
+                    }
                 }
-                Text {
-                    id: txt
-                    property string content: display || ""
-                    anchors.fill: parent
-                    anchors.margins: 2
-                    verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
-                    //获取单元格对应的值
-                    text: (column !== 3) ? content : (content === 0) ? qsTr("User.Normal") : qsTr("User.Admin")
-                    elide: Text.ElideRight
-                }
-
-                Rectangle {
-                    anchors.bottom: parent.bottom
-                    width: parent.width
-                    height: 1
-                    color: Themer.lineColor
-                }
-                Rectangle {
-                    anchors.right: parent.right
-                    height: parent.height
-                    width: 1
-                    color: Themer.lineColor
+                DelegateChoice {
+                    delegate: CellRect {
+                        Text {
+                            anchors.fill: parent
+                            anchors.margins: 2
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
+                            text: display || ""
+                            elide: Text.ElideRight
+                        }
+                    }
                 }
             }
         }

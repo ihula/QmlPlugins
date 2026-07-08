@@ -22,26 +22,6 @@ Configer::Configer(QObject *parent) : QObject(parent)
 {
 }
 
-QString Configer::userName()
-{
-    return m_userName;
-}
-
-void Configer::setUserName(const QString &userName)
-{
-    m_userName = userName;
-}
-
-QString Configer::userAccount()
-{
-    return m_userAccount;
-}
-
-void Configer::setUserAccount(const QString &userAccount)
-{
-    m_userAccount = userAccount;
-}
-
 int Configer::logLevel()
 {
     return readValue("TraceLevel", "Log").toInt();

@@ -351,10 +351,10 @@ Rectangle {
                 editable: true
                 property string fieldName: "Tester="
                 onDownChanged: {
-                    if (popup.visible)
-                        model = getUsers();
+                    // if (popup.visible)
+                    //     model = getUsers();
                 }
-                model: getUsers()
+                // model: getUsers()
             }
 
             Label {

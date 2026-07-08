@@ -16,7 +16,6 @@
 
 class QSqlDatabase;
 
-#include "basemsgsender.h"
 #include "common.h"
 #include "singleton.h"
 #include <QJsonObject>
@@ -25,6 +24,7 @@ class QSqlDatabase;
 #include <QMutexLocker>
 #include <QObject>
 #include <QSqlQuery>
+#include <QThreadStorage>
 #include <map>
 #include <memory>
 
@@ -77,7 +77,7 @@ class DbManager : public QObject
     ~DbManager();
 
     /** @brief 连接数据库 */
-    StatusCode connect(const QString &dbname);
+    StatusCode connectDb(const QString &dbname);
 
     /** @brief 设置数据库WAL模式 */
     StatusCode setWalMode(bool enable);
@@ -132,10 +132,23 @@ class DbManager : public QObject
     int appendDatas(QList<QJsonObject> &datas, const QString &tableName, const QString &autoIncId = "Id");
 
     /**
+     *@brief 新增表数据
+     *@param[in] data:待添加的数据集
+     *@param[out] newId:返回的自增ID值
+     */
+    StatusCode appendData(const QVariantMap &data, quint64 &newId);
+
+    /**
+     *@brief 更新表数据
+     *@param[in] data:待更新的数据集及返回的自增ID值
+     */
+    StatusCode updateData(const QVariantMap &data, const QVariantMap &condData);
+
+    /**
      *@brief 执行SQL语句
      *@param[in] sql:执行SQL语句
      */
-    int execSql(const QString &sql);
+    StatusCode execSql(const QString &sql);
 
     /**
      *@brief 获取数据
@@ -183,6 +196,15 @@ class DbManager : public QObject
     /** @brief 设置所在线程的最后错误信息 */
     void setLastError(const MessageInfo &msg);
 
+  signals:
+    /**
+     * @brief 发送消息到信息中心
+     * @param info 错误信息或提示信息
+     * @param type 信息类型 (Toast/Confirmation)，默认为 Toast
+     * @param code 错误码，默认为 NoError
+     */
+    void messageEmitted(const MessageInfo &msg);
+
   private:
     /**
      * @brief QSqlQuery::bindValue 用到的信息
@@ -191,7 +213,7 @@ class DbManager : public QObject
     {
         QString holder;      // bindValue中的占位符
         FieldInfo fieldInfo; // 绑定字段的信息
-        QVariant val;        // 绑定的值
+        QVariant value;      // 绑定的值
     };
 
     StatusCode bindVariantValue(QSqlQuery &qry, const QList<BindInfo> &bindInfos);

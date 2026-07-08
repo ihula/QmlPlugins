@@ -116,15 +116,6 @@ class Configer : public QObject
     }
 
     ~Configer();
-    Q_PROPERTY(QString userName READ userName WRITE setUserName)
-
-    /** @brief 用户名 */
-    QString userName();
-    void setUserName(const QString &userName);
-
-    /** @brief 用户账号 */
-    Q_INVOKABLE QString userAccount();
-    Q_INVOKABLE void setUserAccount(const QString &userAccount);
 
     /** @brief 是否启用日志 */
     Q_INVOKABLE int logLevel();
@@ -269,10 +260,6 @@ class Configer : public QObject
 
     /** @brief 保存key的值到配置文件 */
     void writeValue(const QString &key, const QVariant &value, const QString &group = CFG_ROOT, const QString &file = CFG_FILE);
-
-  private:
-    QString m_userName = "";
-    QString m_userAccount = "";
 };
 
 #endif // CONFIGER_H

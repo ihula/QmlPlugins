@@ -12,185 +12,130 @@
 ** History:
 ****************************************************************************/
 #include "userinfo.h"
-#include "configer.h"
 #include "dbmanager.h"
+#include "rolemanager.h"
 #include <QCryptographicHash>
 #include <QDate>
 #include <QDebug>
 #include <QUuid>
 #include <QVariant>
 
-void UserInfo::loadDatas()
+void UserInfo::loadPermissions()
 {
-    QString sql = "SELECT * FROM UserInfo";
-    QSqlQuery query = DbManager::instance()->newQuery();
-    if (!query.exec(sql))
-    {
-        QString error = query.lastError().text();
-        qWarning() << "Query failed:" << error;
-        emit messageEmitted(MessageInfo(error, StatusCode::DbExecuteFailed));
-
+    m_permissions.clear();
+    if (m_roleName.isEmpty())
         return;
-    }
-
-    QSqlRecord record = query.record();
-    int columnCount = record.count();
-
-    for (int i = 0; i < columnCount; ++i)
-    {
-        m_headers << record.fieldName(i);
-    }
-
-    while (query.next())
-    {
-        QList<QVariant> row;
-        for (int i = 0; i < columnCount; ++i)
-        {
-            row << query.value(i);
-        }
-        m_data << row;
-    }
+    m_permissions = RoleManager::loadPermissions(m_roleName);
 }
 
-QJsonObject UserInfo::find(const QString &value, const QString &key)
+bool UserInfo::hasModuleAction(const QString &module, const QString &action)
 {
-    QJsonObject data = {};
-    QSqlQuery qry = DbManager::instance()->newQuery();
-    qry.prepare(QString("select * from UserInfo where %1 = :value").arg(key));
-    qry.bindValue(":value", value);
-    if (!qry.exec())
-    {
-        qDebug() << qry.lastError().text();
-        emit messageEmitted(MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed));
-        return data;
-    }
-    QList<QJsonObject> datas;
-    DbManager::instance()->getDbDatas(qry, datas);
-    if (datas.count() == 0)
-        return data;
-
-    data = datas[0];
-    return data;
+    if (!m_permissions.contains(module))
+        return false;
+    return m_permissions[module].contains(action);
 }
 
-QList<QVariantMap> UserInfo::getDatas()
+bool UserInfo::hasModule(const QString &module)
 {
-    QString sql = "select * from UserInfo";
+    return m_permissions.contains(module);
+}
+
+QList<QVariantMap> UserInfo::getUsers()
+{
+    QString sql = QString("select * from %1").arg(m_tableName);
     QList<QVariantMap> datas;
-    if (DbManager::instance()->getDatas(sql, datas) != StatusCode::Success)
-        sendDbMessage();
+    StatusCode status = DbManager::instance()->getDatas(sql, datas);
+    logDebug(status, "UserInfo::appendUser error.");
     return datas;
 }
 
-quint64 UserInfo::appendData(QJsonObject data)
+quint64 UserInfo::appendUser(const QVariantMap &data)
 {
+    QVariantMap newData = data;
+    newData.insert("TableName", m_tableName);
     // 确保盐值存在
-    if (!data.contains("Salt") || data["Salt"].toString().isEmpty())
+    if (!newData.contains(m_fieldSalt) || newData[m_fieldSalt].toString().isEmpty())
     {
-        data["Salt"] = generateSalt();
+        newData[m_fieldSalt] = generateSalt();
     }
     // 如果传入明文密码，使用数据库中的盐值进行哈希
-    if (data.contains("Password") && !data["Password"].toString().isEmpty())
+    if (newData.contains(m_fieldPassWord) && !newData[m_fieldPassWord].toString().isEmpty())
     {
-        data["Password"] = hashPassword(data["Password"].toString(), data["Salt"].toString());
+        newData[m_fieldPassWord] = hashPassword(newData[m_fieldPassWord].toString(), newData[m_fieldSalt].toString());
     }
-
-    QList<QJsonObject> datas;
-    datas.append(data);
-    int ret = DbManager::instance()->appendDatas(datas, "UserInfo");
-    if (ret > 0)
+    quint64 newId = 0;
+    StatusCode status = DbManager::instance()->appendData(newData, newId);
+    logDebug(status, "UserInfo::appendUser error.");
+    if (status == StatusCode::Success)
+        return newId;
+    else
         return 0;
-
-    return datas[0].value("Id").toString().toULongLong();
 }
 
-int UserInfo::updateData(QJsonObject data)
+int UserInfo::updateUser(const QVariantMap &data, const QVariantMap &condData)
 {
-    // 如果传入明文密码，使用数据库中的盐值进行哈希
-    if (data.contains("Password") && !data["Password"].toString().isEmpty())
+    QVariantMap newData = data;
+    newData.insert("TableName", m_tableName);
+    QVariantMap srcData = findUser(m_fieldId, condData[m_fieldId].toString());
+    if (srcData.isEmpty())
     {
-        // 确保盐值存在
-        if (!data.contains("Salt") || data["Salt"].toString().isEmpty())
-        {
-            data["Salt"] = generateSalt();
-        }
-        data["Password"] = hashPassword(data["Password"].toString(), data["Salt"].toString());
-    }
-
-    QStringList whereFileds = {};
-    whereFileds.append("Id");
-    QList<QJsonObject> datas = {};
-    datas.append(data);
-    int ret = DbManager::instance()->updateDatas(datas, whereFileds, "UserInfo");
-    return ret;
-}
-
-int UserInfo::deleteData(const QString &id)
-{
-    QSqlQuery qry = DbManager::instance()->newQuery();
-    qry.prepare("DELETE FROM UserInfo WHERE Id = :id");
-    qry.bindValue(":id", id);
-    if (!qry.exec())
-    {
-        qDebug() << qry.lastError().text();
-        emit messageEmitted(MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed));
+        logDebug(StatusCode::DBRecordNotFound, "UserInfo::updateUser error.");
         return 1;
     }
-    return 0;
+    newData[m_fieldSalt] = srcData[m_fieldSalt];
+    // 如果传入明文密码，使用数据库中的盐值进行哈希
+    if (newData.contains(m_fieldPassWord) && !newData[m_fieldPassWord].toString().isEmpty())
+    {
+        newData[m_fieldPassWord] = hashPassword(newData[m_fieldPassWord].toString(), newData[m_fieldSalt].toString());
+    }
+    StatusCode status = DbManager::instance()->updateData(newData, condData);
+    logDebug(status, "UserInfo::updateUser error.");
+    if (status == StatusCode::Success)
+        return 0;
+    else
+        return 1;
 }
 
-int UserInfo::accountExisted(const QString &account, const QString &id)
+int UserInfo::deleteUsers(const QStringList &idList)
 {
-    QSqlQuery qry = DbManager::instance()->newQuery();
+    QString sql = QString("DELETE FROM %1 WHERE Id IN (%2)").arg(m_tableName, idList.join(","));
+    StatusCode status = DbManager::instance()->execSql(sql);
+    logDebug(status, "UserInfo::updateUser error.");
+    if (status == StatusCode::Success)
+        return 0;
+    else
+        return 1;
+}
+
+int UserInfo::accountExisted(const QString &account, bool isUpdate)
+{
     QString sql;
-    if (id == "")
+    if (!isUpdate)
     {
-        qry.prepare("select Name from UserInfo where Account = :account");
+        sql = QString("select %1 from %2").arg(m_fieldId, m_tableName);
     }
     else
     {
-        qry.prepare("select Name from UserInfo where Account = :account and Id <> :id");
-        qry.bindValue(":id", id);
+        sql = QString("select %1 from %2 where %3 <> %4").arg(m_fieldId, m_tableName, m_fieldAccount, account);
     }
-    qry.bindValue(":account", account);
-    if (!qry.exec())
-    {
-        qDebug() << qry.lastError().text();
-        emit messageEmitted(MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed));
-        return 0;
-    }
-    QList<QJsonObject> datas;
-    DbManager::instance()->getDbDatas(qry, datas);
+
+    QList<QVariantMap> datas;
+    StatusCode status = DbManager::instance()->getDatas(sql, datas);
+    logDebug(status, "UserInfo::accountExisted error.");
     if (datas.size() > 0)
         return 1;
     else
         return 0;
 }
 
-int UserInfo::checkPassword(const QString &account, const QString &pwd)
-{
-    QJsonObject user = findUserByAccount(account);
-    if (user.isEmpty())
-    {
-        return 1; // 用户不存在
-    }
-    QString storedHash = user["Password"].toString();
-    QString salt = user["Salt"].toString();
-    if (verifyPassword(pwd, storedHash, salt))
-    {
-        return 0; // 密码正确
-    }
-    return 1; // 密码错误
-}
-
 bool UserInfo::login(const QString &account, const QString &pwd)
 {
     bool isLogined = false;
-    QVariantMap user = findUser("Account", account);
+    QVariantMap user = findUser(m_fieldAccount, account);
     if (!user.isEmpty())
     {
-        QString storedHash = user["Password"].toString();
-        QString salt = user["Salt"].toString();
+        QString storedHash = user[m_fieldPassWord].toString();
+        QString salt = user[m_fieldSalt].toString();
         if (salt.isEmpty())
         {
             isLogined = (storedHash == pwd);
@@ -203,55 +148,33 @@ bool UserInfo::login(const QString &account, const QString &pwd)
 
         if (isLogined)
         {
-            QString userName = user["Name"].toString();
-            Configer::instance()->setUserAccount(account);
-            Configer::instance()->setUserName(userName);
-            emit logined(account, userName);
+            m_userName = user[m_fieldName].toString();
+            m_userAccount = account;
+            m_roleName = user[m_fieldRoleName].toString();
+            emit logined(m_userAccount, m_userName);
         }
     }
     return isLogined;
 }
 
-QString UserInfo::getUserName(const QString &account)
+QString UserInfo::findUserName(const QString &account)
 {
-    QVariantMap user = findUser("Account", account);
+    QVariantMap user = findUser(m_fieldAccount, account);
     if (!user.isEmpty())
     {
-        return user["Name"].toString();
+        return user[m_fieldName].toString();
     }
     return "";
-}
-
-QJsonObject UserInfo::findUserByAccount(const QString &account)
-{
-    QJsonObject data;
-    QSqlQuery qry = DbManager::instance()->newQuery();
-    qry.prepare("select * from UserInfo where Account = :account");
-    qry.bindValue(":account", account);
-    if (!qry.exec())
-    {
-        qDebug() << qry.lastError().text();
-        emit messageEmitted(MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed));
-        return data;
-    }
-    QList<QJsonObject> datas;
-    DbManager::instance()->getDbDatas(qry, datas);
-    if (datas.size() > 0)
-    {
-        data = datas[0];
-    }
-    return data;
 }
 
 QVariantMap UserInfo::findUser(const QString &fieldName, const QString &val)
 {
     QVariantMap data;
     data.insert(fieldName + "=", QVariant(val));
-    data.insert("TableName", "UserInfo");
+    data.insert("TableName", m_tableName);
     QList<QVariantMap> datas;
     StatusCode status = DbManager::instance()->searchDatas(data, datas);
-    if (status != StatusCode::Success)
-        sendDbMessage();
+    logDebug(status, "UserInfo::findUser error.");
     if (datas.size() > 0)
         return datas[0];
     else

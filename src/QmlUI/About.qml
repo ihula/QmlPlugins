@@ -10,8 +10,7 @@ HulaDialog {
     title: qsTr("About.Title")
     footer.visible: false
 
-    Item {
-        anchors.fill: parent
+    contentItem: Item {
         Image {
             id: imgLogo
             anchors.left: parent.left

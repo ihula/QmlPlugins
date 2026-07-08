@@ -14,11 +14,12 @@
 #ifndef DATADICT_H
 #define DATADICT_H
 
-#include <QObject>
-#include <QJsonObject>
+#include "common.h"
 #include <QJsonArray>
+#include <QJsonObject>
+#include <QObject>
 #include <QTimer>
-#include "basemsgsender.h"
+#include <QtQml>
 
 /* @brief 数据字典Json格式
     "ID"-id qint64
@@ -31,11 +32,13 @@ class DataDict : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
-public:
+
+  public:
     DataDict(QObject *parent = nullptr);
 
     /** @brief 数据字典的类型 */
-    enum DictType {
+    enum DictType
+    {
         /** @brief 性别 */
         Sex = 1,
 
@@ -63,9 +66,9 @@ public:
     Q_INVOKABLE QStringList getValues(DictType type);
 
     /** @brief 新增字典值
-    *@param[in] data: json格式
-    *@return id
-    */
+     *@param[in] data: json格式
+     *@return id
+     */
     Q_INVOKABLE quint64 appendData(const QJsonObject &data);
 
     /** @brief 根据Json中的Id更新字典值 */
@@ -80,23 +83,18 @@ public:
     /** @brief 编号是否已存在 */
     Q_INVOKABLE int codeExisted(quint64 id, const QString &code);
 
-signals:
+  signals:
     /**
-    * @brief 发送消息到信息中心
-    * @param info 错误信息或提示信息
-    * @param type 信息类型 (Toast/Confirmation)，默认为 Toast
-    * @param code 错误码，默认为 NoError
-    */
-    void messageEmitted(MessageInfo msg);
+     * @brief 发送消息到信息中心
+     * @param info 错误信息或提示信息
+     * @param type 信息类型 (Toast/Confirmation)，默认为 Toast
+     * @param code 错误码，默认为 NoError
+     */
+    void messageEmitted(const MessageInfo &msg);
 
-private:
-    /** @brief 不方便使用多重继承,定义类成员变量 */
-    BaseMsgSender m_sender;
-
+  private:
     /** @brief 最后一次错误信息 */
     MessageInfo m_lastError;
 };
 
 #endif // DATADICT_H
-
-

@@ -24,11 +24,13 @@
 #include "hulaxlsx.h"
 #endif
 #include "dbmanager.h"
+#include "messagecenter.h"
 #include "translater.h"
 
-Patients::Patients(QObject *parent) : QObject(parent), m_sender(this)
+Patients::Patients(QObject *parent) : QObject(parent)
 {
-    connect(this, &Patients::messageEmitted, &m_sender, &BaseMsgSender::messageEmitted);
+    MessageCenter *msgCenter = MessageCenter::instance();
+    connect(this, &Patients::messageEmitted, msgCenter, &MessageCenter::handleMessage);
 }
 
 QJsonObject Patients::findPatient(const QString &value, const QString &key)
@@ -62,25 +64,22 @@ QList<QJsonObject> Patients::findPatients(const QJsonObject &data)
     return datas;
 }
 
-QList<QVariantMap> Patients::searchDatas(const QVariantMap &data)
+QList<QVariantMap> Patients::searchPatients(const QVariantMap &data)
 {
     QVariantMap cond = data;
     cond.insert("TableName", "PatientInfo");
     QList<QVariantMap> datas;
     StatusCode status = DbManager::instance()->searchDatas(cond, datas);
-    if (status != StatusCode::Success)
-        sendDbMessage();
-
+    logDebug(status, "Patients::searchDatas error.");
     return datas;
 }
 
-QList<QVariantMap> Patients::getAllPatients()
+QList<QVariantMap> Patients::getPatients()
 {
     QString sql = "select * from PatientInfo";
     QList<QVariantMap> datas;
     StatusCode status = DbManager::instance()->getDatas(sql, datas);
-    if (status != StatusCode::Success)
-        sendDbMessage();
+    logDebug(status, "Patients::getPatients error.");
     return datas;
 }
 

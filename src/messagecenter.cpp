@@ -1,7 +1,7 @@
 #include "messagecenter.h"
-#include "configer.h"
 #include "dbmanager.h"
 #include "hulalogger.h"
+#include "userinfo.h"
 #include <QDate>
 #include <QDateTime>
 #include <QDir>
@@ -162,8 +162,8 @@ void MessageCenter::handleMessage(const MessageInfo &msg)
         QVariantMap data;
         data["ErrorInfo"] = msg.text;
         data["StatusCode"] = static_cast<int>(msg.statusCode);
-        data["UserCode"] = Configer::instance()->userAccount();
-        data["UserName"] = Configer::instance()->userName();
+        data["UserCode"] = UserInfo::instance()->userAccount();
+        data["UserName"] = UserInfo::instance()->userName();
         data["LogTime"] = QDateTime::currentDateTime().toString(TIME_MSEC_FMT);
         appendData(data);
     }

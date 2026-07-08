@@ -9,6 +9,8 @@ HulaDialog {
     width: 960
     height: 660
     title: qsTr("MessageCenter.Title")
+    // 覆写默认 Label；自定义内容由下方子项填充（高度固定 660）
+    contentItem: Item {}
 
     onVisibleChanged: {
         if (visible) {

@@ -12,17 +12,17 @@
 ** History:
 ****************************************************************************/
 #include "datadict.h"
-#include <QSqlQuery>
-#include <QVariant>
+#include "dbmanager.h"
+#include "messagecenter.h"
 #include <QDebug>
 #include <QSqlError>
-#include "dbmanager.h"
-
+#include <QSqlQuery>
+#include <QVariant>
 
 DataDict::DataDict(QObject *parent) : QObject(parent)
-    ,m_sender(this)
 {
-    connect(this, &DataDict::messageEmitted, &m_sender, &BaseMsgSender::messageEmitted);
+    MessageCenter *msgCenter = MessageCenter::instance();
+    connect(this, &DataDict::messageEmitted, msgCenter, &MessageCenter::handleMessage);
 }
 
 QList<QJsonObject> DataDict::getDatas(DictType type)
@@ -31,7 +31,8 @@ QList<QJsonObject> DataDict::getDatas(DictType type)
     QSqlQuery qry = DbManager::instance()->newQuery();
     qry.prepare("select * from DataDict where Type = :type");
     qry.bindValue(":type", static_cast<int>(type));
-    if (!qry.exec()) {
+    if (!qry.exec())
+    {
         m_lastError = MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed);
         emit messageEmitted(m_lastError);
         return datas;
@@ -50,7 +51,7 @@ QStringList DataDict::getValues(DictType type)
     return values;
 }
 
-quint64 DataDict::appendData(const QJsonObject& data)
+quint64 DataDict::appendData(const QJsonObject &data)
 {
     QList<QJsonObject> datas;
     datas.append(data);
@@ -61,7 +62,7 @@ quint64 DataDict::appendData(const QJsonObject& data)
     return datas[0].value("Id").toString().toULongLong();
 }
 
-int DataDict::updateData(const QJsonObject& data)
+int DataDict::updateData(const QJsonObject &data)
 {
     QStringList whereFileds = {};
     whereFileds.append("Id");
@@ -76,7 +77,8 @@ int DataDict::deleteData(quint64 id)
     QSqlQuery qry = DbManager::instance()->newQuery();
     qry.prepare("DELETE from DataDict where Id = :id");
     qry.bindValue(":id", id);
-    if (!qry.exec()) {
+    if (!qry.exec())
+    {
         m_lastError = MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed);
         emit messageEmitted(m_lastError);
         return 1;
@@ -89,17 +91,21 @@ MessageInfo DataDict::lastError()
     return m_lastError;
 }
 
-int DataDict::codeExisted(quint64 id, const QString& code)
+int DataDict::codeExisted(quint64 id, const QString &code)
 {
     QSqlQuery qry = DbManager::instance()->newQuery();
-    if (id == 0) {
+    if (id == 0)
+    {
         qry.prepare("select Name from DataDict where Code = :code");
-    } else {
+    }
+    else
+    {
         qry.prepare("select Name from DataDict where Code = :code and Id <> :id");
         qry.bindValue(":id", id);
     }
     qry.bindValue(":code", code);
-    if (!qry.exec()) {
+    if (!qry.exec())
+    {
         m_lastError = MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed);
         emit messageEmitted(m_lastError);
         return 1;

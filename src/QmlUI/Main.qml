@@ -5,6 +5,7 @@ import HulaPlugins
 
 QtObject {
     id: main
+    objectName: "main"
     property bool useSplash: Configer.enableSplash()
     property bool useLogin: Configer.enableLogin()
 
@@ -35,6 +36,8 @@ QtObject {
         source: "./Login.qml"
         active: (!useSplash && useLogin)
         onLoaded: {
+            loginLoader.item.unloadMainForm();
+
             item.showing.connect(function () {
                 mainLoader.active = true;
             });

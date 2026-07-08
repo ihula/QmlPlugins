@@ -14,11 +14,12 @@
 #ifndef PATIENTINFO_H
 #define PATIENTINFO_H
 
-#include "basemsgsender.h"
+#include "common.h"
 #include <QDateTime>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QObject>
+#include <QtQml>
 
 class Patients : public QObject
 {
@@ -48,13 +49,13 @@ class Patients : public QObject
      *值可以为任意类型,查询数据库时会将值转化为字段类型的值
      *@return 样本信息列表
      */
-    Q_INVOKABLE QList<QVariantMap> searchDatas(const QVariantMap &data);
+    Q_INVOKABLE QList<QVariantMap> searchPatients(const QVariantMap &data);
 
     /**
      *@brief 读取所有样本信息
      *@return 样本信息Json格式
      */
-    Q_INVOKABLE QList<QVariantMap> getAllPatients();
+    Q_INVOKABLE QList<QVariantMap> getPatients();
 
     /**
      *@brief 新增样本信息
@@ -144,14 +145,11 @@ class Patients : public QObject
      * @param type 信息类型 (Toast/Confirmation)，默认为 Toast
      * @param code 错误码，默认为 NoError
      */
-    void messageEmitted(MessageInfo msg);
+    void messageEmitted(const MessageInfo &msg);
 
   private:
     /** @brief 发送数据库错误消息 */
     void sendDbMessage();
-
-    /** @brief 不使用多重继承,定义类成员变量 */
-    BaseMsgSender m_sender;
 };
 
 #endif // PATIENTINFO_H

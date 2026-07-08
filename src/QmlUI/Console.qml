@@ -59,8 +59,12 @@ Item {
         property string title: ""
         property double totalTimes: 100
         property double usedTimes: 98
+        property double remainTimes: totalTimes - usedTimes
         property double needWashTimes: 10
         property double continuedUsedTimes: 0
+        property double perWidth: itemTotal.width / totalTimes
+        property alias barContinued: itemContinued
+        property alias barNeedWash: itemNeedWash
         Layout.fillWidth: true
         spacing: 4
 
@@ -72,44 +76,52 @@ Item {
         }
 
         Rectangle {
+            id: itemTotal
             height: 16
             Layout.fillWidth: true
             radius: 4
             color: Qt.darker("#E17055", 1.2)
 
             Rectangle {
-                id: itemUsed
+                id: itemRemain
                 height: parent.height
-                width: (gram.totalTimes - gram.usedTimes) / gram.totalTimes * parent.width
+                width: gram.remainTimes * gram.perWidth
                 radius: 4
+                topRightRadius: gram.totalTimes > gram.remainTimes ? 0 : 4
+                bottomRightRadius: topRightRadius
                 color: "#00B894"
             }
 
             Rectangle {
                 id: itemContinued
-                anchors.left: itemUsed.right
+                anchors.right: itemTotal.right
                 height: parent.height
-                width: gram.continuedUsedTimes / gram.totalTimes * parent.width
-                radius: 0
-                color: "yellow"
-                visible: (needWashTimes > 0) && ((gram.totalTimes - gram.usedTimes) > gram.needWashTimes) ? true : false
+                width: gram.continuedUsedTimes * gram.perWidth
+                radius: 4
+                topLeftRadius: 0
+                bottomLeftRadius: 0
+                color: "#80FDCB6E"
+                // 过期还在使用:((gram.remainTimes < 0) && (gram.continuedUsedTimes > 0))
+                // 需要清洗,且剩下的次超过要清洗的次数:((needWashTimes > 0) && (gram.remainTimes > gram.needWashTimes))
+                visible: ((needWashTimes > 0) && (gram.remainTimes > gram.needWashTimes)) || ((gram.remainTimes < 0) && (gram.continuedUsedTimes > 0)) ? true : false
             }
 
             Rectangle {
-                anchors.right: itemContinued.left
-                anchors.rightMargin: (gram.needWashTimes - gram.continuedUsedTimes) / gram.totalTimes * parent.width
+                id: itemNeedWash
+                anchors.right: itemTotal.right
+                anchors.rightMargin: gram.needWashTimes * gram.perWidth
                 height: parent.height
                 width: 2
                 radius: 0
-                color: "yellow"
-                visible: (needWashTimes > 0) && ((gram.totalTimes - gram.usedTimes) > gram.needWashTimes) ? true : false
+                color: "#80FDCB6E"
+                visible: itemContinued.visible
             }
 
             Text {
                 anchors.left: parent.left
                 anchors.leftMargin: 8
                 anchors.verticalCenter: parent.verticalCenter
-                text: String(gram.totalTimes - gram.usedTimes) + " T"
+                text: String(gram.remainTimes) + " T"
                 font.pixelSize: 14
                 font.weight: Font.Medium
                 color: "white"
@@ -202,7 +214,13 @@ Item {
                     }
 
                     Text {
-                        text: "128 /T"
+                        text: "已测：" + "128 T"
+                        font.pixelSize: 16
+                        font.bold: true
+                        color: "white"
+                    }
+                    Text {
+                        text: "待测：" + "108 T"
                         font.pixelSize: 16
                         font.bold: true
                         color: "white"
@@ -260,9 +278,10 @@ Item {
                 id: chartSpec
                 // 获取标题栏高度（通过 plotArea.y 间接获取）
                 property int titleBarHeight: plotArea.y
-                property color bar1Color: "#E17055"
-                property color bar2Color: "#00B894"
-                property var months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                property color abnormalColor: "#E17055"
+                property color totalColor: "#00B894"
+                property var week: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+                property var year: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
                 Layout.margins: -8
                 Layout.fillWidth: true
@@ -284,13 +303,13 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         width: 12
                         height: 12
-                        color: chartSpec.bar1Color
+                        color: chartSpec.totalColor
                     }
 
                     Text {
-                        id: text1
+                        id: textTotal
                         anchors.verticalCenter: parent.verticalCenter
-                        text: qsTr("总数")
+                        text: qsTr("Console.Total")
                         color: Themer.fontDarkColor
                         font.pixelSize: 18
                     }
@@ -304,13 +323,13 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         width: 12
                         height: 12
-                        color: chartSpec.bar2Color
+                        color: chartSpec.abnormalColor
                     }
 
                     Text {
-                        id: text2
+                        id: textAbnormal
                         anchors.verticalCenter: parent.verticalCenter
-                        text: qsTr("异常数")
+                        text: qsTr("Console.Abnormal")
                         color: Themer.fontDarkColor
                         font.pixelSize: 18
                     }
@@ -344,18 +363,33 @@ Item {
                                 Material.foreground: hovered ? Themer.buttonColor : "black"
                                 Material.background: checked ? "white" : "transparent"
                                 checkable: true
+                                checked: index === 0
                                 flat: !checked
                                 radius: 6
                                 autoExclusive: true
+                                onClicked: {
+                                    if (index === 0) {
+                                        stackBS.axisX.categories = chartSpec.week;
+                                    } else if (index === 1) {
+                                        let days = Window.window.getCurrentMonthDays();
+                                        let month = [];
+                                        for (let i = 0; i < days; i++)
+                                            month.push(String(i + 1));
+                                        stackBS.axisX.categories = month;
+                                    } else if (index === 2) {
+                                        stackBS.axisX.categories = chartSpec.year;
+                                    }
+                                }
                             }
                         }
                     }
                 }
 
                 StackedBarSeries {
+                    id: stackBS
                     axisX: BarCategoryAxis {
                         gridVisible: false
-                        categories: chartSpec.months//["2007", "2008", "2009", "2010", "2011", "2012"]
+                        categories: chartSpec.week
                     }
                     axisY: ValueAxis {
                         gridVisible: false
@@ -363,12 +397,12 @@ Item {
                     BarSet {
                         id: bar1
                         values: [2, 2, 3, 4, 5, 6]
-                        color: chartSpec.bar1Color
+                        color: chartSpec.abnormalColor
                     }
                     BarSet {
                         id: bar2
                         values: [5, 1, 2, 4, 1, 7]
-                        color: chartSpec.bar2Color
+                        color: chartSpec.totalColor
                     }
                 }
             }
@@ -378,7 +412,7 @@ Item {
                 width: 300
                 height: 300
                 radius: 8
-                color: "#f8f8f8"
+                color: Themer.workFormColor
 
                 ColumnLayout {
                     anchors.fill: parent
@@ -395,9 +429,9 @@ Item {
                     Repeater {
                         id: reptGram
                         property var totalTimesList: [100, 100, 100, 100, 100, 100, 100, 100, 100]
-                        property var usedTimesList: [9, 96, 40, 83, 50, 45, 34, 56, 55]
+                        property var usedTimesList: [9, 196, 40, 83, 50, 45, 34, 90, 90]
                         property var needWashTimesList: [0, 10, 10, 10, 10, 10, 10, 10, 10]
-                        property var continuedUsedTimesList: [0, 5, 4, 5, 5, 4, 3, 6, 5]
+                        property var continuedUsedTimesList: [0, 5, 4, 10, 5, 14, 9, 5, 5]
                         property var names: ["灯泡", "CH1", "CH2", "CH3", "CH4", "CH5", "CH6", "CH7", "CH8"]
                         model: names.length
 
@@ -717,11 +751,5 @@ Item {
                 }
             }
         }
-    }
-
-    TabBar {
-        id: periodTabBar
-        visible: false
-        currentIndex: 1
     }
 }

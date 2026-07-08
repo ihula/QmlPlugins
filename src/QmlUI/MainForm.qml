@@ -4,21 +4,23 @@ import QtQuick.Controls.Material
 import QtQuick.Layouts
 import Qt.labs.qmlmodels
 import QtQuick.Effects
+import QtQml
 import HulaPlugins 1.0
 import "../Components"
 
 Window {
     id: mainForm
+    objectName: "mainForm"
     property int formShowMode: Configer.mainFormShowMode()
     property double alpha: Configer.useWallPaper() ? (0xb0 / 255) : 1
-    property string userName: ""
+    property string userName: UserInfo.userName
 
     signal showing
     signal closeing
     signal showed
 
-    width: 1568
-    height: 864
+    width: 1568//1920
+    height: 864//1080
     title: qsTr("AppName")
     flags: Qt.Window | Qt.FramelessWindowHint
     opacity: 0
@@ -38,7 +40,17 @@ Window {
             mainForm.showFullScreen();
         }
         fadeInAni.start();
-        onLogined();
+    }
+
+    function getMonthDays(year, month) {
+        // month: 0-11 (0=一月, 11=十二月)
+        return new Date(year, month, 0).getDate();
+    }
+
+    // 获取当前年月的天数
+    function getCurrentMonthDays() {
+        var now = new Date();
+        return getMonthDays(now.getFullYear(), now.getMonth() + 1, 0);
     }
 
     onVisibleChanged: {
@@ -48,8 +60,11 @@ Window {
         }
     }
 
-    UserInfo {
-        id: userInfo
+    Connections {
+        target: UserInfo
+        function onLogined(account, userName) {
+            mainForm.userName = userName;
+        }
     }
 
     Loader {
@@ -84,7 +99,7 @@ Window {
                 anchors.top: parent.top
                 width: parent.width
                 appName: Window.window.title
-                height: 54
+                height: 72
             }
 
             StackView {
@@ -154,9 +169,10 @@ Window {
                 Repeater {
                     id: leftRepeater
                     property int currentIndex: -1
-                    property var iconList: ["Images/console.svg", "Images/test.svg", "Images/search.svg", "Images/statistic.svg", "Images/setting.svg", "Images/user.svg"]
-                    property var pages: [loaderConsole, loaderSpecimen, loaderSearch, loaderStatistics, loaderSetting, loaderUser]
-                    model: ["MainForm.Console", "MainForm.Specimen", "MainForm.Search", "MainForm.Statistics", "MainForm.Setting", "User"]
+                    property var iconList: ["Images/console.svg", "Images/test.svg", "Images/search.svg", "Images/statistic.svg", "Images/setting.svg", "Images/about.svg"]
+                    property var pages: [loaderConsole, loaderChartCard, loaderSearch, loaderStatistics, loaderSetting]
+                    model: ["MainForm.Console", "MainForm.Specimen", "MainForm.Search", "MainForm.Statistics", "MainForm.Setting", "MainForm.About"]
+
                     delegate: RoundButton {
                         id: btnTest
                         ButtonGroup.group: btnWorkGroups
@@ -173,8 +189,42 @@ Window {
                         Material.foreground: "white"
                         height: 54
                         hoverEnabled: true
-                        checkable: true
-                        rightPadding: 60
+                        checkable: (index !== leftRepeater.pages.length)
+                        contentItem: Row {
+                            anchors.fill: parent
+                            anchors.leftMargin: 32
+                            spacing: 4
+                            Image {
+                                id: btnIcon
+                                antialiasing: true
+                                smooth: true
+                                mipmap: true  // 针对图片元素开启多级纹理过滤
+                                anchors.verticalCenter: parent.verticalCenter
+                                source: btnTest.icon.source
+                                width: btnText.height
+                                height: btnText.height
+                                fillMode: Image.PreserveAspectFit
+                                layer.enabled: true
+                                layer.effect: MultiEffect {
+                                    antialiasing: true
+                                    smooth: true
+                                    source: btnIcon
+                                    brightness: 1.0
+                                    colorization: 1.0
+                                    colorizationColor: "white"
+                                }
+                            }
+
+                            Text {
+                                id: btnText
+                                color: "white"
+                                font.pixelSize: 18
+                                horizontalAlignment: Text.AlignLeft
+                                verticalAlignment: Text.AlignVCenter
+                                text: btnTest.text
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+                        }
 
                         background: Rectangle {
                             anchors.fill: parent
@@ -183,38 +233,31 @@ Window {
                         }
 
                         onClicked: {
+                            if (index === leftRepeater.pages.length) {
+                                openDialog("About.qml");
+                                return;
+                            }
+
                             if (leftRepeater.currentIndex === index)
                                 return;
 
                             leftRepeater.currentIndex = index;
+                            if (index === 1) {
+                                topBar.appendLeftItem(tabbar);
+
+                                if (tabbar.currentIndex === 1) {
+                                    loaderSpecimen.active = true;
+                                    router.replace(loaderSpecimen);
+                                    return;
+                                }
+                            } else {
+                                topBar.removeLeftItem(tabbar);
+                            }
+
                             leftRepeater.pages[index].active = true;
                             router.replace(leftRepeater.pages[index]);
                         }
                     }
-                }
-
-                RoundButton {
-                    id: btnAbout
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    display: AbstractButton.TextBesideIcon
-                    font.pixelSize: 18
-                    text: qsTr("MainForm.About")
-                    icon.source: "file:" + "Images/about.svg"
-                    radius: 8
-                    Material.foreground: "white"
-                    height: 54
-                    icon.height: 36
-                    icon.width: 36
-                    flat: true
-                    rightPadding: 60
-                    hoverEnabled: true
-                    background: Rectangle {
-                        anchors.fill: parent
-                        color: parent.checked ? "#30ffffff" : (parent.hovered ? "#10000000" : "transparent")
-                        radius: parent.radius
-                    }
-                    onClicked: openDialog("About.qml")
                 }
             }
             Label {
@@ -241,6 +284,26 @@ Window {
         }
     }
 
+    TabBar {
+        id: tabbar
+        visible: false
+        font.pixelSize: 18
+        TabButton {
+            text: "图表显示"
+            onClicked: {
+                loaderChartCard.active = true;
+                router.replace(loaderChartCard);
+            }
+        }
+        TabButton {
+            text: "表格显示"
+            onClicked: {
+                loaderSpecimen.active = true;
+                router.replace(loaderSpecimen);
+            }
+        }
+    }
+
     Loader {
         id: loaderConsole
         active: false
@@ -250,7 +313,7 @@ Window {
     Loader {
         id: loaderSpecimen
         active: false
-        source: "Specimen.qml"
+        source: "PatientForm.qml"
     }
 
     Loader {
@@ -262,7 +325,7 @@ Window {
     Loader {
         id: loaderStatistics
         active: false
-        source: "Page2.qml" //"Statistic.qml"
+        source: "Page0.qml" //"Statistic.qml"
     }
 
     Loader {
@@ -272,9 +335,9 @@ Window {
     }
 
     Loader {
-        id: loaderUser
+        id: loaderChartCard
         active: false
-        source: "UserManagerForm.qml"
+        source: "ChartCard.qml"
     }
 
     Image {
@@ -364,7 +427,6 @@ Window {
                 }
             }
             dlg.show();
-            dlg.onClosed.connect(onLogined);
         } else {
             let msg = {};
             msg["text"] = "Failed to create Login object";
@@ -396,10 +458,6 @@ Window {
             msg["promptType"] = Enums.PromptType.Error;
             MessageCenter.handleQmlMessage(msg);
         }
-    }
-
-    function onLogined() {
-        mainForm.userName = Configer.userName;
     }
 
     function openDialogPrompt(text, callbackOnOk = null, title = "MessageBox.Confirm") {
@@ -505,20 +563,6 @@ Window {
             return "0" + temp;
         else
             return temp;
-    }
-
-    function getUsers() {
-        var users = [];
-        var infos = userInfo.getDatas();
-        for (var i = 0; i < infos.length; i++) {
-            var name = infos[i]["Name"];
-            if (name.indexOf("admin") > -1)
-                continue;
-            if (name.indexOf("Admin") > -1)
-                continue;
-            users.push(name);
-        }
-        return users;
     }
 
     function strToInt(str) {

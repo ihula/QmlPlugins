@@ -12,6 +12,10 @@ HulaDialog {
     width: 520
     height: 430
     title: qsTr("MessageCenter.Title")
+    leftPadding: 12
+    rightPadding: 12
+    topPadding: 12
+    bottomPadding: 12
     property font selectedFont: null
     signal selected(font font)
 
@@ -22,13 +26,8 @@ HulaDialog {
             return "Microsoft YaHei";
     }
 
-    ColumnLayout {
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
+    contentItem: ColumnLayout {
         spacing: 10
-        anchors.margins: 12
 
         // 字体列表 + 预览
         RowLayout {

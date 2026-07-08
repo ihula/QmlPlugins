@@ -30,6 +30,10 @@ Window {
         }
     }
 
+    function unloadMainForm() {
+        btnLogin.enabled = false;
+    }
+
     function loadedMainForm() {
         btnLogin.enabled = true;
     }
@@ -60,10 +64,6 @@ Window {
             edtUserPwd.text = "";
             showing();
         }
-    }
-
-    UserInfo {
-        id: userInfo
     }
 
     Rectangle {
@@ -175,19 +175,17 @@ Window {
                     font.pixelSize: 18
                     placeholderText: qsTr("Login.UserId")
                     focus: true
-                    text: reLogin ? "" : Configer.userAccount()
+                    text: UserInfo.userAccount
                     onTextChanged: {
                         lblHint.text = "";
-                        unfoundUserId = false;
                         if (text.trim() === "") {
                             edtUserName.text = "";
                             return;
                         }
 
-                        edtUserName.text = userInfo.getUserName(text.trim());
+                        edtUserName.text = UserInfo.findUserName(text.trim());
                         if (edtUserName.text === "") {
                             lblHint.text = qsTr("Login.UnfoundId");
-                            unfoundUserId = true;
                         }
                     }
                     Keys.enabled: true
@@ -310,7 +308,7 @@ Window {
                         id: btnCancel
                         height: parent.height
                         width: parent.width / 5 * 2 - 12
-                        Material.foreground: "#707070"
+                        Material.background: "white"
                         //Material.background: "transparent"
                         font.pixelSize: 18
                         Keys.enabled: true
@@ -319,7 +317,7 @@ Window {
                         radius: 12
                         text: qsTr("Login.Cancel")
                         onClicked: {
-                            if (reLogin) {
+                            if (UserInfo.userAccount !== "") {
                                 root.close();
                             } else {
                                 Qt.quit();
@@ -328,7 +326,6 @@ Window {
                     }
                     RoundButton {
                         id: btnLogin
-                        enabled: reLogin ? true : false
                         height: parent.height
                         width: parent.width / 5 * 3 - 12
                         Material.background: "#0075EF"
@@ -341,15 +338,12 @@ Window {
                         Keys.onReturnPressed: btnLogin.clicked()
                         radius: 12
                         onClicked: {
-                            if (unfoundUserId)
-                                return;
-                            if (!userInfo.login(edtUserId.text.trim(), edtUserPwd.text.trim())) {
+                            if (!UserInfo.login(edtUserId.text.trim(), edtUserPwd.text.trim())) {
                                 lblHint.text = qsTr("Login.PasswordError");
                                 return;
                             }
 
-                            if (!reLogin)
-                                root.closeing();
+                            root.closeing();
                             root.close();
                         }
                     }

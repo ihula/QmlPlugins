@@ -31,7 +31,7 @@ signals:
     * @param type 信息类型 (Toast/Confirmation)，默认为 Toast
     * @param code 错误码，默认为 NoError
     */
-    void messageEmitted(MessageInfo msg);
+    void messageEmitted(const MessageInfo &msg);
 };
 
 #endif // BASEMSGSENDER_H

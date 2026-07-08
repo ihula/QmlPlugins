@@ -16,9 +16,37 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <QDebug>
 #include <QObject>
 #include <QString>
 #include <QtQml/qqmlregistration.h>
+
+/**
+ * @brief 权限模块常量
+ */
+namespace PermModule
+{
+inline const QString DataDict = QStringLiteral("DataDict");
+inline const QString MessageCenter = QStringLiteral("MessageCenter");
+inline const QString Patients = QStringLiteral("Patients");
+inline const QString Preferences = QStringLiteral("Preferences");
+inline const QString Report = QStringLiteral("Report");
+inline const QString RoleManager = QStringLiteral("RoleManager");
+inline const QString UserInfo = QStringLiteral("UserInfo");
+} // namespace PermModule
+
+/**
+ * @brief 权限动作常量
+ */
+namespace PermAction
+{
+inline const QString Read = QStringLiteral("Read");
+inline const QString Write = QStringLiteral("Write");
+inline const QString Delete = QStringLiteral("Delete");
+inline const QString Review = QStringLiteral("Review");
+inline const QString Print = QStringLiteral("Print");
+inline const QString Export = QStringLiteral("Export");
+} // namespace PermAction
 
 namespace Enums
 {
@@ -91,7 +119,9 @@ enum class StatusCode
     DbTableNotFound = 1206,  ///< 表不存在
     DbRecordNotFound = 1207, ///< 记录不存在
     DbDuplicateKey = 1208,   ///< 主键冲突
-
+    DbNullData = 1209,       ///< 数据为空
+    DBSqlNull = 1210,        ///< SQL语句为空
+    DBRecordNotFound = 1211, ///< 数据记录未打到
     // 网络模块错误 (1300-1399)
     NetworkError = 1301,       ///< 网络错误
     ConnectionTimeout = 1302,  ///< 连接超时
@@ -182,5 +212,17 @@ struct MessageInfo
 };
 
 Q_DECLARE_METATYPE(MessageInfo)
+
+inline void logDebug(StatusCode status, const QString &text)
+{
+    if (status != StatusCode::Success)
+        qDebug().nospace() << "Error code:" << status << ";" << text;
+}
+
+inline void logError(StatusCode status, const QString &text)
+{
+    if (status != StatusCode::Success)
+        qCritical().nospace() << "Error code:" << status << ";" << text;
+}
 
 #endif // COMMON_H

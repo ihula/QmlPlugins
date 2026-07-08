@@ -21,7 +21,7 @@ QtObject {
     property color gradientColor1: "#3b477f"
     property color gradientColor2: "#5a6bb8"
     property color titleFontColor: "white"
-    property color workFormColor: "#ffffff"
+    property color workFormColor: "#f8f8f8"
     property color iconHoveredColor: "#2b7adb"
     property color editorFontColor: "#535353"
     property color editedFontColor: "#e91e63"
@@ -37,11 +37,11 @@ QtObject {
     property color leftTitleColor: "white"
     property color warnColor: "#f67b3e"
     property color loginLeftBackColor: "#1B6CB5"
-    property color fontDarkColor: "#535353"
+    property color fontDarkColor: "#212121"
     property color fontLightColor: "#ffffff"
 
     property int editorFontSize: 18
-    property int editorHeight: 36
+    property int editorHeight: 42
     property int buttonFontSize: 18
     property int buttonHeight: 48
     property int buttonWidth: 120

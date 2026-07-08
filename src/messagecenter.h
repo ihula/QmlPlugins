@@ -63,7 +63,7 @@ class MessageCenter : public QObject
     Q_INVOKABLE void handleQmlMessage(const QVariantMap &msg);
 
   signals:
-    void messageEmitted(MessageInfo msg);
+    void messageEmitted(const MessageInfo &msg);
 
   private:
     QString getErrorInfoDir() const;

@@ -27,30 +27,30 @@ qt_standard_project_setup(REQUIRES 6.7)
 
 # 创建可执行文件
 qt_add_executable(${APP_NAME}
+    # src/configer.h
+    # src/configer.cpp
+    # src/messagecenter.h
+    # src/messagecenter.cpp
+    # src/userinfo.h
+    # src/userinfo.cpp
+    # src/datadict.h
+    # src/datadict.cpp
+    # src/patients.h
+    # src/patients.cpp
+    # src/rolemanager.h
+    # src/rolemanager.cpp
+    # src/utils.h
+    # src/utils.cpp
+    # src/idgenerator.h
     src/main.cpp
     src/singleappwatcher.h
     src/singleton.h
-    src/configer.h
-    src/configer.cpp
     src/dbmanager.h
     src/dbmanager.cpp
     src/hulalogger.h
     src/hulalogger.cpp
     src/translater.h
-    src/translater.cpp
-    src/messagecenter.h
-    src/messagecenter.cpp
-    src/basemsgsender.h
-    src/basemsgsender.cpp
-    src/userinfo.h
-    src/userinfo.cpp
-    src/datadict.h
-    src/datadict.cpp
-    src/patients.h
-    src/patients.cpp
-#    src/idgenerator.h
-    src/utils.h
-    src/utils.cpp
+    src/translater.cpp 
 )
 
 # 使用 CMake 变量来定义 URI，供 CMake 使用
@@ -71,7 +71,6 @@ set_source_files_properties(
     src/QmlUI/DarkBlueTheme.qml
     src/QmlUI/BlueTheme.qml
     src/QmlUI/Themer.qml
-    src/QmlUI/DbFields.qml
     PROPERTIES QT_QML_SINGLETON_TYPE TRUE
 )
 
@@ -96,12 +95,12 @@ qt_add_qml_module(${APP_NAME}
         ${QML_SOURCES}
     SOURCES
         src/common.h
-        #src/translater.h src/translater.cpp
         src/userinfo.h src/userinfo.cpp
         src/messagecenter.h src/messagecenter.cpp
         src/configer.h src/configer.cpp
         src/datadict.h src/datadict.cpp
         src/patients.h src/patients.cpp
+        src/rolemanager.h src/rolemanager.cpp
         src/utils.h src/utils.cpp
 )
 

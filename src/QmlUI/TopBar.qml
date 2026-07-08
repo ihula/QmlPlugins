@@ -149,30 +149,9 @@ Rectangle {
     }
 
     RoundButton {
-        id: btnPreferences
-        anchors.right: btnMin.left
-        anchors.rightMargin: 12
-        anchors.verticalCenter: parent.verticalCenter
-        display: AbstractButton.IconOnly
-        icon.source: "file:" + "Images/preferences.svg"
-        icon.height: 32
-        icon.width: 32
-        height: 54
-        flat: true
-        hoverEnabled: true
-        icon.color: hovered ? (Themer.iconHoveredColor) : "transparent"
-
-        HulaToolTip {
-            text: qsTr("Topbar.Preferences")
-        }
-
-        onClicked: Window.window.openDialog("Preferences.qml")
-    }
-
-    RoundButton {
         id: btnInfo
         property bool breathed: false
-        anchors.right: btnPreferences.left
+        anchors.right: btnMin.left
         anchors.verticalCenter: parent.verticalCenter
         display: AbstractButton.IconOnly
         icon.source: "file:" + "Images/warn.svg"

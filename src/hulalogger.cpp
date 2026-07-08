@@ -123,6 +123,11 @@ void HulaLogger::setLogDirectory(const QString &directory)
 
 QString HulaLogger::buildMessageHeader(QtMsgType level, const QMessageLogContext &context) const
 {
+#ifdef QT_DEBUG
+#else
+    Q_UNUSED(context)
+#endif
+
     QString levelStr = levelToString(level);
     QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
 

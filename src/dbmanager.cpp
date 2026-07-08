@@ -1,5 +1,5 @@
 #include "dbmanager.h"
-#include "configer.h"
+#include "messagecenter.h"
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>
@@ -42,13 +42,15 @@ void TransactionGuard::commit()
 
 DbManager::DbManager(QObject *parent) : QObject(parent)
 {
+    MessageCenter *msgCenter = MessageCenter::instance();
+    connect(this, &DbManager::messageEmitted, msgCenter, &MessageCenter::handleMessage);
 }
 
 DbManager::~DbManager()
 {
 }
 
-StatusCode DbManager::connect(const QString &dbname)
+StatusCode DbManager::connectDb(const QString &dbname)
 {
     if (dbname.isEmpty())
     {
@@ -121,7 +123,7 @@ QSqlDatabase *DbManager::getDatabase()
 {
     if (!m_dbList.hasLocalData())
     {
-        StatusCode result = connect(m_dbName);
+        StatusCode result = connectDb(m_dbName);
         if (result != StatusCode::Success)
         {
             return nullptr;
@@ -132,7 +134,7 @@ QSqlDatabase *DbManager::getDatabase()
     if (!db.isOpen())
     {
         // 连接已断开，尝试重新连接
-        StatusCode result = connect(m_dbName);
+        StatusCode result = connectDb(m_dbName);
         if (result != StatusCode::Success)
         {
             return nullptr;
@@ -486,7 +488,7 @@ StatusCode DbManager::bindVariantValue(QSqlQuery &qry, const QList<BindInfo> &bi
 {
     for (const auto &info : bindInfos)
     {
-        QVariant val = info.val;
+        QVariant val = info.value;
         // convert() 会尝试将 val 转换为指定的 metaType，保证类型与数据库字段匹配
         // 如果转换失败，val 会变成无效状态 (Invalid)
         if (!val.convert(info.fieldInfo.metaType))
@@ -621,13 +623,143 @@ int DbManager::appendDatas(QList<QJsonObject> &datas, const QString &tableName, 
     return 0;
 }
 
-int DbManager::execSql(const QString &sql)
+StatusCode DbManager::appendData(const QVariantMap &data, quint64 &newId)
+{
+    // 提取表名
+    QString tableName = data["TableName"].toString();
+    if (tableName.isEmpty())
+    {
+        setLastError(MessageInfo("The table name is empty.", StatusCode::InvalidParameter));
+        return StatusCode::InvalidParameter;
+    }
+
+    // 创建查询副本，移除TableName
+    QVariantMap tmpData = data;
+    tmpData.remove("TableName");
+
+    if (tmpData.isEmpty())
+        return StatusCode::DbNullData;
+
+    const QStringList fields = tmpData.keys();
+    QStringList placeholders;
+    QList<BindInfo> bindInfos;
+
+    // 解析查询条件
+    for (const QString &key : fields)
+    {
+        // 生成唯一的占位符名称
+        QString placeholder = QString(":f_%1").arg(key);
+        placeholders.append(placeholder);
+
+        BindInfo bindInfo;
+        bindInfo.holder = placeholder;
+        bindInfo.value = tmpData[key];
+        bindInfo.fieldInfo = m_dbSchema[tableName][key];
+        // 存储参数值（使用原始key获取值）
+        bindInfos.append(bindInfo);
+    }
+
+    QString sql = QString("INSERT INTO %1 (%2) VALUES (%3)").arg(tableName, fields.join(","), placeholders.join(","));
+    // 执行查询
+    QSqlQuery qry = newQuery();
+    qry.prepare(sql);
+    // 绑定参数
+    StatusCode status = bindVariantValue(qry, bindInfos);
+    if (status != StatusCode::Success)
+    {
+        setLastError(MessageInfo(qry.lastError().text(), status));
+        return status;
+    }
+
+    if (!qry.exec())
+    {
+        setLastError(MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed));
+        return StatusCode::DbExecuteFailed;
+    }
+    newId = qry.lastInsertId().toULongLong();
+    return StatusCode::Success;
+}
+
+StatusCode DbManager::updateData(const QVariantMap &data, const QVariantMap &condData)
+{
+    // 提取表名
+    QString tableName = data["TableName"].toString();
+    if (tableName.isEmpty())
+    {
+        setLastError(MessageInfo("The table name is empty.", StatusCode::InvalidParameter));
+        return StatusCode::InvalidParameter;
+    }
+
+    // 创建查询副本，移除TableName
+    QVariantMap tmpData = data;
+    tmpData.remove("TableName");
+
+    if (tmpData.isEmpty())
+        return StatusCode::DbNullData;
+
+    const QStringList fields = tmpData.keys();
+    QStringList exprs;
+    QList<BindInfo> bindInfos;
+    // 解析更新字段
+    for (const QString &key : fields)
+    {
+        // 生成唯一的占位符名称 (仅占位符，不含字段名和=)
+        QString placeholder = QString(":f_%1").arg(key);
+        // SET 表达式为 "字段名=:占位符"
+        QString setExpr = QString("%1=%2").arg(key, placeholder);
+        exprs.append(setExpr);
+
+        BindInfo bindInfo;
+        bindInfo.holder = placeholder;
+        bindInfo.value = tmpData[key];
+        bindInfo.fieldInfo = m_dbSchema[tableName][key];
+        bindInfos.append(bindInfo);
+    }
+
+    const QStringList condFields = condData.keys();
+    QStringList condExprs;
+    for (const QString &key : condFields)
+    {
+        // 生成唯一的占位符名称 (仅占位符，不含字段名和=)
+        QString placeholder = QString(":f_%1").arg(key);
+        // 条件表达式为 "字段名=:占位符"
+        QString condition = QString("%1=%2").arg(key, placeholder);
+        condExprs.append(condition);
+
+        BindInfo bindInfo;
+        bindInfo.holder = placeholder;
+        bindInfo.value = condData[key];
+        bindInfo.fieldInfo = m_dbSchema[tableName][key];
+        bindInfos.append(bindInfo);
+    }
+
+    QString sql = QString("UPDATE %1 SET %2 WHERE %3").arg(tableName, exprs.join(","), condExprs.join(" AND "));
+    // 执行查询
+    QSqlQuery qry = newQuery();
+    qry.prepare(sql);
+    // 绑定参数
+    StatusCode status = bindVariantValue(qry, bindInfos);
+    if (status != StatusCode::Success)
+    {
+        setLastError(MessageInfo(qry.lastError().text(), status));
+        return status;
+    }
+
+    if (!qry.exec())
+    {
+        setLastError(MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed));
+        return StatusCode::DbExecuteFailed;
+    }
+    return StatusCode::Success;
+}
+
+StatusCode DbManager::execSql(const QString &sql)
 {
     if (sql == "")
     {
         QString errorInfo = "The sql string is empty.";
-        setLastError(MessageInfo(errorInfo, StatusCode::InvalidParameter));
-        return 1;
+        setLastError(MessageInfo(errorInfo, StatusCode::DBSqlNull));
+        return StatusCode::DBSqlNull;
     }
 
     QSqlDatabase *db = getDatabase();
@@ -637,11 +769,11 @@ int DbManager::execSql(const QString &sql)
     if (!qry.exec())
     {
         setLastError(MessageInfo(qry.lastError().text(), StatusCode::DbExecuteFailed));
-        return 1;
+        return StatusCode::DbExecuteFailed;
     }
     qry.finish();
     guard.commit();
-    return 0;
+    return StatusCode::Success;
 }
 
 StatusCode DbManager::getDatas(const QString &sql, QList<QVariantMap> &datas)
@@ -700,7 +832,7 @@ StatusCode DbManager::findDatas(const QVariantMap &data, QList<QVariantMap> &dat
 
     BindInfo bindInfo;
     bindInfo.holder = ":f1";
-    bindInfo.val = val;
+    bindInfo.value = val;
     bindInfo.fieldInfo = m_dbSchema[tableName][fieldName];
     QList<BindInfo> bindInfos;
     bindInfos.append(bindInfo);
@@ -785,7 +917,11 @@ StatusCode DbManager::searchDatas(const QVariantMap &data, QList<QVariantMap> &d
         }
 
         if (!found)
-            continue;
+        {
+            compareOp = "=";
+            opSuffix = "_eq";
+            fieldName = key;
+        }
 
         // 生成唯一的占位符名称
         QString placeholder = QString(":f_%1_%2").arg(fieldName, opSuffix);
@@ -795,7 +931,7 @@ StatusCode DbManager::searchDatas(const QVariantMap &data, QList<QVariantMap> &d
 
         BindInfo bindInfo;
         bindInfo.holder = placeholder;
-        bindInfo.val = condData[key];
+        bindInfo.value = condData[key];
         bindInfo.fieldInfo = m_dbSchema[tableName][fieldName];
         // 存储参数值（使用原始key获取值）
         bindInfos.append(bindInfo);
@@ -941,6 +1077,9 @@ bool DbManager::takeLastError(MessageInfo &msg)
 
 void DbManager::setLastError(const MessageInfo &msg)
 {
+    qCritical() << QString("Error code: %1; %2").arg(static_cast<int>(msg.statusCode)).arg(msg.text);
+    emit messageEmitted(msg);
+
     quint64 id = quint64(QThread::currentThreadId());
     {
         QMutexLocker locker(&m_logMutex);
